@@ -56,6 +56,11 @@ You are going to find minMutFinder useful if you are interested on knowing with 
 <br>
 (4)--> "yes" if you want the muations plot to also contain the Synonymous mutations, "no" if you do not want them in the mutations plot
 
+### Get in touch
+
+To report a bug, error, or feature request, please open an issue.
+
+For questions, email us at ignasi.prats@vhir.org; we're happy to help!
 
 #### References 
 
