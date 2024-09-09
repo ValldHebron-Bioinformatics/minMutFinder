@@ -19,39 +19,27 @@ You are going to find minMutFinder useful if you are interested on knowing with 
 
 ### First of all, you need to have the following programs installed beforehand:
     - python3
+    - nextflow v23.10.1 or higher
     - trimmomatic v0.39 (bioconda)
     - minimap2 v2.26-r1175 (bioconda)
     - lofreq v2.1.5 (bioconda)
     - bcftools v1.17 (bioconda)
+    - samtools v1.18 (htslib v1.17)
 
 ### Also the following python packages:
-    - sys, pandas, re, Bio, os, turtle, plotly, numpy, gzip, shutil, pysam, csv, matplotlib, seaborn
-
-
-#### To do so, do the following:
-    ...commands to make minMutFinder.py an executable file
-
-
-#### Once this is done, execute the following commands in your terminal
-    ...commands to add minMutFinder to the computer environment so it can be executed from any directory
-
+    - os, pandas, sys, csv, gzip, shutil, matplotlib, seaborn, Bio, re, plotly, numpy
 
 ### Now you are ready to execute minMutFinder correctly! 
 
 
 ### Execution:
-    - On versions minMutFinder < v0.9.0
-        - Write on your terminal the following:
-            optional: cd '$path_to_minMutFinder_folder'
-            python3 '$path_to_minMutFinder_folder'/minMutFinder.py 'arguments'
-    - On versions minMutFinder >= v0.9.0
-        - Write on your terminal the following:
-            optional: cd '$path_to_minMutFinder_folder'
-            nextflow run '$path_to_minMutFinder_folder'/minMutFinder.nf 'arguments'
+    - Write on your terminal the following:
+        optional: cd '$path_to_minMutFinder_folder'
+        nextflow run '$path_to_minMutFinder_folder'/minMutFinder.nf 'arguments'
 
 ### Arguments:
-    - path and filename of the reference genome fasta file (1)(2) = -ref-genome
-    - name you want your output to have in the virus column = --out-name
+    - path and filename of the reference genome fasta file (1)(2) = --ref_seq
+    - name you want your output to have in the virus column = --out_path
     - path and filename of the forward fastq compressed file = --r1
     - path and filename of the reverse fastq compressed file = --r2
     - path and filename of the tsv file containing the annotated mutations (3) = --annotate
@@ -64,17 +52,15 @@ You are going to find minMutFinder useful if you are interested on knowing with 
         e.g. '>NC 006273.2 UL96' --> '>NC\_006273\_2\_UL96'
 <br>
 (3)--> The annotated mutation file must be tab separated, and contain a column named 'mutation' with all the different annotated mutations. 
-         This only applies to versions 0.9.0 or higher of minMutFinder.
 <br>
 (4)--> "yes" if you want the muations plot to also contain the Synonymous mutations, "no" if you do not want them in the mutations plot
 
 
 #### References 
 
+    nextflow
     trimmomatic
-    seqtk
     lofreq
-    bowtie2
     bcftools
     samtools
     
