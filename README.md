@@ -7,7 +7,7 @@
 
 ---
 
-# 🎯 **minMutFinder**
+# **minMutFinder**
 
 **Author**: [Ignasi Prats-Méndez](mailto:ignasi.prats@vhir.org)  
 **Supervisor**: Alejandra González-Sánchez  
@@ -16,17 +16,18 @@
 
 ---
 
-## Table of Contents
+## 📜 Table of Contents
 - [🎯 Overview](#overview)
 - [🔍 Features](#features)
 - [🛠 Prerequisites](#prerequisites)
 - [📥 Installation](#installation)
-- [⚙️ How to Run](#how-to-run-minMutFinder)
-- [💡 Arguments](#arguments)
+- [🚀 How to Run](#how-to-run-minMutFinder)
+- [⚙️ Arguments](#arguments)
+- [📝 Notes](#notes)
 - [🔏 License](#license)
-- [🔗 Citing minMutFinder](#citing-minmutfinder)
-- [🚀 Future Work & Limitations](#future-work-and-limitations)
-- [💬 Get in Touch](#get-in-touch)
+- [🖊️ Citing minMutFinder](#citing-minmutfinder)
+- [🔮 Future Work & Limitations](#future-work-and-limitations)
+- [✉️ Get in Touch](#get-in-touch)
 - [📚 References](#references)
 
 ---
@@ -86,7 +87,7 @@ pip install pandas biopython plotly numpy matplotlib seaborn pysam
 
 ---
 
-## ⚙️ How to Run minMutFinder
+## 🚀 How to Run minMutFinder
 
 ```bash
 nextflow run '$path_to_minMutFinder_folder'/minMutFinder.nf --ref_seq <reference.fasta> --out_path <output_name> --r1 <forward_reads.fastq.gz> --r2 <reverse_reads.fastq.gz> --annotate <mutations.tsv> --syn_muts yes
@@ -94,7 +95,7 @@ nextflow run '$path_to_minMutFinder_folder'/minMutFinder.nf --ref_seq <reference
 
 ---
 
-## 💡 Arguments
+## ⚙️ Arguments
 
 - `--ref_seq`: Path and filename of the reference genome FASTA file (1)(2)
 - `--out_path`: Output name for the virus column
@@ -105,13 +106,22 @@ nextflow run '$path_to_minMutFinder_folder'/minMutFinder.nf --ref_seq <reference
 
 ---
 
+## 📝 Notes
+
+1. The reference genome must contain the coding sequences (CDS) of the proteins. If there are multiple proteins, they should be separated in the FASTA file.
+2. FASTA headers must use underscores (`_`) between words. For example: `>NC_006273_2_UL96`.
+3. The annotated mutation file should be tab-separated and contain a column named `mutation` for annotated mutations.
+4. Use "yes" to include synonymous mutations in the output plot, or "no" to exclude them (default).
+
+---
+
 ## 🔏 License
 
 This project, **minMutFinder**, is licensed under the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.html). You are free to use, modify, and distribute this software under the terms of this license. For more details, refer to the [LICENSE](./LICENSE) file.
 
 ---
 
-## 🔗 Citing minMutFinder
+## 🖊️ Citing minMutFinder
 
 A research paper on **minMutFinder** is currently in progress. In the meantime, please cite this GitHub repository as follows:
 
@@ -121,7 +131,7 @@ Currently, **minMutFinder** has been tested with viral datasets. Future developm
 
 ---
 
-## 🚀 Future Work and Limitations
+## 🔮 Future Work and Limitations
 
 ### Current Thresholds:
 - **Allele Frequency (AF) ≥ 5%**
@@ -132,7 +142,7 @@ Currently, **minMutFinder** has been tested with viral datasets. Future developm
 
 ---
 
-## 💬 Get in Touch
+## ✉️ Get in Touch
 
 If you encounter any issues, have feature requests, or need assistance, feel free to reach out:
 
