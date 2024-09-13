@@ -114,7 +114,7 @@ This project, **minMutFinder**, is licensed under the [GNU General Public Licens
 
 If you encounter any issues, have feature requests, or need assistance, feel free to reach out:
 
-- **Open an issue** directly in this repository by clicking [here](https://github.com/yourusername/minMutFinder/issues).
+- **Open an issue** directly in this repository by clicking [here](https://github.com/ValldHebron-Bioinformatics/minMutFinder/issues).
 - **Email us** at [ignasi.prats@vhir.org](mailto:ignasi.prats@vhir.org).
 
 We're always happy to help!
