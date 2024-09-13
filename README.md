@@ -24,6 +24,7 @@
 - [How to Run](#how-to-run-minMutFinder)
 - [Arguments](#arguments)
 - [License](#license)
+- [Future Work & Limitations](#future-work-and-limitations)
 - [Get in Touch](#get-in-touch)
 - [References](#references)
 
@@ -109,6 +110,17 @@ This project, **minMutFinder**, is licensed under the [GNU General Public Licens
 
 ---
 
+## Future Work and Limitations
+
+Currently, **minMutFinder** works with predefined thresholds of:
+- **Allele Frequency (AF) ≥ 5%**
+- **Read depth per nucleotide position ≥ 20**
+
+### Future Improvements:
+- In future versions, **minMutFinder** will be able to work directly from user-provided VCF files along with SAM/BAM files. This will significantly reduce runtime by skipping the first step of quality control, mapping, and variant calling.
+
+---
+
 ## Get in Touch
 
 If you encounter any issues, have feature requests, or need assistance, feel free to reach out:
@@ -125,8 +137,8 @@ We're always happy to help!
 - [Nextflow](https://www.nextflow.io/)
 - [Python](https://www.python.org/)
 - [Bioconda](https://bioconda.github.io/)
-- [Samtools](http://www.htslib.org/)
 - [Minimap2](https://github.com/lh3/minimap2)
 - [Trimmomatic](http://www.usadellab.org/cms/?page=trimmomatic)
 - [Lofreq](https://csb5.github.io/lofreq/)
 - [Bcftools](http://samtools.github.io/bcftools/bcftools.html)
+- [Samtools](http://www.htslib.org/)
