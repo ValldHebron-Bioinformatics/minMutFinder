@@ -71,7 +71,7 @@ os, pandas, sys, csv, gzip, shutil, matplotlib, seaborn, Bio, re, plotly, numpy
 
 ### Step 1: Clone the Repository
 ```bash
-git clone https://github.com/yourusername/minMutFinder.git
+git clone https://github.com/ValldHebron-Bioinformatics/minMutFinder.git
 cd minMutFinder
 ```
 
@@ -115,7 +115,7 @@ This project, **minMutFinder**, is licensed under the [GNU General Public Licens
 
 A research paper on **minMutFinder** is currently in progress. In the meantime, please cite this GitHub repository as follows:
 
-> Prats-Méndez I. **minMutFinder**: Minority Mutations Finder. 2024. Available from: https://github.com/yourusername/minMutFinder
+> Prats-Méndez I. **minMutFinder**: Minority Mutations Finder. 2024. Available from: https://github.com/ValldHebron-Bioinformatics/minMutFinder
 
 Currently, **minMutFinder** has been tested with viral datasets. In future developments, it will be expanded to handle bacterial datasets and larger organisms. Additionally, there are plans to explore its application in oncologic data for cancer research.
 
@@ -136,7 +136,7 @@ Currently, **minMutFinder** works with predefined thresholds of:
 
 If you encounter any issues, have feature requests, or need assistance, feel free to reach out:
 
-- **Open an issue** directly in this repository by clicking [here](https://github.com/yourusername/minMutFinder/issues).
+- **Open an issue** directly in this repository by clicking [here](https://github.com/ValldHebron-Bioinformatics/minMutFinder/issues).
 - **Email us** at [ignasi.prats@vhir.org](mailto:ignasi.prats@vhir.org).
 
 We're always happy to help!
