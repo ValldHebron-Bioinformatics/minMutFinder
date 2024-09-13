@@ -123,7 +123,10 @@ We're always happy to help!
 ## References
 
 - [Nextflow](https://www.nextflow.io/)
+- [Python](https://www.python.org/)
+- [Bioconda](https://bioconda.github.io/)
+- [Samtools](http://www.htslib.org/)
+- [Minimap2](https://github.com/lh3/minimap2)
 - [Trimmomatic](http://www.usadellab.org/cms/?page=trimmomatic)
 - [Lofreq](https://csb5.github.io/lofreq/)
 - [Bcftools](http://samtools.github.io/bcftools/bcftools.html)
-- [Samtools](http://www.htslib.org/)
