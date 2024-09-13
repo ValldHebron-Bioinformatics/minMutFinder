@@ -24,6 +24,7 @@
 - [How to Run](#how-to-run-minMutFinder)
 - [Arguments](#arguments)
 - [License](#license)
+- [Citing minMutFinder](#citing-minmutfinder)
 - [Future Work & Limitations](#future-work-and-limitations)
 - [Get in Touch](#get-in-touch)
 - [References](#references)
@@ -107,6 +108,16 @@ nextflow run '$path_to_minMutFinder_folder'/minMutFinder.nf --ref_seq <reference
 ## License
 
 This project, **minMutFinder**, is licensed under the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.html). You are free to use, modify, and distribute this software under the terms of this license. For more details, refer to the [LICENSE](./LICENSE) file.
+
+---
+
+## Citing minMutFinder
+
+A research paper on **minMutFinder** is currently in progress. In the meantime, please cite this GitHub repository as follows:
+
+> Prats-Méndez I. **minMutFinder**: Minority Mutations Finder. 2024. Available from: https://github.com/yourusername/minMutFinder
+
+Currently, **minMutFinder** has been tested with viral datasets. In future developments, it will be expanded to handle bacterial datasets and larger organisms. Additionally, there are plans to explore its application in oncologic data for cancer research.
 
 ---
 
