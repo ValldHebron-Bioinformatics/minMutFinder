@@ -1,41 +1,54 @@
-![Static Badge](https://img.shields.io/badge/Version-Pre--Release-blue)    ![Static Badge](https://img.shields.io/badge/License-GPL_V3-green)
+![Version](https://img.shields.io/badge/Version-Pre--Release-blue)    ![License](https://img.shields.io/badge/License-GPL_V3-green)
+
+# **minMutFinder**
+
+### Author: Ignasi Prats-Méndez  
+### Supervisor: Alejandra González-Sánchez  
+### Institution: HUVH && VHIR  
+### Group: Servei de Microbiologia - Unitat de Virus Respiratoris  
 
 ---
-Title: minMutFinder
 
-Author: Ignasi Prats-Méndez
+## **Introduction**
+Welcome to **minMutFinder** – a powerful tool designed to accurately detect and characterise minority mutations within population variants from Fastq files. If you're looking for a tool that ensures precision by accounting for multiple nucleotide changes within the same codon, **minMutFinder** is the solution you need. The tool also provides comprehensive metrics for your sequences.
 
-Supervisor: Alejandra González-Sánchez
+---
 
-Institution: HUVH && VHIR
+## **Features**
+- **Accurate Minority Mutation Detection**: Detect mutations even at low frequencies with high confidence.
+- **Codon-Aware Analysis**: Handles multiple nucleotide mutations within the same codon.
+- **Comprehensive Metrics**: Offers detailed sequence metrics for thorough analysis.
 
-Group: Servei de Microbiologia - Unitat de Virus Respiratoris
+---
 
----       
+## **Installation Requirements**
 
-## Welcome to minMutFinder and thanks for using our minority mutations from population variants finder!
+### **Prerequisite Programs** (please ensure the following are installed):
+- `python3`
+- `trimmomatic v0.39` (via Bioconda)
+- `minimap2 v2.26-r1175` (via Bioconda)
+- `lofreq v2.1.5` (via Bioconda)
+- `bcftools v1.17` (via Bioconda)
 
-You are going to find minMutFinder useful if you are interested on knowing with certainty and accuracy which minority mutations are found in your reads. This tool goes further than most tools, by taking into account the possibility that two different nucleotidic mutations might be situated in the same codon. Moreover, it provides multiple metrics regarding your sequences.
+### **Required Python Packages**:
+- `sys`, `pandas`, `re`, `Bio`, `os`, `turtle`, `plotly`, `numpy`, `gzip`, `shutil`, `pysam`, `csv`, `matplotlib`, `seaborn`
 
-### First of all, you need to have the following programs installed beforehand:
-    - python3
-    - trimmomatic v0.39 (bioconda)
-    - minimap2 v2.26-r1175 (bioconda)
-    - lofreq v2.1.5 (bioconda)
-    - bcftools v1.17 (bioconda)
+---
 
-### Also the following python packages:
-    - sys, pandas, re, Bio, os, turtle, plotly, numpy, gzip, shutil, pysam, csv, matplotlib, seaborn
+## **Usage**
 
-### Execution:
-    - On versions minMutFinder < v0.9.0 or == PYSH 
-        - Write on your terminal the following:
-            optional: cd '$path_to_minMutFinder_folder'
-            python3 '$path_to_minMutFinder_folder'/minMutFinder.py 'arguments'
-    - On versions minMutFinder >= v0.9.0
-        - Write on your terminal the following:
-            optional: cd '$path_to_minMutFinder_folder'
-            nextflow run '$path_to_minMutFinder_folder'/minMutFinder.nf 'arguments'
+### **Execution**
+
+#### For minMutFinder versions `< v0.9.0` or `== PYSH`:
+```bash
+cd '$path_to_minMutFinder_folder' # optional
+python3 '$path_to_minMutFinder_folder'/minMutFinder.py 'arguments'
+```
+#### For minMutFinder versions `>= v0.9.0`:
+```bash
+cd '$path_to_minMutFinder_folder' # optional
+nextflow run '$path_to_minMutFinder_folder'/minMutFinder.nf 'arguments'
+```
 
 ### Arguments:
     - path and filename of the reference genome fasta file (1)(2) = -ref-genome
