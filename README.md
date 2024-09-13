@@ -1,5 +1,5 @@
 
-![Version](https://img.shields.io/badge/Version-Pre--Release-blue) ![License](https://img.shields.io/badge/License-GPL_V3-green)
+![Version](https://img.shields.io/badge/Version-Pre--Release-blue) ![License](https://img.shields.io/badge/License-GPL_V3-green)  
 
 <p align="center">
   <img src="https://your-logo-url-here.com/logo.png" alt="minMutFinder Logo" width="200">
@@ -16,7 +16,7 @@
 
 ---
 
-## Table of Contents
+## 📜 Table of Contents
 - [Overview](#overview)
 - [Features](#features)
 - [Prerequisites](#prerequisites)
@@ -31,21 +31,21 @@
 
 ---
 
-## Overview
+## 🌟 Overview
 
 **minMutFinder** is a bioinformatics tool designed to help you find minority mutations in population variants with precision and accuracy. It goes beyond conventional tools by considering the possibility of multiple nucleotide mutations within the same codon. Additionally, it provides detailed metrics regarding your sequences.
 
 ---
 
-## Features
+## 🧬 Features
 
-- 🧬 **Advanced Mutation Detection**: Identifies minority mutations while accounting for multiple nucleotide changes within a single codon.
-- 📊 **Comprehensive Analysis**: Provides detailed metrics and plots for a thorough understanding of your sequences.
-- 🔧 **Customizable**: Tailored to support various versions and annotated mutations for enhanced flexibility.
+- **Advanced Mutation Detection**: Identifies minority mutations while accounting for multiple nucleotide changes within a single codon.
+- **Comprehensive Analysis**: Provides detailed metrics and plots for a thorough understanding of your sequences.
+- **Customizable**: Tailored to support various versions and annotated mutations for enhanced flexibility.
 
 ---
 
-## Prerequisites
+## ⚙️ Prerequisites
 
 Before using **minMutFinder**, ensure the following programs are installed:
 
@@ -60,14 +60,14 @@ Before using **minMutFinder**, ensure the following programs are installed:
 | **Bcftools**  | 1.17    | [Bioconda](https://bioconda.github.io/) |
 | **Samtools**  | 1.18    | [Bioconda](https://bioconda.github.io/) |
 
-### Python Packages
+### Required Python Packages
 ```
 os, pandas, sys, csv, gzip, shutil, matplotlib, seaborn, Bio, re, plotly, numpy
 ```
 
 ---
 
-## Installation
+## 🛠️ Installation
 
 ### Step 1: Clone the Repository
 ```bash
@@ -86,7 +86,7 @@ pip install pandas biopython plotly numpy matplotlib seaborn pysam
 
 ---
 
-## How to Run minMutFinder
+## 🚀 How to Run minMutFinder
 
 ```bash
 nextflow run '$path_to_minMutFinder_folder'/minMutFinder.nf --ref_seq <reference.fasta> --out_path <output_name> --r1 <forward_reads.fastq.gz> --r2 <reverse_reads.fastq.gz> --annotate <mutations.tsv> --syn_muts yes
@@ -94,7 +94,7 @@ nextflow run '$path_to_minMutFinder_folder'/minMutFinder.nf --ref_seq <reference
 
 ---
 
-## Arguments
+## ⚙️ Arguments
 
 - `--ref_seq`: Path and filename of the reference genome FASTA file (1)(2)
 - `--out_path`: Output name for the virus column
@@ -105,13 +105,13 @@ nextflow run '$path_to_minMutFinder_folder'/minMutFinder.nf --ref_seq <reference
 
 ---
 
-## License
+## 📄 License
 
 This project, **minMutFinder**, is licensed under the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.html). You are free to use, modify, and distribute this software under the terms of this license. For more details, refer to the [LICENSE](./LICENSE) file.
 
 ---
 
-## Citing minMutFinder
+## 🖊️ Citing minMutFinder
 
 A research paper on **minMutFinder** is currently in progress. In the meantime, please cite this GitHub repository as follows:
 
@@ -121,7 +121,7 @@ Currently, **minMutFinder** has been tested with viral datasets. In future devel
 
 ---
 
-## Future Work and Limitations
+## 🔮 Future Work and Limitations
 
 Currently, **minMutFinder** works with predefined thresholds of:
 - **Allele Frequency (AF) ≥ 5%**
@@ -132,7 +132,7 @@ Currently, **minMutFinder** works with predefined thresholds of:
 
 ---
 
-## Get in Touch
+## ✉️ Get in Touch
 
 If you encounter any issues, have feature requests, or need assistance, feel free to reach out:
 
@@ -143,7 +143,7 @@ We're always happy to help!
 
 ---
 
-## References
+## 📚 References
 
 - [Nextflow](https://www.nextflow.io/)
 - [Python](https://www.python.org/)
