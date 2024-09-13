@@ -23,7 +23,6 @@
 - [📥 Installation](#installation)
 - [🚀 How to Run](#how-to-run-minMutFinder)
 - [⚙️ Arguments](#arguments)
-- [📝 Notes](#notes)
 - [🔏 License](#license)
 - [🖊️ Citing minMutFinder](#citing-minmutfinder)
 - [🔮 Future Work & Limitations](#future-work-and-limitations)
@@ -104,14 +103,13 @@ nextflow run '$path_to_minMutFinder_folder'/minMutFinder.nf --ref_seq <reference
 - `--annotate`: Path and filename of the TSV file containing the annotated mutations (3)
 - `--syn_muts`: "yes" or "no", depending on whether to include synonymous mutations in the output plot (default is "no") (4)
 
----
 
-## 📝 Notes
+### 📝 Notes
 
-1. The reference genome must contain the coding sequences (CDS) of the proteins. If there are multiple proteins, they should be separated in the FASTA file.
-2. FASTA headers must use underscores (`_`) between words. For example: `>NC_006273_2_UL96`.
-3. The annotated mutation file should be tab-separated and contain a column named `mutation` for annotated mutations.
-4. Use "yes" to include synonymous mutations in the output plot, or "no" to exclude them (default).
+  1. The reference genome must contain the coding sequences (CDS) of the proteins. If there are multiple proteins, they should be separated in the FASTA file.
+  2. FASTA headers must use underscores (`_`) between words. For example: `>NC_006273_2_UL96`.
+  3. The annotated mutation file should be tab-separated and contain a column named `mutation` for annotated mutations.
+  4. Use "yes" to include synonymous mutations in the output plot, or "no" to exclude them (default).
 
 ---
 
