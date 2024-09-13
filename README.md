@@ -112,7 +112,12 @@ This project, **minMutFinder**, is licensed under the [GNU General Public Licens
 
 ## Get in Touch
 
-If you encounter any bugs, errors, or have feature requests, please open an issue. For any questions or assistance, feel free to email us at [ignasi.prats@vhir.org](mailto:ignasi.prats@vhir.org).
+If you encounter any issues, have feature requests, or need assistance, feel free to reach out:
+
+- **Open an issue** directly in this repository by clicking [here](https://github.com/yourusername/minMutFinder/issues).
+- **Email us** at [ignasi.prats@vhir.org](mailto:ignasi.prats@vhir.org).
+
+We're always happy to help!
 
 ---
 
