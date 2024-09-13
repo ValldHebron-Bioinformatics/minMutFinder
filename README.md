@@ -1,29 +1,45 @@
 
-![Static Badge](https://img.shields.io/badge/Version-Pre--Release-blue)    ![Static Badge](https://img.shields.io/badge/License-GPL_V3-green)
+![Version](https://img.shields.io/badge/Version-Pre--Release-blue) ![License](https://img.shields.io/badge/License-GPL_V3-green)
+
+<p align="center">
+  <img src="https://your-logo-url-here.com/logo.png" alt="minMutFinder Logo" width="200">
+</p>
 
 ---
+
 # minMutFinder
 
-**Author**: Ignasi Prats-Méndez  
+**Author**: [Ignasi Prats-Méndez](mailto:ignasi.prats@vhir.org)  
 **Supervisor**: Alejandra González-Sánchez  
 **Institution**: HUVH & VHIR  
 **Group**: Servei de Microbiologia - Unitat de Virus Respiratoris  
 
 ---
 
+## Table of Contents
+- [Overview](#overview)
+- [Features](#features)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [How to Run](#how-to-run-minMutFinder)
+- [Arguments](#arguments)
+- [License](#license)
+- [Get in Touch](#get-in-touch)
+- [References](#references)
+
+---
+
 ## Overview
 
-Welcome to **minMutFinder**, a bioinformatics tool designed to help you find minority mutations in population variants with precision and accuracy. It goes beyond conventional tools by considering the possibility of multiple nucleotide mutations within the same codon. Additionally, it provides detailed metrics regarding your sequences.
-
-If you’re working on viral population data or any genomic dataset, **minMutFinder** can help you achieve deeper insights into minority mutations with a user-friendly and accurate approach.
+**minMutFinder** is a bioinformatics tool designed to help you find minority mutations in population variants with precision and accuracy. It goes beyond conventional tools by considering the possibility of multiple nucleotide mutations within the same codon. Additionally, it provides detailed metrics regarding your sequences.
 
 ---
 
 ## Features
 
-- **Advanced Mutation Detection**: Identifies minority mutations while accounting for multiple nucleotide changes within a single codon.
-- **Comprehensive Analysis**: Provides detailed metrics and plots for a thorough understanding of your sequences.
-- **Customizable**: Tailored to support various versions and annotated mutations for enhanced flexibility.
+- 🧬 **Advanced Mutation Detection**: Identifies minority mutations while accounting for multiple nucleotide changes within a single codon.
+- 📊 **Comprehensive Analysis**: Provides detailed metrics and plots for a thorough understanding of your sequences.
+- 🔧 **Customizable**: Tailored to support various versions and annotated mutations for enhanced flexibility.
 
 ---
 
@@ -32,32 +48,32 @@ If you’re working on viral population data or any genomic dataset, **minMutFin
 Before using **minMutFinder**, ensure the following programs are installed:
 
 ### Required Software
+| Software      | Version | Installation |
+| ------------- | ------- | ------------ |
+| **Nextflow**  | 23.10.1 or higher | [Install](https://www.nextflow.io/) |
+| **Python**    | 3.x    |  |
+| **Trimmomatic** | 0.39   | [Bioconda](https://bioconda.github.io/) |
+| **Minimap2**  | 2.26    | [Bioconda](https://bioconda.github.io/) |
+| **Lofreq**    | 2.1.5   | [Bioconda](https://bioconda.github.io/) |
+| **Bcftools**  | 1.17    | [Bioconda](https://bioconda.github.io/) |
+| **Samtools**  | 1.18    | [Bioconda](https://bioconda.github.io/) |
 
-- **python3**
-- **nextflow** v23.10.1 or higher (Installation instructions can be found [here](https://www.nextflow.io/))
-- **trimmomatic** v0.39 (via bioconda)
-- **minimap2** v2.26-r1175 (via bioconda)
-- **lofreq** v2.1.5 (via bioconda)
-- **bcftools** v1.17 (via bioconda)
-- **samtools** v1.18 (htslib v1.17)
-
-### Required Python Packages
-
-- `os`, `pandas`, `sys`, `csv`, `gzip`, `shutil`, `matplotlib`, `seaborn`, `Bio`, `re`, `plotly`, `numpy`
+### Python Packages
+```
+os, pandas, sys, csv, gzip, shutil, matplotlib, seaborn, Bio, re, plotly, numpy
+```
 
 ---
 
 ## Installation
 
-Clone the repository to your local machine:
-
+### Step 1: Clone the Repository
 ```bash
 git clone https://github.com/yourusername/minMutFinder.git
 cd minMutFinder
 ```
 
-Ensure all dependencies are installed via **conda** or **pip**:
-
+### Step 2: Install Dependencies
 ```bash
 # Install bioconda dependencies
 conda install -c bioconda trimmomatic minimap2 lofreq bcftools samtools
@@ -70,37 +86,20 @@ pip install pandas biopython plotly numpy matplotlib seaborn pysam
 
 ## How to Run minMutFinder
 
-To execute **minMutFinder**, follow these steps:
-
-1. **Navigate to the minMutFinder folder** (optional):  
-   ```bash
-   cd '$path_to_minMutFinder_folder'
-   ```
-
-2. **Run minMutFinder using Nextflow**:  
-   ```bash
-   nextflow run '$path_to_minMutFinder_folder'/minMutFinder.nf --ref_seq <reference.fasta> --out_path <output_name> --r1 <forward_reads.fastq.gz> --r2 <reverse_reads.fastq.gz> --annotate <mutations.tsv> --syn_muts yes
-   ```
+```bash
+nextflow run '$path_to_minMutFinder_folder'/minMutFinder.nf --ref_seq <reference.fasta> --out_path <output_name> --r1 <forward_reads.fastq.gz> --r2 <reverse_reads.fastq.gz> --annotate <mutations.tsv> --syn_muts yes
+```
 
 ---
 
-### Arguments
+## Arguments
 
-- **`--ref_seq`**: Path and filename of the reference genome FASTA file (1)(2)
-- **`--out_path`**: Output name for the virus column
-- **`--r1`**: Path and filename of the forward FASTQ compressed file
-- **`--r2`**: Path and filename of the reverse FASTQ compressed file
-- **`--annotate`**: Path and filename of the TSV file containing the annotated mutations (3)
-- **`--syn_muts`**: "yes" or "no", depending on whether to include synonymous mutations in the output plot (default is "no") (4)
-
----
-
-### Notes
-
-1. The reference genome must contain the coding sequences (CDS) of the proteins. If there are multiple proteins, they should be separated in the FASTA file.
-2. FASTA headers must use underscores (`_`) between words. For example: `>NC_006273_2_UL96`.
-3. The annotated mutation file should be tab-separated and contain a column named `mutation` for annotated mutations.
-4. Use "yes" to include synonymous mutations in the output plot, or "no" to exclude them (default).
+- `--ref_seq`: Path and filename of the reference genome FASTA file (1)(2)
+- `--out_path`: Output name for the virus column
+- `--r1`: Path and filename of the forward FASTQ compressed file
+- `--r2`: Path and filename of the reverse FASTQ compressed file
+- `--annotate`: Path and filename of the TSV file containing the annotated mutations (3)
+- `--syn_muts`: "yes" or "no", depending on whether to include synonymous mutations in the output plot (default is "no") (4)
 
 ---
 
@@ -114,7 +113,7 @@ This project, **minMutFinder**, is licensed under the [GNU General Public Licens
 
 If you encounter any issues, have feature requests, or need assistance, feel free to reach out:
 
-- **Open an issue** directly in this repository by clicking [here](https://github.com/ValldHebron-Bioinformatics/minMutFinder/issues).
+- **Open an issue** directly in this repository by clicking [here](https://github.com/yourusername/minMutFinder/issues).
 - **Email us** at [ignasi.prats@vhir.org](mailto:ignasi.prats@vhir.org).
 
 We're always happy to help!
