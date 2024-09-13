@@ -34,7 +34,7 @@ Before using **minMutFinder**, ensure the following programs are installed:
 ### Required Software
 
 - **python3**
-- **nextflow** v23.10.1 or higher
+- **nextflow** v23.10.1 or higher (Installation instructions can be found [here](https://www.nextflow.io/))
 - **trimmomatic** v0.39 (via bioconda)
 - **minimap2** v2.26-r1175 (via bioconda)
 - **lofreq** v2.1.5 (via bioconda)
@@ -47,25 +47,24 @@ Before using **minMutFinder**, ensure the following programs are installed:
 
 ---
 
-## Installing Nextflow
+## Installation
 
-To install Nextflow, use the following commands:
+Clone the repository to your local machine:
 
 ```bash
-# Download Nextflow
-curl -s https://get.nextflow.io | bash
-
-# Move it to a directory in your PATH
-mv nextflow ~/bin/
-
-# Make Nextflow executable
-chmod +x ~/bin/nextflow
-
-# Verify the installation
-nextflow -version
+git clone https://github.com/yourusername/minMutFinder.git
+cd minMutFinder
 ```
 
-Ensure that you have **Nextflow v23.10.1 or higher**.
+Ensure all dependencies are installed via **conda** or **pip**:
+
+```bash
+# Install bioconda dependencies
+conda install -c bioconda trimmomatic minimap2 lofreq bcftools samtools
+
+# Install Python dependencies
+pip install pandas biopython plotly numpy matplotlib seaborn pysam
+```
 
 ---
 
