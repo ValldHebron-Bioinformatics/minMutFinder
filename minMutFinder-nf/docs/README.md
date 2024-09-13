@@ -55,6 +55,12 @@ You are going to find minMutFinder useful if you are interested on knowing with 
 <br>
 (4)--> "yes" if you want the muations plot to also contain the Synonymous mutations, "no" if you do not want them in the mutations plot
 
+### License
+
+This project, **minMutFinder**, is licensed under the terms of the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.html).
+
+You are free to use, modify, and distribute this software under the terms of the GPL-3.0 license. For more details, please refer to the [LICENSE](./LICENSE) file.
+
 
 #### References 
 
