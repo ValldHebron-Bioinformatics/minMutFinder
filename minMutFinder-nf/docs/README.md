@@ -61,6 +61,11 @@ This project, **minMutFinder**, is licensed under the terms of the [GNU General 
 
 You are free to use, modify, and distribute this software under the terms of the GPL-3.0 license. For more details, please refer to the [LICENSE](./LICENSE) file.
 
+### Get in touch
+
+To report a bug, error, or feature request, please open an issue.
+
+For questions, email us at ignasi.prats@vhir.org; we're happy to help!
 
 #### References 
 
