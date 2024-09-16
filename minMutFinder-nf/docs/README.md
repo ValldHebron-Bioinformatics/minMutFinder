@@ -125,8 +125,6 @@ A research paper on **minMutFinder** is currently in progress. In the meantime, 
 
 > Prats-Méndez I. **minMutFinder**: Minority Mutations Finder. 2024. Available from: https://github.com/ValldHebron-Bioinformatics/minMutFinder
 
-Currently, **minMutFinder** has been tested with viral datasets. Future developments will expand its capabilities to handle bacterial datasets and larger organisms. There are also plans to explore its potential in oncologic research for cancer datasets.
-
 ---
 
 ## 🔮 Future Work and Limitations
@@ -137,6 +135,7 @@ Currently, **minMutFinder** has been tested with viral datasets. Future developm
 
 ### Future Improvements:
 - Support for user-provided VCF files along with SAM/BAM files, skipping the initial quality control, mapping, and variant calling steps.
+- Currently, **minMutFinder** has been tested with viral datasets. Future developments will expand its capabilities to handle bacterial datasets and larger organisms. There are also plans to explore its potential in oncologic research for cancer datasets.
 
 ---
 
