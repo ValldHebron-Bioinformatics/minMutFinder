@@ -1,10 +1,6 @@
 
 ![Version](https://img.shields.io/badge/Version-1.0.0-blue) ![License](https://img.shields.io/badge/License-GPL_V3-green)
 
-<p align="center">
-  <img src="https://your-logo-url-here.com/logo.png" alt="minMutFinder Logo" width="200">
-</p>
-
 ---
 
 # **minMutFinder**
