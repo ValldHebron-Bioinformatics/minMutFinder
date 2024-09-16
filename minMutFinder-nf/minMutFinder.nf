@@ -1,3 +1,5 @@
+#!/usr/bin/env nextflow
+
 // This file is part of minMutFinder.
 //
 // minMutFinder is free software: you can redistribute it and/or modify
@@ -14,8 +16,6 @@
 // along with minMutFinder. If not, see <https://www.gnu.org/licenses/>.
 //
 // Copyright (C) 2024 Ignasi Prats Méndez
-
-#!/usr/bin/env nextflow
 
 include { dirCreator; refCheck } from './modules/initialization'
 include { fastqProcessing; mapping1; variant_calling; read_depth; mapping2; reads_qc_plot } from './modules/from_fq_to_vcf'
