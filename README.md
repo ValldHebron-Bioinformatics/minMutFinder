@@ -48,7 +48,8 @@ Ensure the following programs are installed:
 | Software      | Version | Installation |
 | ------------- | ------- | ------------ |
 | **Nextflow**  | 23.10.1 or higher | [Install](https://www.nextflow.io/) |
-| **Python**    | 3.x    |  |
+| **Python**    | 3.9    |  |
+| **libgcc-ng** | 12 or higher | [conda-forge](https://conda-forge.org/) |
 | **Trimmomatic** | 0.39   | [Bioconda](https://bioconda.github.io/) |
 | **Minimap2**  | 2.26    | [Bioconda](https://bioconda.github.io/) |
 | **Lofreq**    | 2.1.5   | [Bioconda](https://bioconda.github.io/) |
@@ -72,6 +73,9 @@ cd minMutFinder
 
 ### Step 2: Install Dependencies
 ```bash
+# Install conda-forge dependencies
+conda install -c conda-forge libgcc-ng>=12
+
 # Install bioconda dependencies
 conda install -c bioconda trimmomatic minimap2 lofreq bcftools samtools
 
