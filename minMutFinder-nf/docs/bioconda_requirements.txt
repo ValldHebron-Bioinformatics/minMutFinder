@@ -1,0 +1,9 @@
+# bioconda_requirements.txt
+
+# conda dependencies
+minimap2=2.26
+htslib=1.17
+bcftools=1.17
+samtools=1.18
+trimmomatic=0.39
+lofreq=2.1.5=py39hb7ef6d5_10
