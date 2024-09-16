@@ -77,10 +77,10 @@ cd minMutFinder
 conda install -c conda-forge libgcc-ng>=12
 
 # Install bioconda dependencies
-conda install -c bioconda trimmomatic minimap2 lofreq bcftools samtools
+conda install -c bioconda minimap2=2.26 htslib=1.17 bcftools=1.17 samtools=1.18 trimmomatic=0.39 lofreq=2.1.5=py39hb7ef6d5_10
 
 # Install Python dependencies
-pip install pandas biopython plotly numpy matplotlib seaborn pysam
+pip install pandas>=2.1.4 Bio>=1.5.9 plotly>=5.18.0 numpy>=1.26.2 pysam>=0.21.0 matplotlib>=3.8.2 seaborn>=0.13.0
 ```
 
 ---
