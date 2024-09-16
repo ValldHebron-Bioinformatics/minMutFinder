@@ -47,7 +47,7 @@ Ensure the following programs are installed:
 ### Required Software
 | Software      | Version | Installation |
 | ------------- | ------- | ------------ |
-| **Nextflow**  | 23.10.1 or higher | [Install](https://www.nextflow.io/) |
+| **Nextflow**  | 23.10.1 or higher | [Install](https://www.nextflow.io/docs/latest/install.html) |
 | **Python**    | 3.9    |  |
 | **libgcc-ng** | 12 or higher | [conda-forge](https://conda-forge.org/) |
 | **Trimmomatic** | 0.39   | [Bioconda](https://bioconda.github.io/) |
