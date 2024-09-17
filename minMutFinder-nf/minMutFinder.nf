@@ -34,16 +34,13 @@ def helpMessage()
 {
 	log.info"""
 
-![Version](https://img.shields.io/badge/Version-1.0.0-blue) ![License](https://img.shields.io/badge/License-GPL_V3-green)
+    minMutFinder v1.0.0 under License GPL_V3
 
-# **minMutFinder**
+Author: Ignasi Prats-Méndez
+Supervisor: Alejandra González-Sánchez  
+Institution: HUVH & VHIR  
+Group: Servei de Microbiologia - Unitat de Virus Respiratoris  
 
-**Author**: [Ignasi Prats-Méndez](mailto:ignasi.prats@vhir.org)  
-**Supervisor**: Alejandra González-Sánchez  
-**Institution**: HUVH & VHIR  
-**Group**: Servei de Microbiologia - Unitat de Virus Respiratoris  
-
----
 
 ## 📜 Table of Contents
 - [🎯 Overview](#-overview)
@@ -59,7 +56,6 @@ def helpMessage()
 - [✉️ Get in Touch](#-get-in-touch)
 - [📚 References](#-references)
 
----
 
 ## 🎯 Overview
 
