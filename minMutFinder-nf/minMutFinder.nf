@@ -34,7 +34,7 @@ def helpMessage()
 {
 	log.info"""
 
-    minMutFinder v1.0.0 under License GPL_V3
+    minMutFinder v1.0.0 under GPL-3.0 license
 
 Author: Ignasi Prats-Méndez
 Supervisor: Alejandra González-Sánchez  
