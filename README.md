@@ -3,13 +3,6 @@
 
 # **minMutFinder**
 
-**Author**: [Ignasi Prats-Méndez](mailto:ignasi.prats@vhir.org)  
-**Supervisor**: Alejandra González-Sánchez  
-**Institution**: HUVH & VHIR  
-**Group**: Servei de Microbiologia - Unitat de Virus Respiratoris  
-
----
-
 ## 📜 Table of Contents
 - [🎯 Overview](#-overview)
 - [🔍 Features](#-features)
