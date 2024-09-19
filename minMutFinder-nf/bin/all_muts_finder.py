@@ -19,7 +19,6 @@
 
 from replacer_vcm import replacer_vcm
 
-
 def all_muts_finder(alone_mut, r, codon_dic, muts_list):
     for nt in r:
         for c in codon_dic[nt]:
