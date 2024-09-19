@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # This file is part of minMutFinder.
 #
 # minMutFinder is free software: you can redistribute it and/or modify
@@ -14,9 +16,6 @@
 # along with minMutFinder. If not, see <https://www.gnu.org/licenses/>.
 #
 # Copyright (C) 2024 Ignasi Prats Méndez
-
-#!/usr/bin/env python3
-
 
 def read_count(R1f, R2f):
     r1r = 0
