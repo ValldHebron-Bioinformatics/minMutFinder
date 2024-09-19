@@ -21,7 +21,6 @@ import pandas as pd
 import re
 from cigar_remove import cigar_remove
 
-
 def reads_assembler(samfile, all_fastas):
     print('Beginning reads assembly of ' + str(samfile))
     infile = open(samfile, 'r')
