@@ -18,8 +18,6 @@
 # Copyright (C) 2024 Ignasi Prats Méndez
 
 import pandas as pd
-
-
 from replacer_vcm import replacer_vcm
 from all_muts_finder import all_muts_finder
 
