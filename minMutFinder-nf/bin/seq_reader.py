@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # This file is part of minMutFinder.
 #
 # minMutFinder is free software: you can redistribute it and/or modify
@@ -15,10 +17,6 @@
 #
 # Copyright (C) 2024 Ignasi Prats Méndez
 
-#!/usr/bin/env python3
-
-
-# Store sequence
 def seq_reader(file):
     sequences, sequence_array, header = {}, [], ""
     with open(file, 'r') as infile:
