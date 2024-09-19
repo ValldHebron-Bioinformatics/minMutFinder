@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # This file is part of minMutFinder.
 #
 # minMutFinder is free software: you can redistribute it and/or modify
@@ -15,12 +17,10 @@
 #
 # Copyright (C) 2024 Ignasi Prats Méndez
 
-#!/usr/bin/env python3
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import numpy as np
-
 
 def visualizer(tsv_check, csv, csv_muts, outd_p, outd_csv, genes, annotate, SAMPLE, syn_muts, lengths_df):
     genes_list = genes
