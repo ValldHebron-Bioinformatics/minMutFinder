@@ -121,7 +121,7 @@ A research paper on **minMutFinder** is currently in progress. In the meantime, 
 ## 🔮 Future Work and Limitations
 
 ### Limitations:
-- As of now, **minMutFinder* has only been tested on viral sequencing data.
+- As of now, **minMutFinder** has only been tested on viral sequencing data.
 - Only available for Illumina sequencing data.
 
 ### Current Thresholds:
