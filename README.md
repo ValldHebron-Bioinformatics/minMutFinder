@@ -131,7 +131,7 @@ A research paper on **minMutFinder** is currently in progress. In the meantime, 
 ### Future Improvements:
 - At the moment we are working on uploading **minMutFinder** to nf-core, for easier distribution and use.
 - Support for user-provided VCF files along with SAM/BAM files, skipping the initial quality control, mapping, and variant calling steps.
-- Develop an implementation for ONT data. 
+- Support for ONT sequencint data. 
 
 ---
 
