@@ -120,13 +120,18 @@ A research paper on **minMutFinder** is currently in progress. In the meantime, 
 
 ## 🔮 Future Work and Limitations
 
+### Limitations:
+- As of now, **minMutFinder* has only been tested on viral sequencing data.
+- Only available for Illumina sequencing data.
+
 ### Current Thresholds:
 - **Allele Frequency (AF) ≥ 5%**
 - **Read depth per nucleotide position ≥ 20**
 
 ### Future Improvements:
+- At the moment we are working on uploading **minMutFinder** to nf-core, for easier distribution and use.
 - Support for user-provided VCF files along with SAM/BAM files, skipping the initial quality control, mapping, and variant calling steps.
-- Currently, **minMutFinder** has been tested with viral datasets. Future developments will expand its capabilities to handle bacterial datasets and larger organisms. There are also plans to explore its potential in oncologic research for cancer datasets.
+- Develop an implementation for ONT data. 
 
 ---
 
