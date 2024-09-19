@@ -20,7 +20,6 @@
 import pandas as pd
 import os
 
-
 def grep(file, pattern, tpe):
     aux = False
     result = ''
