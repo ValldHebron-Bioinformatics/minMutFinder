@@ -95,8 +95,6 @@ nextflow run minMutFinder.nf --ref_seq <reference.fasta> --out_path <output_name
 - `--annotate`: Path and filename of the TSV file containing the annotated mutations (3)
 - `--syn_muts`: "yes" or "no", depending on whether to include synonymous mutations in the output plot (default is "no") (4)
 
---
-
 ### 📝 Notes
 
   1. The reference genome must contain the coding sequences (CDS) of the proteins. If there are multiple proteins, they should be separated in the FASTA file.
