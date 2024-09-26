@@ -11,13 +11,6 @@ minMutFinder-nf/bin/__pycache__/
 minMutFinder-nf/bin/*.py[cod]
 minMutFinder-nf/bin/*.pyo
 
-# Ignore test files
-minMutFinder-nf/tests/
-minMutFinder-nf/tests/tests-data/CMV/
-minMutFinder-nf/tests/tests-data/FLU
-minMutFinder-nf/tests/tests-data/SARS-COV-2/
-minMutFinder-nf/tests/tests-data/HRSV/
-
 # Ignore operating system files
 minMutFinder-nf/.DS_Store
 minMutFinder-nf/Thumbs.db
