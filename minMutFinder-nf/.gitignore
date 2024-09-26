@@ -11,6 +11,13 @@ __pycache__/
 *.py[cod]
 *.pyo
 
+# Ignore test files
+tests/
+tests/tests-data/CMV/
+tests/tests-data/FLU
+tests/tests-data/SARS-COV-2/
+tests/tests-data/HRSV/
+
 # Ignore operating system files
 .DS_Store
 Thumbs.db
