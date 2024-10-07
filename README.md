@@ -112,11 +112,7 @@ This project, **minMutFinder**, is licensed under the [GNU General Public Licens
 
 ## 🖊️ Citing minMutFinder
 
-A research paper on **minMutFinder** is currently in progress. In the meantime, please cite this GitHub repository as follows:
-
-> Prats-Méndez I. **minMutFinder**: Minority Mutations Finder. 2024. Available from: https://github.com/ValldHebron-Bioinformatics/minMutFinder
-
-If you use **minMutFinder** in your research, please cite it using the citation provided by GitHub. You can find the official citation by clicking the **"Cite this repository"** button at the top of the repository page or [view the citation file directly](./CITATION.cff).
+A research paper on **minMutFinder** is currently in progress. In the meantime, please cite this GitHub repository using the citation provided by GitHub. You can find the official citation by clicking the **"Cite this repository"** button at the top of the repository page or [view the citation file directly](./CITATION.cff).
 
 ---
 
