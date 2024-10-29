@@ -1,5 +1,5 @@
 
-![Version](https://img.shields.io/badge/Version-1.0.0-blue) ![License](https://img.shields.io/badge/License-GPL_V3-green)
+![Static Badge](https://img.shields.io/badge/Version-Pre--Release-blue) ![License](https://img.shields.io/badge/License-GPL_V3-green)
 
 # **minMutFinder**
 
