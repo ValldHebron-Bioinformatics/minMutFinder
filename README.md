@@ -125,10 +125,13 @@ A research paper on **minMutFinder** is currently in progress. In the meantime, 
 ### Current Thresholds:
 - **Allele Frequency (AF) ≥ 5%**
 - **Read depth per nucleotide position ≥ 20**
+- **Number of threads = 64**
 
 ### Future Improvements:
 - At the moment we are working on uploading **minMutFinder** to nf-core, for easier distribution and use.
 - Support for user-provided VCF files along with SAM/BAM files, skipping the initial quality control, mapping, and variant calling steps.
+- Make it possible for the user to choose the number of threads, AF, Read depth per nucleotide positon.
+- Make it possible for the user to choose kind of output desired (complete or just final result files).
 - Support for ONT® sequencing data. 
 
 ---
