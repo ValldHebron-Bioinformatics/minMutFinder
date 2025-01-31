@@ -46,8 +46,8 @@ Ensure the following programs are installed:
 | **Trimmomatic** | 0.39   | [Bioconda](https://bioconda.github.io/) |
 | **Minimap2**  | 2.26    | [Bioconda](https://bioconda.github.io/) |
 | **Lofreq**    | 2.1.5   | [Bioconda](https://bioconda.github.io/) |
-| **Bcftools**  | 1.17    | [Bioconda](https://bioconda.github.io/) |
-| **Samtools**  | 1.18    | [Bioconda](https://bioconda.github.io/) |
+| **Bcftools**  | 1.17 or higher    | [Bioconda](https://bioconda.github.io/) |
+| **Samtools**  | 1.18 or higher   | [Bioconda](https://bioconda.github.io/) |
 
 ### Required Python Packages:
 ```bash
