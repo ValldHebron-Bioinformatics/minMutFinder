@@ -100,7 +100,7 @@ nextflow run minMutFinder.nf --ref_seq <reference.fasta> --out_path <output_name
   1. The reference genome must contain the coding sequences (CDS) of the proteins. If there are multiple proteins, they should be separated in the FASTA file.
   2. FASTA headers must use underscores (`_`) between words. For example: `>NC_006273_2_UL96`.
   3. The annotated mutation file should be tab-separated and contain a column named `mutation` for annotated mutations.
-  4. Use "yes" to include synonymous mutations in the output plot, or "no" to exclude them (default).
+  4. If FASTA headers share patterns (e.g. H3N2_PA and H3N2_PA_X share H3N2_PA) they must be differentiated (e.g. H3N2_PA_prot, H3N2_PA_X).
 
 ---
 
