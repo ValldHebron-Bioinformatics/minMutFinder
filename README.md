@@ -88,12 +88,12 @@ nextflow run minMutFinder.nf --ref_seq <reference.fasta> --out_path <output_name
 
 ## ⚙️ Arguments
 
-- `--ref_seq`: Path and filename of the reference genome FASTA file (1)(2)
+- `--ref_seq`: Path and filename of the reference genome FASTA file (1)(2)(4)
 - `--out_path`: Output name for the virus column
 - `--r1`: Path and filename of the forward FASTQ compressed file
 - `--r2`: Path and filename of the reverse FASTQ compressed file
 - `--annotate`: Path and filename of the TSV file containing the annotated mutations (3)
-- `--syn_muts`: "yes" or "no", depending on whether to include synonymous mutations in the output plot (default is "no") (4)
+- `--syn_muts`: "yes" or "no", depending on whether to include synonymous mutations in the output plot (default is "no")
 
 ### 📝 Notes
 
