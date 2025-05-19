@@ -18,248 +18,200 @@
 // Copyright (C) 2024 Ignasi Prats Méndez
 
 process fastqProcessing {
+    errorStrategy 'terminate'
+
     input:
     file r1
     file r2
-    file ref_seq
     path out_path
-    path fq_path
-    path assembly_path
-    path ref_path
-    path vcf_path
-    path muts_path
-    path plots_path
-    path qc_path
 
     output:
-    file "${assembly_path}/ref_seq.fasta"
-    file "${assembly_path}/ref_seq.fasta.fai"
-    file "${fq_path}/${out_path.baseName}_qc_R1.fastq.gz"
-    file "${fq_path}/${out_path.baseName}_qc_R2.fastq.gz"
-    file "${fq_path}/${out_path.baseName}_qc_R1_unpaired.fastq.gz"
-    file "${fq_path}/${out_path.baseName}_qc_R2_unpaired.fastq.gz"
+    tuple file("${out_path.baseName}_qc_R1.fastq.gz"), file("${out_path.baseName}_qc_R2.fastq.gz"), file("${out_path.baseName}_qc_R1_unpaired.fastq.gz"), file("${out_path.baseName}_qc_R2_unpaired.fastq.gz")
 
     script:
     """
-    DIR_SAMPLE=${out_path}
-    FASTQ=${fq_path}
-    ASSEMBLY=${assembly_path}
-    SAMPLE=\$(basename \${DIR_SAMPLE})
-    echo "\${SAMPLE}"
+    SAMPLE=\$(basename ${out_path})
 
-    R1=${params.r1}
-    R2=${params.r2}
-    cp ${params.ref_seq} "\${ASSEMBLY}/ref_seq.fasta"
-    samtools faidx "\${ASSEMBLY}/ref_seq.fasta"
-    # Filter by quality
-    # Filter by Trimmomatic
-    FQ_R1="\${FASTQ}"/"\${SAMPLE}"_qc_R1.fastq.gz; FQ_R2="\${FASTQ}"/"\${SAMPLE}"_qc_R2.fastq.gz
+    # Filter by quality using Trimmomatic
+    FQ_R1="\${SAMPLE}_qc_R1.fastq.gz"
+    FQ_R2="\${SAMPLE}_qc_R2.fastq.gz"
+    FQ_U_R1="\${SAMPLE}_qc_R1_unpaired.fastq.gz"
+    FQ_U_R2="\${SAMPLE}_qc_R2_unpaired.fastq.gz"
     printf "\nTRIMMOMATIC: \nSoft filtering fastq files from request ID: \${SAMPLE}\n\n"
-    time (trimmomatic PE -threads 64 -phred33 "\$R1" "\$R2" "\${FQ_R1}" "\${FASTQ}"/"\${SAMPLE}"_qc_R1_unpaired.fastq.gz "\${FQ_R2}" "\${FASTQ}"/"\${SAMPLE}"_qc_R2_unpaired.fastq.gz LEADING:30 TRAILING:30 SLIDINGWINDOW:10:30)
+    time (trimmomatic PE -threads 64 -phred33 ${r1} ${r2} \${FQ_R1} \${FQ_U_R1} \${FQ_R2} \${FQ_U_R2} LEADING:30 TRAILING:30 SLIDINGWINDOW:10:30)
     """
 }
-
 process mapping1 {
+    errorStrategy 'terminate'
+
     input:
-    path out_path
-    path fq_path
-    path assembly_path
-    path ref_path
-    path vcf_path
-    path muts_path
-    path plots_path
-    path qc_path
+    path out_path 
+    tuple file(fqr1), file(fqr2), file(fqUPr1), file(fqUPr2)
     file ref_seq
-    file ref_seq_fai
-    file fqr1
-    file fqr2
-    file fqUPr1
-    file fqUPr2
 
     output:
-    file "${assembly_path}/${out_path.baseName}_reads-mapped_to_prot.sam"
-    file "${assembly_path}/${out_path.baseName}_reads-mapped_to_prot.bam"
+    tuple file("${out_path.baseName}_reads-mapped_to_prot.sam"), file("${out_path.baseName}_reads-mapped_to_prot.bam")
 
     script:
     """
-    DIR_SAMPLE=${out_path}
-    SAMPLE=\$(basename \${DIR_SAMPLE})
-    ASSEMBLY=${assembly_path}
-    FQ_R1=${fqr1}
-    FQ_R2=${fqr2}
-    echo -e "\nMINIMAP2\n->Mapping against "\${ASSEMBLY}/ref_seq.fasta"\n"
-    time (minimap2 -ax sr "\${ASSEMBLY}/ref_seq.fasta" \$FQ_R1 \$FQ_R2 > "\${ASSEMBLY}"/"\${SAMPLE}"_reads-mapped_to_prot.sam)
-    samtools view -bS "\${ASSEMBLY}"/"\${SAMPLE}"_reads-mapped_to_prot.sam | samtools sort - -o "\${ASSEMBLY}"/"\${SAMPLE}"_reads-mapped_to_prot.bam
-    """
+    SAMPLE=\$(basename ${out_path})
+    ASSEMBLY="assembly"
 
+    # Mapping against reference sequence using Minimap2
+    echo -e "\nMINIMAP2\n->Mapping against ${ref_seq}\n"
+    time (minimap2 -ax sr ${ref_seq} ${fqr1} ${fqr2} > \${SAMPLE}_reads-mapped_to_prot.sam)
+    samtools view -bS \${SAMPLE}_reads-mapped_to_prot.sam | samtools sort - -o \${SAMPLE}_reads-mapped_to_prot.bam
+    """
 }
 
-process variant_calling {
+process variant_calling_fq {
+    errorStrategy 'terminate'
+    publishDir "$params.out_path/variant_calling", mode: 'copy', pattern: "${out_path.baseName}_prot_variants_AF${AF}.vcf"
+    publishDir "$params.out_path/assembly", mode: 'copy', pattern: "${out_path.baseName}_prot_variants_AF${AF}.fasta"
+
     input:
     path out_path
-    path fq_path
-    path assembly_path
-    path ref_path
-    path vcf_path
-    path muts_path
-    path plots_path
-    path qc_path
-    file sam
-    file bam
-
+    tuple file(sam), file(bam)
+    val AF
+    val depth
+    file ref_seq
+    val threads
 
     output:
-    file "${vcf_path}/${out_path.baseName}_indelqual_prot.bam"
-    file "${vcf_path}/${out_path.baseName}_indelqual_prot.bam.bai"
-    file "${vcf_path}/${out_path.baseName}_prot_variants.vcf"
-    file "${vcf_path}/${out_path.baseName}_indelqual_prot.sam"
-    file "${vcf_path}/samfile.sam"
-    file "${vcf_path}/${out_path.baseName}_prot_variants.vcf.gz"
-    file "${vcf_path}/${out_path.baseName}_prot_variants.vcf.gz.csi"
-    file "${vcf_path}/${out_path.baseName}_prot_variants_AF-0.05.vcf"
-    file "${vcf_path}/${out_path.baseName}_prot_variants_AF-0.05.vcf.gz"
-    file "${vcf_path}/${out_path.baseName}_prot_variants_AF-0.05.vcf.gz.csi"
-    file "${assembly_path}/${out_path.baseName}_prot_variants_AF-0.05.fasta"
-    
+    tuple file("${out_path.baseName}_prot_variants.vcf"), file("${out_path.baseName}_indelqual_prot.sam"), file("samfile.sam"), file("${out_path.baseName}_prot_variants.vcf.gz"), file("${out_path.baseName}_prot_variants.vcf.gz.csi"), file("${out_path.baseName}_prot_variants_AF${AF}.vcf"), file("${out_path.baseName}_prot_variants_AF${AF}.vcf.gz"), file("${out_path.baseName}_prot_variants_AF${AF}.vcf.gz.csi"), file("${out_path.baseName}_prot_variants_AF${AF}.fasta")
+
     script:
     """
-    DIR_SAMPLE=${out_path}
-    SAMPLE=\$(basename \${DIR_SAMPLE})
-    ASSEMBLY=${assembly_path}
-    VARIANT_CALLING=${vcf_path}
+    SAMPLE=\$(basename ${out_path})
     BAM2=${bam}
 
-    # Call variants
-    # tomake lofreq work 
+    # Call variants using LoFreq
     echo -e "\nLOFREQ\n->Variant Calling Step: Mutation detection\n"
-    
-    lofreq indelqual --dindel -f "\${ASSEMBLY}/ref_seq.fasta" -o "\${VARIANT_CALLING}"/"\${SAMPLE}"_indelqual_prot.bam "\$BAM2"
-    INDELQUAL_BAM="\${VARIANT_CALLING}"/"\${SAMPLE}"_indelqual_prot.bam
+    echo -e "lofreq indelqual --dindel -f ${ref_seq} -o "\${SAMPLE}_indelqual_prot.bam" "\$BAM2""
+    lofreq indelqual --dindel -f ${ref_seq} -o "\${SAMPLE}_indelqual_prot.bam" "\$BAM2"
+    INDELQUAL_BAM="\${SAMPLE}_indelqual_prot.bam"
     samtools index "\${INDELQUAL_BAM}"
-    # tomake lofreq work
-    time (lofreq call-parallel --pp-threads 64 --call-indels -f "\${ASSEMBLY}/ref_seq.fasta" -o "\${VARIANT_CALLING}"/"\${SAMPLE}"_prot_variants.vcf "\${INDELQUAL_BAM}")
-    
-    samtools index "\${INDELQUAL_BAM}"
-    samtools view -h -o "\${VARIANT_CALLING}"/"\${SAMPLE}"_indelqual_prot.sam "\${INDELQUAL_BAM}"
-   
-    awk '(\$6 != "*") && (\$12 != "") && (\$3 != "*")' "\${VARIANT_CALLING}"/"\${SAMPLE}"_indelqual_prot.sam > "\${VARIANT_CALLING}"/samfile.sam
-   
-    # Consensus sequence
-    echo -e "\nBCFTOOLS\n->Variant Calling Step: Consensus sequence obtantion\n"
-   
-    bgzip -c "\${VARIANT_CALLING}"/"\${SAMPLE}"_prot_variants.vcf > "\${VARIANT_CALLING}"/"\$SAMPLE"_prot_variants.vcf.gz
-    bcftools index "\${VARIANT_CALLING}"/"\${SAMPLE}"_prot_variants.vcf.gz
-    FREQ_CUTOFF=0.05
-    bcftools filter -i'AF>='\${FREQ_CUTOFF}' & DP>=20' "\${VARIANT_CALLING}"/"\${SAMPLE}"_prot_variants.vcf.gz > "\${VARIANT_CALLING}"/"\${SAMPLE}"_prot_variants_AF-"\${FREQ_CUTOFF}".vcf
-    VCF_FILE_CUTOFF="\${VARIANT_CALLING}"/"\${SAMPLE}"_prot_variants_AF-"\${FREQ_CUTOFF}".vcf
-    bgzip -c "\${VARIANT_CALLING}"/"\${SAMPLE}"_prot_variants_AF-"\${FREQ_CUTOFF}".vcf > "\${VARIANT_CALLING}"/"\${SAMPLE}"_prot_variants_AF-"\${FREQ_CUTOFF}".vcf.gz
-    bcftools index \${VARIANT_CALLING}/"\${SAMPLE}"_prot_variants_AF-"\${FREQ_CUTOFF}".vcf.gz
-    cat "\${ASSEMBLY}/ref_seq.fasta" | bcftools consensus -s - "\${VARIANT_CALLING}"/"\${SAMPLE}"_prot_variants_AF-"\${FREQ_CUTOFF}".vcf.gz -o "\${ASSEMBLY}"/"\${SAMPLE}"_prot_variants_AF-"\${FREQ_CUTOFF}".fasta
-    # bcftools consensus -f "\${ASSEMBLY}/ref_seq.fasta" "\${VARIANT_CALLING}"/"\${SAMPLE}"_prot_variants_AF-"\${FREQ_CUTOFF}".vcf.gz -o "\${ASSEMBLY}"/"\${SAMPLE}"_prot_variants_AF-"\${FREQ_CUTOFF}".fasta
-    """
+    time (lofreq call-parallel --pp-threads ${threads} --call-indels -f "${ref_seq}" -o "\${SAMPLE}_prot_variants.vcf" "\${INDELQUAL_BAM}")
 
+    samtools view -h -o "\${SAMPLE}_indelqual_prot.sam" "\${INDELQUAL_BAM}"
+    awk '(\$6 != "*") && (\$12 != "") && (\$3 != "*")' "\${SAMPLE}_indelqual_prot.sam" > samfile.sam
+
+    # Generate consensus sequence using BCFtools
+    echo -e "\nBCFTOOLS\n->Variant Calling Step: Consensus sequence obtantion\n"
+    bgzip -c "\${SAMPLE}_prot_variants.vcf" > "\${SAMPLE}_prot_variants.vcf.gz"
+    bcftools index "\${SAMPLE}_prot_variants.vcf.gz"
+    FREQ_CUTOFF=${AF}
+    MIN_DEPTH=${depth}
+    bcftools filter -i'INFO/AF>='\${FREQ_CUTOFF}' && INFO/DP>='\${MIN_DEPTH}'' "\${SAMPLE}_prot_variants.vcf.gz" > "\${SAMPLE}_prot_variants_AF\${FREQ_CUTOFF}.vcf"
+    VCF_FILE_CUTOFF="\${SAMPLE}_prot_variants_AF\${FREQ_CUTOFF}.vcf"
+    bgzip -c "\${SAMPLE}_prot_variants_AF\${FREQ_CUTOFF}.vcf" > "\${SAMPLE}_prot_variants_AF\${FREQ_CUTOFF}.vcf.gz"
+    bcftools index \${SAMPLE}_prot_variants_AF\${FREQ_CUTOFF}.vcf.gz
+    cat "${ref_seq}" | bcftools consensus -s - "\${SAMPLE}_prot_variants_AF\${FREQ_CUTOFF}.vcf.gz" -o "\${SAMPLE}_prot_variants_AF\${FREQ_CUTOFF}.fasta"
+    """
+}
+
+process variant_calling_areads {
+    errorStrategy 'terminate'
+    publishDir "$params.out_path/variant_calling", mode: 'copy', pattern: "${out_path.baseName}_prot_variants_AF${AF}.vcf*"
+    publishDir "$params.out_path/assembly", mode: 'copy', pattern: "${out_path.baseName}_prot_variants_AF${AF}.fasta"
+
+    input:
+    path out_path
+    tuple file(sam), file(bam)
+    val AF
+    val depth
+    file ref_seq
+    val threads
+
+    output:
+    tuple file("${out_path.baseName}_prot_variants.vcf"), file("${out_path.baseName}_indelqual_prot.sam"), file("samfile.sam"), file("${out_path.baseName}_prot_variants.vcf.gz"), file("${out_path.baseName}_prot_variants.vcf.gz.csi"), file("${out_path.baseName}_prot_variants_AF${AF}.vcf"), file("${out_path.baseName}_prot_variants_AF${AF}.vcf.gz"), file("${out_path.baseName}_prot_variants_AF${AF}.vcf.gz.csi"), file("${out_path.baseName}_prot_variants_AF${AF}.fasta")
+
+    script:
+    """
+    SAMPLE=\$(basename ${out_path})
+
+    # Call variants using LoFreq
+    echo -e "\nLOFREQ\n->Variant Calling Step: Mutation detection\n"
+    INDELQUAL_BAM="${bam}"
+    INDELQUAL_SAM="${sam}"
+    samtools index "\${INDELQUAL_BAM}"
+    samtools faidx ${ref_seq}
+
+    time (lofreq call-parallel --pp-threads ${threads} --call-indels -f "${ref_seq}" -o "\${SAMPLE}_prot_variants.vcf" "\${INDELQUAL_BAM}")
+
+    awk '(\$6 != "*") && (\$12 != "") && (\$3 != "*")' "\${INDELQUAL_SAM}" > "samfile.sam"
+
+    # Generate consensus sequence using BCFtools
+    echo -e "\nBCFTOOLS\n->Variant Calling Step: Consensus sequence obtantion\n"
+    bgzip -c "\${SAMPLE}_prot_variants.vcf" > "\${SAMPLE}_prot_variants.vcf.gz"
+    bcftools index "\${SAMPLE}_prot_variants.vcf.gz"
+    FREQ_CUTOFF=${AF}
+    MIN_DEPTH=${depth}
+    bcftools filter -i'INFO/AF>='\${FREQ_CUTOFF}' && INFO/DP>='\${MIN_DEPTH}'' "\${SAMPLE}_prot_variants.vcf.gz" > "\${SAMPLE}_prot_variants_AF\${FREQ_CUTOFF}.vcf"
+    VCF_FILE_CUTOFF="\${SAMPLE}_prot_variants_AF\${FREQ_CUTOFF}.vcf"
+    bgzip -c "\${SAMPLE}_prot_variants_AF\${FREQ_CUTOFF}.vcf" > "\${SAMPLE}_prot_variants_AF\${FREQ_CUTOFF}.vcf.gz"
+    bcftools index \${SAMPLE}_prot_variants_AF\${FREQ_CUTOFF}.vcf.gz
+    cat ${ref_seq} | bcftools consensus -s - "\${SAMPLE}_prot_variants_AF\${FREQ_CUTOFF}.vcf.gz" -o "\${SAMPLE}_prot_variants_AF\${FREQ_CUTOFF}.fasta"
+    """
 }
 
 process mapping2 {
+    errorStrategy 'terminate'
     input:
     path out_path
-    path fq_path
-    path assembly_path
-    path ref_path
-    path vcf_path
-    path muts_path
-    path plots_path
-    path qc_path
-    file indelqual_prot_bam
-    file indelqual_prot_bam_indexed
-    file prot_variants_vcf
-    file indelqual_prot_sam
-    file samfile
-    file prot_variants_vcf_gz
-    file prot_variants_vcf_gz_indexed
-    file prot_variants_AF05_vcf
-    file prot_variants_AF05_vcf_gz
-    file prot_variants_AF05_vcf_gz_indexed
-    file prot_variants_AF05_fasta
+    tuple file(prot_variants_vcf), file(indelqual_prot_sam), file(samfile), file(prot_variants_vcf_gz), file(prot_variants_vcf_gz_indexed), file(prot_variants_AF_vcf), file(prot_variants_AF_vcf_gz), file(prot_variants_AF_vcf_gz_indexed), file(prot_variants_AF_fasta)
+    tuple file(fqr1), file(fqr2), file(fqUPr1), file(fqUPr2)
 
     output:
-    file "${assembly_path}/${out_path.baseName}_reads_mapped_consensus.sam"
-    file "${assembly_path}/${out_path.baseName}_reads_mapped_consensus.bam"
-    
+    tuple file("${out_path.baseName}_reads_mapped_consensus.sam"), file("${out_path.baseName}_reads_mapped_consensus.bam")
+
     script:
     """
-    DIR_SAMPLE=${out_path}
-    SAMPLE=\$(basename \${DIR_SAMPLE})
-    ASSEMBLY=${assembly_path}
-    VARIANT_CALLING=${vcf_path}
-    FASTQ=${fq_path}
-    FREQ_CUTOFF=0.05
-    FQ_R1="\${FASTQ}"/"\${SAMPLE}"_qc_R1.fastq.gz; FQ_R2="\${FASTQ}"/"\${SAMPLE}"_qc_R2.fastq.gz
-    time (minimap2 -ax sr "${prot_variants_AF05_fasta}" \$FQ_R1 \$FQ_R2 > \$ASSEMBLY/"\$SAMPLE"_reads_mapped_consensus.sam)
-    samtools view -bS \$ASSEMBLY/"\$SAMPLE"_reads_mapped_consensus.sam | samtools sort - -o \$ASSEMBLY/"\$SAMPLE"_reads_mapped_consensus.bam
+    SAMPLE=${out_path.baseName}
+
+    # Mapping against consensus sequence using Minimap2
+    time (minimap2 -ax sr ${prot_variants_AF_fasta} ${fqr1} ${fqr2} > "\$SAMPLE"_reads_mapped_consensus.sam)
+    samtools view -bS "\$SAMPLE"_reads_mapped_consensus.sam | samtools sort - -o "\$SAMPLE"_reads_mapped_consensus.bam
     """
-
-
 }
-
 
 process read_depth {
+    errorStrategy 'terminate'
+    publishDir "$params.out_path/assembly", mode: 'copy', pattern: "${out_path.baseName}_depth_consensus.tsv"
     input:
     path out_path
-    path fq_path
-    path assembly_path
-    path ref_path
-    path vcf_path
-    path muts_path
-    path plots_path
-    path qc_path
-    file sam
-    file bam
-
+    tuple file(sam), file(bam)
 
     output:
-    file "${assembly_path}/${out_path.baseName}_depth_consensus.tsv"
-    
+    file "${out_path.baseName}_depth_consensus.tsv"
+
     script:
     """
-    DIR_SAMPLE=${out_path}
-    SAMPLE=\$(basename \${DIR_SAMPLE})
-    ASSEMBLY=${assembly_path}
-    VARIANT_CALLING=${vcf_path}
-    FREQ_CUTOFF=0.05
+    SAMPLE=\$(basename ${out_path})
     BAM2=${bam}
-    echo -e "ref\tpos\tdepth" > \$ASSEMBLY/"\$SAMPLE"_depth_consensus.tsv
-    samtools depth -a \$BAM2 >> \$ASSEMBLY/"\$SAMPLE"_depth_consensus.tsv
-    """
 
+    # Calculate read depth using Samtools
+    echo -e "ref\tpos\tdepth" > "\$SAMPLE"_depth_consensus.tsv
+    samtools depth -a \$BAM2 >> "\$SAMPLE"_depth_consensus.tsv
+    """
 }
 
-process reads_qc_plot {
+process reads_qc_metrics {
+    errorStrategy 'terminate'
+    publishDir "$params.out_path/qc", mode: 'copy', pattern: 'QC_metrics.csv'
     input:
     file r1
     file r2
     path out_path
-    path fq_path
-    path assembly_path
-    path ref_path
-    path vcf_path
-    path muts_path
-    path plots_path
-    path qc_path
-    file ref_seq
-    file ref_seq_fai
-    file fqr1
-    file fqr2
-    file fqUPr1
-    file fqUPr2
+    tuple file(fqr1), file(fqr2), file(fqUPr1), file(fqUPr2)
+    file muts
 
     output:
-    file "${qc_path}/qc_metrics.csv"
-    file "${plots_path}/qc_metrics.svg"
+    file "${out_path}/qc/QC_metrics.csv"
 
     script:
     """
-    python3 $projectDir/bin/read_metrics.py --out-dir ${out_path} --r1 ${params.r1} --r2 ${params.r2} --sample ${out_path.baseName} --r1qc ${fqr1} --r1UPqc ${fqUPr1} --r2qc ${fqr2} --r2UPqc ${fqUPr2}
+    # Run the read_metrics.py script to generate QC metrics
+    python3 ${params.project_data}/bin/read_metrics.py --out-dir ${out_path} --r1 ${r1} --r2 ${r2} --sample ${out_path.baseName} --r1qc ${fqr1} --r1UPqc ${fqUPr1} --r2qc ${fqr2} --r2UPqc ${fqUPr2}
     """
 }
-
