@@ -56,7 +56,7 @@ def reads_assembler(samfile, all_fastas):
                     if class_del == 1:
                         seq_init, seq_end = (seq_init - count_del), (seq_end - count_del)
                     seq, class_del = sequence[seq_init:seq_end], 0
-                    
+                    # class_del = 0
                 new_row = [node, pos, end, cigar[idx:c.start()], c.group(), seq]
                 pos, idx, seq_init = (int(pos) + int(cigar[idx:c.start()])), (c.start() + 1), seq_end
 
@@ -68,6 +68,7 @@ def reads_assembler(samfile, all_fastas):
 
             # Remove S and H categories (clipped sequences)
             df_segments = df_cigar.loc[(df_cigar['CLASS'] != 'S') & (df_cigar['CLASS'] != 'H'), ]
+            # print(df_segments.sort_values('INI'))
             df_segments = df_segments.sort_values('INI')
             startN = df_segments['INI'].iloc[0]  # Correct the start of the consensus sequence to the first position defined
             df_segments['INI'], df_segments['END'] = (df_segments['INI'] - startN), (df_segments['END'] - startN)
@@ -82,6 +83,7 @@ def reads_assembler(samfile, all_fastas):
                             df_segments['END'].iloc[r] = df_segments['END'].iloc[r] + int(df_segments['POS'].iloc[f])
 
             # 3. Generate consensus sequence
+            # print("Generating consensus sequence...")
             df_consensus = pd.DataFrame(columns=['POS', 'NT'])
 
             for i in range(0, len(df_segments)):
@@ -101,6 +103,7 @@ def reads_assembler(samfile, all_fastas):
             consensus_list = df_consensus['NT'].tolist()
             consensus_seq = ''.join(consensus_list)
 
+        # with open(out_file, 'w') as outfile:
         spaces = "-" * (pos_end - 1)
         ending = "-" * (3 - (len(spaces + consensus_seq) % 3))
         fasta_seq = '>' + node + '\n' + spaces + consensus_seq + ending + '\n'

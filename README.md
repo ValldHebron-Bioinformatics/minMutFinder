@@ -1,6 +1,5 @@
 
-![Version](https://img.shields.io/badge/Version-1.1.0-blue) ![License](https://img.shields.io/badge/License-GPL_V3-green)
-
+![Static Badge](https://img.shields.io/badge/Version-Pre--Release-blue) ![License](https://img.shields.io/badge/License-GPL_V3-green)
 
 # **minMutFinder**
 
@@ -47,8 +46,8 @@ Ensure the following programs are installed:
 | **Trimmomatic** | 0.39   | [Bioconda](https://bioconda.github.io/) |
 | **Minimap2**  | 2.26    | [Bioconda](https://bioconda.github.io/) |
 | **Lofreq**    | 2.1.5   | [Bioconda](https://bioconda.github.io/) |
-| **Bcftools**  | 1.17 or higher    | [Bioconda](https://bioconda.github.io/) |
-| **Samtools**  | 1.17 or higher   | [Bioconda](https://bioconda.github.io/) |
+| **Bcftools**  | 1.17    | [Bioconda](https://bioconda.github.io/) |
+| **Samtools**  | 1.17    | [Bioconda](https://bioconda.github.io/) |
 
 ### Required Python Packages:
 ```bash
