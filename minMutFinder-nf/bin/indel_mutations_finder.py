@@ -23,15 +23,15 @@ from translateDNA import translateDNA
 aa_classes = {
     'A': 'Hydrophobic', 'V': 'Hydrophobic',
     'L': 'Hydrophobic', 'M': 'Hydrophobic',
-    'I': 'Hydrophobic', 'S': 'Polar_non_charged',
-    'T': 'Polar_non_charged', 'N': 'Polar_non_charged',
-    'Q': 'Polar_non_charged', 'G': 'Special_case',
-    'C': 'Special_case', 'P': 'Special_case',
-    'U': 'Special_case', 'F': 'Aromatic_Hydrophobic',
-    'Y': 'Aromatic_Hydrophobic', 'W': 'Aromatic_Hydrophobic',
-    'K': 'Positively_charged', 'R': 'Positively_charged',
-    'H': 'Positively_charged', 'D': 'Positively_charged',
-    'E': 'Positively_charged', '*': 'Stop'
+    'I': 'Hydrophobic', 'S': 'Polar non charged',
+    'T': 'Polar non charged', 'N': 'Polar non charged',
+    'Q': 'Polar non charged', 'G': 'Special case',
+    'C': 'Special case', 'P': 'Special case',
+    'U': 'Special case', 'F': 'Aromatic Hydrophobic',
+    'Y': 'Aromatic Hydrophobic', 'W': 'Aromatic Hydrophobic',
+    'K': 'Positively charged', 'R': 'Positively charged',
+    'H': 'Positively charged', 'D': 'Positively charged',
+    'E': 'Positively charged', '*': 'Stop'
 }
 
 codon_code = {
@@ -54,13 +54,12 @@ codon_code = {
 }
 
 
-def indel_mutations_detector(vcf, ref, sample_id, gene_initial):
+def indel_mutations_detector(vcf, ref, sample_id, protein_initial):
     mut = []
     ref_seq = ref
     df = vcf
     for index, row in df.iterrows():
-        ref, alt, pos, allele_freq = df.REF.iloc[index], df.ALT.iloc[index], df.POS.iloc[index], df.AF.iloc[index]
-        #alt, ref, pos, allele_freq = df.REF.iloc[index], df.ALT.iloc[index], df.POS.iloc[index], df.AF.iloc[index]
+        ref, alt, pos, allele_freq, allele_dp = df.REF.iloc[index], df.ALT.iloc[index], df.POS.iloc[index], df.AF.iloc[index], df.DP.iloc[index]
 
         n = int(pos) % 3
 
@@ -78,7 +77,7 @@ def indel_mutations_detector(vcf, ref, sample_id, gene_initial):
             ALT = alt
 
         pos = int(pos) - 1
-        aa_pos, gene, aux = int(pos // 3) + 1, gene_initial, 0
+        aa_pos, protein, aux = int(pos // 3) + 1, protein_initial, 0
 
         if ((len(ref) > 1) or (len(alt) > 1) ) and (len(ref) != len(alt)):
             aux, POS = 1, pos
@@ -87,94 +86,120 @@ def indel_mutations_detector(vcf, ref, sample_id, gene_initial):
                 if (int(len(ref)) > 3) or (int(len(alt)) > 3):
                     n_positional = n-1
                     if (len(ref) > len(alt)):
-                        ref_complete=ref_seq[POS-n_positional:POS+len(ref)+((len(ref)+1)%3)]
+                        # ref_complete=ref_seq[POS-n_positional:POS+len(ref)+((len(ref)+1)%3)]
+                        # alt_complete=ref_complete.replace(ref[1:],'')[0:3]
+                        del_nt=ref[1:]
+                        if n == 0:
+                            ref_complete=del_nt
+                            #alt_complete=ref_seq[POS+1:POS+len(ref)-1+4]
+                        elif n == 1:
+                            ref_complete=ref_seq[POS]+del_nt+ref_seq[POS+len(ref):POS+len(ref)+2]
+                            #alt_complete=ref_seq[POS:POS+len(ref)-1+3]
+                            #alt_complete=ref_seq[POS-1]+ins_nt+ref_seq[POS-1:POS+2]
+                        else: # n == 2
+                            ref_complete=ref_seq[POS-1:POS+1]+del_nt+ref_seq[POS+len(ref)]
+                            #alt_complete=ref_seq[POS-1:POS+len(ref)-1+2]
                         alt_complete=ref_complete.replace(ref[1:],'')[0:3]
                         for i in range(0,len(ref_complete),3):
                             if len(ref_complete[i:i+3]) == 3:
                                 prot_ref=translateDNA(ref_complete[i:i+3])
                                 prot_sub=translateDNA(alt_complete)
-                                if (((n != 0) or (len(ref) > 4)) and (i == 0)) and (len(alt_complete) > 2):
+                                if ((n != 0) and (i == 0)): # or (len(ref) > 4))  and (len(alt_complete) > 2):
                                     if (aa_classes[prot_ref] != aa_classes[prot_sub]):
-                                        aa_change = aa_classes[prot_ref] + " --> " + aa_classes[prot_sub]
+                                        aa_change = "Amino acid changed from " + aa_classes[prot_ref] + " to " + aa_classes[prot_sub]
 
-                                    elif (aa_classes[prot_ref] == "Special_case") and (aa_classes[prot_sub] == "Special_case"):
+                                    elif (aa_classes[prot_ref] == "Special case") and (aa_classes[prot_sub] == "Special case"):
                                         if (prot_ref != prot_sub):
-                                            aa_change = aa_classes[prot_ref] + " --> " + aa_classes[prot_sub]
+                                            aa_change = "Amino acid changed from " + aa_classes[prot_ref] + " to " + aa_classes[prot_sub]
 
                                         else:
-                                            aa_change = "No_Change, stayed " + aa_classes[prot_ref]
+                                            aa_change = "Amino acid did not change, it stayed " + aa_classes[prot_ref]
 
                                     else:
-                                        aa_change = "No_Change, stayed " + aa_classes[prot_ref]
+                                        aa_change = "Amino acid did not change, it stayed " + aa_classes[prot_ref]
 
                                     if prot_ref == prot_sub:
                                         if ref_complete[i:i+3] != alt_complete:
                                             mut_aux = [
-                                                sample_id, gene, "NO_MUTATION",
+                                                sample_id, protein, "SYNONYMOUS",
                                                 translateDNA(ref_complete[i:i+3]) + str(aa_pos) + translateDNA(alt_complete),
-                                                aa_change, ref_complete[i:i+3] + str(pos+1) + alt_complete, allele_freq
+                                                aa_change, ref_complete[i:i+3] + str(pos+1) + alt_complete, allele_freq, allele_dp
                                             ]
                                             mut.append(mut_aux)
                                     else:
                                         mut_aux = [
-                                            sample_id, gene, "MUTATION",
+                                            sample_id, protein, "NON_SYNONYMOUS",
                                             translateDNA(ref_complete[i:i+3]) + str(aa_pos) + translateDNA(alt_complete),
-                                            aa_change, ref_complete[i:i+3] + str(pos+1) + alt_complete, allele_freq
+                                            aa_change, ref_complete[i:i+3] + str(pos+1) + alt_complete, allele_freq, allele_dp
                                         ]
                                         mut.append(mut_aux)                                        
                                 else:
-                                    if prot_ref != prot_sub:
+                                    if prot_ref != prot_sub or n == 0:
                                         
                                         mut_aux = [
-                                            sample_id, gene, "MUTATION",
+                                            sample_id, protein, "NON_SYNONYMOUS",
                                             translateDNA(ref_complete[i:i+3]) + str((((POS-n_positional)+i)//3)+1) + '-',
-                                            "Deletion", ref_complete[i:i+3] + str((POS-n_positional+1)+i) + '-', allele_freq
+                                            "Deletion", ref_complete[i:i+3] + str((POS-n_positional+1)+i) + '-', allele_freq, allele_dp
                                         ]
                                         mut.append(mut_aux)
                                 aa_pos+=1
 
                     else:
-                        alt_complete=ref_seq[POS-n:POS+len(ref)+((len(ref)+1)%3)]
-                        ref_complete=alt_complete.replace(alt[1:],'')[0:3]
+                        ins_nt=alt[1:]
+                        if n == 0:
+                            ref_complete=ref_seq[POS+1:POS+4]
+                            alt_complete=ins_nt
+                        elif n == 1:
+                            ref_complete=ref_seq[POS:POS+3]
+                            alt_complete=ref_seq[POS]+ins_nt+ref_seq[POS+1:POS+3]
+                            #alt_complete=ref_seq[POS-1]+ins_nt+ref_seq[POS-1:POS+2]
+                        else: # n == 2
+                            ref_complete=ref_seq[POS-1:POS+2]
+                            alt_complete=ref_seq[POS-1:POS+1]+ins_nt+ref_seq[POS+1]
+                            # alt_complete=ref_seq[POS-2]+ins_nt+ref_seq[POS-2:POS+1]
+                        #ref_complete=ref_seq[POS-n_positional:POS+n+((n+1)%3)]
+
+                        #alt_complete=ref_seq[POS-n_positional]+ins_nt+ref_seq[POS-n_positional+1:POS+n+((n+1)%3)]
+                        #alt_complete=ref_seq[POS-n:POS+len(ref)+((len(ref)+1)%3)]
                         for i in range(0,len(alt_complete),3):
                             if len(alt_complete[i:i+3]) == 3:
                                 prot_sub=translateDNA(alt_complete[i:i+3])
                                 prot_ref=translateDNA(ref_complete)
-                                if (((n != 0) or (len(alt) > 4)) and (i == 0)) and (len(ref_complete) > 2):
+                                if ((n != 0) and (i == 0)): # and (len(ref_complete) > 2):
                                     if (aa_classes[prot_ref] != aa_classes[prot_sub]):
-                                        aa_change = aa_classes[prot_ref] + " --> " + aa_classes[prot_sub]
+                                        aa_change = "Amino acid changed from " + aa_classes[prot_ref] + " to " + aa_classes[prot_sub]
 
-                                    elif (aa_classes[prot_ref] == "Special_case") and (aa_classes[prot_sub] == "Special_case"):
+                                    elif (aa_classes[prot_ref] == "Special case") and (aa_classes[prot_sub] == "Special case"):
                                         if (prot_ref != prot_sub):
-                                            aa_change = aa_classes[prot_ref] + " --> " + aa_classes[prot_sub]
+                                            aa_change = "Amino acid changed from " + aa_classes[prot_ref] + " to " + aa_classes[prot_sub]
 
                                         else:
-                                            aa_change = "No_Change, stayed " + aa_classes[prot_ref]
+                                            aa_change = "Amino acid did not change, it stayed " + aa_classes[prot_ref]
 
                                     else:
-                                        aa_change = "No_Change, stayed " + aa_classes[prot_ref]
+                                        aa_change = "Amino acid did not change, it stayed " + aa_classes[prot_ref]
 
                                     if prot_ref == prot_sub:
                                         if alt_complete[i:i+3] != ref_complete:
                                             mut_aux = [
-                                                sample_id, gene, "NO_MUTATION",
+                                                sample_id, protein, "SYNONYMOUS",
                                                 translateDNA(ref_complete) + str(aa_pos) + translateDNA(alt_complete[i:i+3]),
-                                                aa_change, ref_complete + str(pos+1) + alt_complete[i:i+3], allele_freq
+                                                aa_change, ref_complete + str(pos+1) + alt_complete[i:i+3], allele_freq, allele_dp
                                             ]
                                             mut.append(mut_aux)
                                     else:
                                         mut_aux = [
-                                            sample_id, gene, "MUTATION",
+                                            sample_id, protein, "NON_SYNONYMOUS",
                                             translateDNA(ref_complete) + str(aa_pos) + translateDNA(alt_complete[i:i+3]),
-                                            aa_change, ref_complete + str(pos+1) + alt_complete[i:i+3], allele_freq
+                                            aa_change, ref_complete + str(pos+1) + alt_complete[i:i+3], allele_freq, allele_dp
                                         ]
                                         mut.append(mut_aux)                                        
                                 else:
-                                    if prot_ref != prot_sub:
+                                    if (prot_ref != prot_sub) or n == 0:
                                         mut_aux = [
-                                            sample_id, gene, "MUTATION",
+                                            sample_id, protein, "NON_SYNONYMOUS",
                                             '-' + str((((POS-n_positional)+i)//3)+1) + translateDNA(alt_complete[i:i+3]),
-                                            "Insertion", '-' + str((POS-n_positional+1)+i) + alt_complete[i:i+3], allele_freq
+                                            "Insertion", '-' + str((POS-n_positional+1)+i) + alt_complete[i:i+3], allele_freq, allele_dp
                                         ]
                                         mut.append(mut_aux)
                                 aa_pos+=1
@@ -182,17 +207,17 @@ def indel_mutations_detector(vcf, ref, sample_id, gene_initial):
                 else:
                     if (len(ref) > len(alt)):
                         mut_aux = [
-                            sample_id, gene, "MUTATION",
+                            sample_id, protein, "NON_SYNONYMOUS",
                             "del" + str(aa_pos), "Deletion",
-                            ref + str(POS+1) + alt, allele_freq
+                            ref + str(POS+1) + alt, allele_freq, allele_dp
                         ]
                         mut.append(mut_aux)
 
                     else:
                         mut_aux = [
-                            sample_id, gene, "MUTATION",
+                            sample_id, protein, "NON_SYNONYMOUS",
                             "ins" + str(aa_pos), "Insertion",
-                            ref + str(POS+1) + alt, allele_freq
+                            ref + str(POS+1) + alt, allele_freq, allele_dp
                         ]
                         mut.append(mut_aux)
             else:
@@ -243,15 +268,14 @@ def indel_mutations_detector(vcf, ref, sample_id, gene_initial):
                         prot_ref, POS = translateDNA(ref_prot), int(pos) + 3
 
                 mut_aux = [
-                    sample_id, gene, "MUTATION",
+                    sample_id, protein, "NON_SYNONYMOUS",
                     "Frameshift" + str(aa_pos),
-                    "Frameshift", ref + str(POS) + alt, allele_freq
+                    "Frameshift", ref + str(POS) + alt, allele_freq, allele_dp
                 ]
                 mut.append(mut_aux)
-
     mut_def = [item for sublist in mut for item in ([sublist] if isinstance(sublist, list) else [sublist])]
     mut_df = pd.DataFrame(mut_def,columns=[
-                    "SampleID", "Gene", "Mutation_type", "Aa_change", "Type_of_aa_change ",
-                    "Nt_mutation", "Mutation_frequency"
+                    "SampleID", "Protein", "Mutation_type", "Aa_change", "Amino_Acid_Property_Change ",
+                    "Nt_mutation", "Mutation_frequency", "Mutation_depth"
                 ])
     return mut_df
