@@ -22,12 +22,13 @@ import os
 import csv
 import pandas as pd
 from seq_reader import seq_reader
-from grep import grep
+from get_text import get_text
 from replacer import replacer
 from variant_codon_mutation import variant_codon_mutation
 from minority_mutations_finder import minority_mutations_detector
 from indel_mutations_finder import indel_mutations_detector
 from reads_assembler import reads_assembler
+from expand_vcf_rows import expand_vcf_row
 
 for i in range(len(sys.argv)):
     if sys.argv[i] == '--out-dir':
@@ -38,56 +39,50 @@ for i in range(len(sys.argv)):
         SAMPLE = sys.argv[i + 1]
     elif sys.argv[i] == '--prot':
         header = sys.argv[i + 1]
+    elif sys.argv[i] == '--AF':
+        AF_cutoff = sys.argv[i + 1]
+    elif sys.argv[i] == '--depth':
+        depth_cutoff = sys.argv[i + 1]
+    elif sys.argv[i] == '--samfile':
+        samfile = sys.argv[i + 1]
 
 FASTQ = out_dir + '/fastq'
 QC_DIR = out_dir + '/qc'
-qc_metrics_file = QC_DIR + '/qc_metrics.csv'
+qc_metrics_file = QC_DIR + '/QC_metrics.csv'
 PLOTS = out_dir + '/plots'
 ASSEMBLY = out_dir + '/assembly'
 VARIANT_CALLING = out_dir + '/variant_calling'
 MUTATIONS = out_dir + '/mutations'
-FREQ_CUTOFF = str(0.05)
+FREQ_CUTOFF = str(AF_cutoff)
+DEPTH_CUTOFF = int(depth_cutoff)
 PROT_REF = seq_reader(ref_seq)
 
 if os.path.isfile(ASSEMBLY + '/' + SAMPLE + '_depth_consensus.tsv'):
     df_depth_check = True
-#    df_depth = pd.read_csv(ASSEMBLY + '/' + SAMPLE + '_depth_consensus.tsv', sep='\t')
 else:
     df_depth_check = False
-#    df_depth = False
-
 
 REFERENCES = ASSEMBLY+'/references'
-#if os.path.isdir(REFERENCES) is False:
-#    os.mkdir(REFERENCES)
 
-#
-FREQ_CUTOFF_FASTA = seq_reader(ASSEMBLY+'/'+SAMPLE+'_prot_variants_AF-'+FREQ_CUTOFF+'.fasta')
-VCF_FILE_CUTOFF = VARIANT_CALLING+'/'+SAMPLE+"_prot_variants_AF-"+FREQ_CUTOFF+".vcf"
+FREQ_CUTOFF_FASTA = seq_reader(ASSEMBLY+'/'+SAMPLE+'_prot_variants_AF'+FREQ_CUTOFF+'.fasta')
+VCF_FILE_CUTOFF = VARIANT_CALLING+'/'+SAMPLE+"_prot_variants_AF"+FREQ_CUTOFF+".vcf"
 
-samfile_df = open(VARIANT_CALLING + '/samfile.sam', 'r')
+samfile_df = open(samfile, 'r')
 samfile_list = list(csv.reader(samfile_df, delimiter = "\n"))
 samfile_df.close()
-
-# df_muts_ALL = pd.DataFrame(
-#     columns=[
-#         "SampleID", "Gene", "Mutation_type", "Aa_change", "Type_of_aa_change ",
-#         "Nt_mutation", "Mutation_frequency"
-#     ]
-# )
 
 if (df_depth_check):
     depth4prot = pd.DataFrame(columns=['ref', 'pos', 'depth'])
 
-if grep(VCF_FILE_CUTOFF, header, 'bool'):
+if get_text(VCF_FILE_CUTOFF, header, 'bool'):
 
-    with open(ASSEMBLY+'/'+SAMPLE+'_prot_variants_AF-'+FREQ_CUTOFF+'_'+header+'.fasta', 'w') as fasta_seq:
+    with open(ASSEMBLY+'/'+SAMPLE+'_prot_variants_AF'+FREQ_CUTOFF+'_'+header+'.fasta', 'w') as fasta_seq:
         fasta_seq.write('>'+header+'\n')
         fasta_seq.write(FREQ_CUTOFF_FASTA[header]+'\n')
         fasta_seq.close()
 
     if (df_depth_check):
-        for j in grep(ASSEMBLY + '/' + SAMPLE + '_depth_consensus.tsv', header + '\t', 'text').split('\n'):
+        for j in get_text(ASSEMBLY + '/' + SAMPLE + '_depth_consensus.tsv', header + '\t', 'text').split('\n'):
             if len(j.split('\t')) == 3:
                 depth4prot.loc[len(depth4prot)] = j.split('\t')
         depth4prot.pos, depth4prot.depth = pd.to_numeric(depth4prot.pos), pd.to_numeric(depth4prot.depth)
@@ -106,38 +101,32 @@ if grep(VCF_FILE_CUTOFF, header, 'bool'):
         depth4prot_corrected.to_csv(ASSEMBLY+'/'+header+'_depth.tsv', sep='\t', index=False)
         file = pd.read_csv(ASSEMBLY+'/'+header+'_depth.tsv', sep="\t")
 
+        sequence_file = open(ASSEMBLY + '/' + SAMPLE + '_prot_variants_AF' + FREQ_CUTOFF + '_' + header + '.fasta', "r")
 
-        sequence_file = open(ASSEMBLY+'/'+SAMPLE+'_prot_variants_AF-'+FREQ_CUTOFF+'_'+header+'.fasta', "r")
-
-        # Store de fasta in one line sequence
         sequence = [i.rstrip() for i in sequence_file.readlines()]
         tag = sequence.pop(0)
         sequence = "".join(sequence)
         sequence_file.close()
 
         for index, row in file.iterrows():
-            # N postions replacer
-            #print('\n')
-            #print('Replacing positions with coverage below 20 with "N" in consensus sequence...')
-            #print('\n')
-            if int(row['depth']) < 20:
+            if int(row['depth']) < DEPTH_CUTOFF:
                 sequence = replacer(sequence, "N", int(row['pos'])-1)
 
             else:
                 continue
 
             sequence_format = [sequence[n:n + 70] for n in range(0, len(sequence), 70)]
-            outfile = open(ASSEMBLY + '/' + SAMPLE + '_prot_variants_AF-' + FREQ_CUTOFF + '_'+header + '.fasta', 'w')
+            outfile = open(ASSEMBLY + '/' + SAMPLE + '_prot_variants_AF' + FREQ_CUTOFF + '_' + header + '.fasta', 'w')
 
             outfile.write(tag)
             outfile.write('\n')
             for seq in sequence_format:
                 outfile.write(seq)
                 outfile.write('\n')
-        ##
-    FREQ_CUTOFF_FASTA_prot = seq_reader(ASSEMBLY+'/'+SAMPLE+'_prot_variants_AF-'+FREQ_CUTOFF+'_'+header+'.fasta')
+            outfile.close()
 
-    # SEQ METRICS
+    FREQ_CUTOFF_FASTA_prot = seq_reader(ASSEMBLY+'/'+SAMPLE+'_prot_variants_AF'+FREQ_CUTOFF+'_'+header+'.fasta')
+
     length_assembly = len(FREQ_CUTOFF_FASTA_prot[header])
 
     if (df_depth_check):
@@ -150,38 +139,23 @@ if grep(VCF_FILE_CUTOFF, header, 'bool'):
     cons_seq = cons_seq.replace('N', '')
     coverage = (len(cons_seq) / len(ref_seq)) * 100
     coverage_clean = str(round(coverage, 2)) + '%'
-    with open(qc_metrics_file, 'a') as infile:
-        infile.write(SAMPLE+';'+'length_'+header+';'+str(length_assembly)+'\n')
+    with open(qc_metrics_file, 'w') as qc_metrics:
+        qc_metrics.write('sample;test;score' + '\n')
+        qc_metrics.write(SAMPLE+';'+'length_'+header+';'+str(length_assembly)+'\n')
         if (df_depth_check):
-            infile.write(SAMPLE+';'+'n_percentage_'+header+';'+str(n_percentage_clean)+'\n')
-        infile.write(SAMPLE+';'+'coverage_'+header+';'+str(coverage_clean)+'\n')
+            qc_metrics.write(SAMPLE+';'+'n_percentage_'+header+';'+str(n_percentage_clean)+'\n')
+        qc_metrics.write(SAMPLE+';'+'coverage_'+header+';'+str(coverage_clean)+'\n')
         if (df_depth_check):
-            infile.write(SAMPLE+';'+'median_'+header+';'+str(depth4prot_corrected.depth.quantile([0.5]).iloc[0])+'\n')
-            infile.write(SAMPLE+';'+'Q1_'+header+';'+str(depth4prot_corrected.depth.quantile([0.25]).iloc[0])+'\n')
-            infile.write(SAMPLE+';'+'Q3_'+header+';'+str(depth4prot_corrected.depth.quantile([0.75]).iloc[0])+'\n')
-    infile.close()
-
-    qc_metrics_file_df = pd.read_csv(qc_metrics_file, sep=';', header=None)
-    qc_metrics_protein_file = pd.DataFrame(columns=["sample", "test", "score"])
-
-    for q in grep(qc_metrics_file_df, header, 'text'):
-        q_df = pd.DataFrame(
-            grep(
-                qc_metrics_file_df, header, 'text'
-            )
-        )[
-            pd.DataFrame(grep(qc_metrics_file_df, header, 'text')).index == q
-        ].to_string(index=False, header=None).split(' ')
-
-    if len(q_df) == len(qc_metrics_protein_file.columns):
-        qc_metrics_protein_file.loc[len(qc_metrics_protein_file)] = q_df
-    qc_metrics_protein_file.to_csv(QC_DIR+'/'+header+'_qc_metrics.csv', sep=';', index=False)
+            qc_metrics.write(SAMPLE+';'+'median_'+header+';'+str(depth4prot_corrected.depth.quantile([0.5]).iloc[0])+'\n')
+            qc_metrics.write(SAMPLE+';'+'Q1_'+header+';'+str(depth4prot_corrected.depth.quantile([0.25]).iloc[0])+'\n')
+            qc_metrics.write(SAMPLE+';'+'Q3_'+header+';'+str(depth4prot_corrected.depth.quantile([0.75]).iloc[0])+'\n')
+    qc_metrics.close()
 
     print('\nBeggining analyisis for protein '+header+'\n')
-    vcf_header = grep(VCF_FILE_CUTOFF, '#C', 'text').replace('\n', '').replace('#', '').split('\t')
+    vcf_header = get_text(VCF_FILE_CUTOFF, '#C', 'text').replace('\n', '').replace('#', '').split('\t')
 
     vcf_prot = pd.DataFrame(columns=vcf_header)
-    for v in grep(VCF_FILE_CUTOFF, header, 'text').split('\n'):
+    for v in get_text(VCF_FILE_CUTOFF, header, 'text').split('\n'):
         if len(v.split('\t')) == len(vcf_header):
             vcf_prot.loc[len(vcf_prot)] = v.split('\t')
 
@@ -200,47 +174,64 @@ if grep(VCF_FILE_CUTOFF, header, 'bool'):
     df_sam.to_csv(VARIANT_CALLING+'/samfile_'+header+'.tsv', sep='\t', index=False, header=None)
 
     df_sam[3] = pd.to_numeric(df_sam[3])
-    VCF_FILE = ASSEMBLY+'/'+SAMPLE+'_'+header+'_prot_variants_AF-'+FREQ_CUTOFF+'.vcf'
+    VCF_FILE = ASSEMBLY+'/'+SAMPLE+'_'+header+'_prot_variants_AF'+FREQ_CUTOFF+'.vcf'
     SAM_TO_LOOP = VARIANT_CALLING+'/sam_to_loop_'+header+'.sam'
     READS_MULTIFASTA = VARIANT_CALLING+'/reads_multifasta_'+header+'.fasta'
 
     if vcf_prot.size > 0:
-        vcf_prot.POS = pd.to_numeric(vcf_prot.POS)
-        vcf_prot['AA_POS'] = ((vcf_prot.POS - 1) // 3) + 1
-        vcf_prot['AA_INDEX'] = ((vcf_prot.POS - 1) % 3)
-        AF = pd.DataFrame(
-            pd.DataFrame(
-                pd.DataFrame(
-                    pd.DataFrame(
-                        vcf_prot.INFO.str.split(pat=';')
-                    )['INFO'].to_list()
-                )[1].str.split(pat='=')
-            )[1].to_list()
-        )[1]
+        vcf_expand_list = []
+        for _, vcf_row in vcf_prot.iterrows():
+            if ',' in vcf_row['ALT']:  # Only expand if there are multiple ALT values
+                vcf_expand_list.extend(expand_vcf_row(vcf_row))
+            else:
+                vcf_expand_list.append(vcf_row)
 
-        vcf_prot['AF'] = AF
-        vcf_prot.AF = pd.to_numeric(vcf_prot.AF)
+        vcf_prot_expanded = pd.DataFrame(vcf_expand_list).reset_index(drop=True)
+        vcf_prot_expanded.POS = pd.to_numeric(vcf_prot_expanded.POS)
+        vcf_prot_expanded['AA_POS'] = ((vcf_prot_expanded.POS - 1) // 3) + 1
+        vcf_prot_expanded['AA_INDEX'] = ((vcf_prot_expanded.POS - 1) % 3)
+        INFO=pd.DataFrame((pd.DataFrame(vcf_prot_expanded.INFO.str.split(pat=';'))['INFO'].to_list()))
+
+        def AFfinder(col):
+            return col.astype(str).str.startswith('AF=').any()
+            
+        def DPfinder(col):
+            return col.astype(str).str.startswith('DP=').any()
+
+        AF = pd.DataFrame((pd.DataFrame(INFO.loc[:, INFO.apply(AFfinder, axis=0)].T.reset_index(drop=True).T[0].str.split(pat='='))[0].to_list()))[1]
+        DP = pd.DataFrame((pd.DataFrame(INFO.loc[:, INFO.apply(DPfinder, axis=0)].T.reset_index(drop=True).T[0].str.split(pat='='))[0].to_list()))[1]
+
+        vcf_prot_expanded['AF'] = AF
+        vcf_prot_expanded['DP'] = DP
         
-        indels = vcf_prot[(vcf_prot.ALT.str.len() > 1) | (vcf_prot.REF.str.len() > 1)]
-        alone_aa =  vcf_prot[(vcf_prot.REF.str.len() == 1) & (vcf_prot.ALT.str.len() == 1)]
-        # frameshift = vcf_prot[vcf_prot.ALT.str.len() > 1]
+        vcf_prot_expanded.AF = pd.to_numeric(vcf_prot_expanded.AF)
+        vcf_prot_expanded.DP = pd.to_numeric(vcf_prot_expanded.DP)
+        
+        indels = vcf_prot_expanded[(vcf_prot_expanded.ALT.str.len() > 1) | (vcf_prot_expanded.REF.str.len() > 1)]
+        not_indels = vcf_prot_expanded[(vcf_prot_expanded.REF.str.len() == 1) & (vcf_prot_expanded.ALT.str.len() == 1)]
+        alone_aa = not_indels.groupby('AA_POS').filter(lambda g: len(g) == 1 or g['POS'].nunique() == 1)
+        alone_aa = alone_aa.reset_index(drop=True)
 
-        alone_aa = alone_aa.drop_duplicates(subset=['AA_POS'], keep=False)
-        alone_aa = alone_aa.reset_index(drop=True)  # ready for analysis
-
-        vcf_prot_for_reps = pd.concat([vcf_prot, alone_aa]).drop_duplicates(keep=False).reset_index(drop=True)
-
-        repeated_aa = vcf_prot_for_reps[vcf_prot_for_reps.duplicated(subset='AA_POS', keep=False)]
+        repeated_aa = not_indels.groupby('AA_POS').filter(lambda g: g['POS'].nunique() > 1)
         repeated_aa = repeated_aa.reset_index(drop=True)
 
         fixed_muts = pd.DataFrame(columns=repeated_aa.columns)
         non_fixed_muts = pd.DataFrame(columns=repeated_aa.columns)
 
         for rep in repeated_aa.AA_POS.unique():
-            AFs, isit = repeated_aa[repeated_aa.AA_POS == rep].AF, False
+            AFs, AFs_count, isit = repeated_aa[repeated_aa.AA_POS == rep].AF, 0,False
+            
             for n in AFs:
                 if n >= 0.99:
+                    if len(AFs) == 2:
+                        isit = True
+                        break
+                    if len(AFs) == 3:
+                        AFs_count += 1
+                if AFs_count == (len(AFs) - 1):
                     isit = True
+                    break
+
             if isit:
                 fixed_mut = repeated_aa[repeated_aa.AA_POS == rep]
                 if fixed_muts.size > 0:
@@ -257,37 +248,38 @@ if grep(VCF_FILE_CUTOFF, header, 'bool'):
                     non_fixed_muts = non_fixed_mut
                 print(str(rep) + ' is not a fixed mutation')
 
-        fixed_muts = fixed_muts.reset_index(drop=True)  # ready for analysis
-        non_fixed_muts = non_fixed_muts.reset_index(drop=True)  # ready for analysis
+        fixed_muts = fixed_muts.reset_index(drop=True)
+        non_fixed_muts = non_fixed_muts.reset_index(drop=True)
+        columns_muts=[
+            "SampleID", "Protein", "Mutation_type", "Aa_change", "Amino_Acid_Property_Change",
+            "Nt_mutation", "Mutation_frequency", "Mutation_depth"
+        ]
         if alone_aa.size > 0:
             muts = []
-            for n_aa in alone_aa.AA_POS.unique():
-                muts_aux, n_aa_df = [], alone_aa[alone_aa.AA_POS == n_aa]
-                n_aa_df = n_aa_df.reset_index(drop=True)
-                muts_aux = minority_mutations_detector(n_aa_df, ref_seq, SAMPLE, header)
+            for df_index in alone_aa.index:
+                muts_aux, n_nt_df = [], alone_aa[alone_aa.index == df_index]
+                n_nt_df = n_nt_df.reset_index(drop=True)
+                print(n_nt_df)
+                print(ref_seq)
+                print(header)
+                muts_aux = minority_mutations_detector(n_nt_df, ref_seq, SAMPLE, header)
                 muts.append(muts_aux)
             print(muts)
-            dfmuts = pd.DataFrame(
-                muts, columns=[
-                    "SampleID", "Gene", "Mutation_type", "Aa_change", "Type_of_aa_change ",
-                    "Nt_mutation", "Mutation_frequency"
-                ]
-            )
+            dfmuts = pd.DataFrame(muts, columns=columns_muts)
 
             dfmuts.to_csv(
                 MUTATIONS + '/' + SAMPLE + '_' + header + '_alone_mutations.csv', sep=';', index=False
             )
 
         if indels.size > 0:
-            muts = pd.DataFrame(columns=[
-                    "SampleID", "Gene", "Mutation_type", "Aa_change", "Type_of_aa_change ",
-                    "Nt_mutation", "Mutation_frequency"
-                ])
-            for n_aa in indels.AA_POS.unique():
-                muts_aux, n_aa_df = [], indels[indels.AA_POS == n_aa]
-                n_aa_df = n_aa_df.reset_index(drop=True)
-                muts_aux = indel_mutations_detector(n_aa_df, ref_seq, SAMPLE, header)
+            muts = pd.DataFrame(columns=columns_muts)
+            for df_index in indels.index: #POS.unique():
+                muts_aux, n_nt_df = [], indels[indels.index == df_index]
+                n_nt_df = n_nt_df.reset_index(drop=True)
+                muts_aux = indel_mutations_detector(n_nt_df, ref_seq, SAMPLE, header)
                 muts_aux = muts_aux.reset_index(drop=True)
+                muts = muts.dropna(axis=1, how='all')
+                muts_aux = muts_aux.dropna(axis=1, how='all')
                 muts = pd.concat([muts, muts_aux]).reset_index(drop=True)
             print(muts)
 
@@ -296,23 +288,17 @@ if grep(VCF_FILE_CUTOFF, header, 'bool'):
             )
 
         if fixed_muts.size > 0:
-            muts = pd.DataFrame(columns=[
-                    "SampleID", "Gene", "Mutation_type", "Aa_change", "Type_of_aa_change ",
-                    "Nt_mutation", "Mutation_frequency"
-                ])
+            muts = pd.DataFrame(columns=columns_muts)
             for n_aa in fixed_muts.AA_POS.unique():
                 muts_aux, n_aa_df = [], fixed_muts[fixed_muts.AA_POS == n_aa]
                 n_aa_df = n_aa_df.reset_index(drop=True)
-                muts_aux = variant_codon_mutation(n_aa_df, ref_seq, "Fixed", n_aa, SAMPLE, header)
+                muts_aux = variant_codon_mutation(n_aa_df, ref_seq, "Fixed", n_aa, SAMPLE, header, FREQ_CUTOFF, DEPTH_CUTOFF)
                 muts_aux = muts_aux.reset_index(drop=True)
+                muts = muts.dropna(axis=1, how='all')
+                muts_aux = muts_aux.dropna(axis=1, how='all')
                 muts = pd.concat([muts, muts_aux]).reset_index(drop=True)
 
-            dfmuts = pd.DataFrame(
-                muts, columns=[
-                    "SampleID", "Gene", "Mutation_type", "Aa_change", "Type_of_aa_change ",
-                    "Nt_mutation", "Mutation_frequency"
-                ]
-            )
+            dfmuts = pd.DataFrame(muts, columns=columns_muts)
 
             dfmuts.to_csv(MUTATIONS + '/' + SAMPLE + '_' + header + '_fixed_mutations.csv', sep=';', index=False)
 
@@ -339,7 +325,7 @@ if grep(VCF_FILE_CUTOFF, header, 'bool'):
                         range_min = minimum - max_read_len
                         range_max = minimum + max_read_len
                         # take from samfile regioninside rangemax and rangemin
-    
+
                     sam_to_loop = df_sam[df_sam[3] >= range_min][df_sam[df_sam[3] >= range_min][3] <= range_max]
                     sam_to_loop = sam_to_loop.reset_index(drop=True)
                     sam_to_loop.to_csv(SAM_TO_LOOP, index=False, sep='\t', header=None)
@@ -380,28 +366,16 @@ if grep(VCF_FILE_CUTOFF, header, 'bool'):
             # Extract strings from the column and split them into groups of 3 characters
             just_reads_df_sep = just_reads_df[0].str.extractall('(.{1,3})')[0].unstack().fillna('---')
 
-            muts = pd.DataFrame(columns=[
-                    "SampleID", "Gene", "Mutation_type", "Aa_change", "Type_of_aa_change ",
-                    "Nt_mutation", "Mutation_frequency"
-                ])
+            muts = pd.DataFrame(columns=columns_muts)
             for n_aa in non_fixed_muts.AA_POS.unique():
                 muts_aux, n_aa_df = [], non_fixed_muts[non_fixed_muts.AA_POS == n_aa]
                 n_aa_df = n_aa_df.reset_index(drop=True)
-                muts_aux = variant_codon_mutation(n_aa_df, ref_seq, just_reads_df_sep, n_aa, SAMPLE, header)
+                muts_aux = variant_codon_mutation(n_aa_df, ref_seq, just_reads_df_sep, n_aa, SAMPLE, header, FREQ_CUTOFF, DEPTH_CUTOFF)
                 muts_aux = muts_aux.reset_index(drop=True)
+                muts = muts.dropna(axis=1, how='all')
+                muts_aux = muts_aux.dropna(axis=1, how='all')
                 muts = pd.concat([muts, muts_aux]).reset_index(drop=True)
 
-            dfmuts = pd.DataFrame(
-                muts, columns=[
-                    "SampleID", "Gene", "Mutation_type", "Aa_change",
-                    "Type_of_aa_change ", "Nt_mutation", "Mutation_frequency"
-                ]
-            )
+            dfmuts = pd.DataFrame(muts, columns=columns_muts)
 
-            # if df_muts_ALL.size > 0:
-            #     df_muts_ALL = pd.concat([df_muts_ALL, dfmuts])
-            # else:
-            #     df_muts_ALL = dfmuts
             dfmuts.to_csv(MUTATIONS + '/' + SAMPLE + '_' + header + '_not_fixed_mutations.csv', sep=';', index=False)
-
-#df_muts_ALL.to_csv(MUTATIONS + '/' + SAMPLE + '_mutations.csv', sep=';', index=False, header=None)

@@ -1,8 +1,43 @@
+#!/usr/bin/env nextflow
 
-![Version](https://img.shields.io/badge/Version-1.1.0-blue) ![License](https://img.shields.io/badge/License-GPL_V3-green)
+// This file is part of minMutFinder.
+//
+// minMutFinder is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// minMutFinder is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with minMutFinder. If not, see <https://www.gnu.org/licenses/>.
+//
+// Copyright (C) 2024 Ignasi Prats Méndez
 
+nextflow.enable.dsl = 2
 
-# **minMutFinder**
+include { dirCreator; refCheck } from './modules/initialization'
+include { fastqProcessing; mapping1; variant_calling_fq; variant_calling_areads; mapping2; read_depth; reads_qc_metrics } from './modules/from_fq_to_vcf'
+include { inVcf; inAlignedReads } from './modules/input_bam_sam_vcf'
+include { byProteinAnalysis; protNames } from './modules/by_protein'
+include { waitForOutMuts; vizNoAnnot; annotateAndViz } from './modules/viz_and_annotate'
+
+def versionMessage() {
+    log.info """
+    MINORITY MUTATION FINDER (minMutFinder) - Version: ${workflow.manifest.version}
+    """.stripIndent()
+}
+
+def helpMessage() {
+    log.info """
+    minMutFinder v1.1.0 under GPL-3.0 license
+
+Author: Ignasi Prats-Méndez
+Institution: HUVH & VHIR  
+Group: Servei de Microbiologia - Unitat de Virus Respiratoris  
 
 ## 📜 Table of Contents
 - [🎯 Overview](#-overview)
@@ -158,3 +193,126 @@ We're always happy to help!
 - [Lofreq](https://csb5.github.io/lofreq/)
 - [Bcftools](http://samtools.github.io/bcftools/bcftools.html)
 - [Samtools](http://www.htslib.org/)
+
+"""
+}
+
+/**
+ * Prints version when asked for
+ */
+workflow HELP_AND_VERSION_MESSAGES {
+    if (params.version || params.v) {
+        versionMessage()
+        exit 0
+    }
+
+    if (params.help || params.h || params.isEmpty()) {
+        helpMessage()
+        exit 0
+    } else {
+        // Creates working dir
+        workingpath = params.out_path
+        workingdir = file(workingpath)
+        if (!workingdir.exists()) {
+            if (!workingdir.mkdirs()) {
+                exit 1, "Cannot create working directory: $workingpath"
+            }
+        }
+    }
+}
+
+/**
+ * Check if files exist
+ */
+workflow FILE_CHECK {
+    if (params.r1 && !file("${params.r1}").exists()) {
+        exit 1, "File ${params.r1} does not exist. Exiting..."
+    }
+
+    if (params.r2 && !file("${params.r2}").exists()) {
+        exit 1, "File ${params.r2} does not exist. Exiting..."
+    }
+
+    if (params.ref_seq && !file("${params.ref_seq}").exists()) {
+        exit 1, "File ${params.ref_seq} does not exist. Exiting..."
+    }
+
+    if (params.vcf && !file("${params.vcf}").exists()) {
+        exit 1, "File ${params.vcf} does not exist. Exiting..."
+    }
+
+    if (params.areads && !file("${params.areads}").exists()) {
+        exit 1, "File ${params.areads} does not exist. Exiting..."
+    }
+
+    if (params.annotate && !file("${params.annotate}").exists()) {
+        exit 1, "File ${params.annotate} does not exist. Exiting..."
+    }
+}
+
+/**
+ * Log information about the workflow
+ */
+workflow LOG_INFO {
+    log.info """---------------------------------------------
+    MINORITY MUTATIONS FINDER (minMutFinder)
+    ---------------------------------------------
+
+    Beginning of analysis:
+    """
+
+    def summary = [:]
+    summary['Starting time'] = new java.util.Date()
+    summary['Environment'] = ""
+    summary['Pipeline Name'] = 'minMutFinder'
+    summary['Pipeline Version'] = workflow.manifest.version
+}
+
+/**
+ * Main workflow
+ */
+workflow MAIN_WORKFLOW {
+    HELP_AND_VERSION_MESSAGES()
+    FILE_CHECK()
+    LOG_INFO()
+
+    dirCreator(params.out_path)
+    refs = refCheck(params.out_path, file(params.ref_seq))
+    ref_only = refs.map { it[0] }
+
+    if (file("${params.areads}").exists()) {
+        out_map = inAlignedReads(file(params.areads), params.out_path)
+        if (file("${params.vcf}").exists()) {
+            out_vcf = inVcf(file(params.vcf), params.out_path, out_map, params.AF, params.depth, ref_only)
+        } else {
+            out_vcf = variant_calling_areads(params.out_path, out_map, params.AF, params.depth, ref_only, params.threads)
+        }
+        out_depth = false
+    } else {
+        out_fq = fastqProcessing(file(params.r1), file(params.r2), params.out_path)
+        out_map = mapping1(params.out_path, out_fq, ref_only)
+        out_vcf = variant_calling_fq(params.out_path, out_map, params.AF, params.depth, ref_only, params.threads)
+        out_map2 = mapping2(params.out_path, out_vcf, out_fq)
+        out_depth = read_depth(params.out_path, out_map2)
+    }
+    samfile_only = out_vcf.map { it[2] }
+    names = protNames(params.out_path, out_vcf)
+    out_muts = byProteinAnalysis(params.out_path, names.flatten(), params.AF, params.depth, out_depth, samfile_only, ref_only)
+    stopper_only = out_muts.map { it[0] }
+    out_wait = waitForOutMuts(params.out_path, stopper_only)
+
+    if (params.annotate) {
+        annotateAndViz(params.out_path, file(params.annotate), out_wait, params.syn_muts, ref_only)
+    } else {
+        vizNoAnnot(params.out_path, out_wait, params.syn_muts, ref_only)
+    }
+
+    if (file("${params.r1}").exists() && file("${params.r2}").exists()) {
+        reads_qc_metrics(file(params.r1), file(params.r2), params.out_path, out_fq, out_wait)
+    }
+
+}
+
+workflow {
+    MAIN_WORKFLOW()
+}
