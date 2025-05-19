@@ -20,7 +20,7 @@
 import pandas as pd
 import os
 
-def get_text(file, pattern, tpe):
+def grep(file, pattern, tpe):
     aux = False
     result = ''
     if 'inverse' not in tpe:
