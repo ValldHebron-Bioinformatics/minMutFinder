@@ -22,15 +22,15 @@ from translateDNA import translateDNA
 aa_classes = {
     'A': 'Hydrophobic', 'V': 'Hydrophobic',
     'L': 'Hydrophobic', 'M': 'Hydrophobic',
-    'I': 'Hydrophobic', 'S': 'Polar non charged',
-    'T': 'Polar non charged', 'N': 'Polar non charged',
-    'Q': 'Polar non charged', 'G': 'Special case',
-    'C': 'Special case', 'P': 'Special case',
-    'U': 'Special case', 'F': 'Aromatic Hydrophobic',
-    'Y': 'Aromatic Hydrophobic', 'W': 'Aromatic Hydrophobic',
-    'K': 'Positively charged', 'R': 'Positively charged',
-    'H': 'Positively charged', 'D': 'Positively charged',
-    'E': 'Positively charged', '*': 'Stop'
+    'I': 'Hydrophobic', 'S': 'Polar_non_charged',
+    'T': 'Polar_non_charged', 'N': 'Polar_non_charged',
+    'Q': 'Polar_non_charged', 'G': 'Special_case',
+    'C': 'Special_case', 'P': 'Special_case',
+    'U': 'Special_case', 'F': 'Aromatic_Hydrophobic',
+    'Y': 'Aromatic_Hydrophobic', 'W': 'Aromatic_Hydrophobic',
+    'K': 'Positively_charged', 'R': 'Positively_charged',
+    'H': 'Positively_charged', 'D': 'Positively_charged',
+    'E': 'Positively_charged', '*': 'Stop'
 }
 
 codon_code = {
@@ -53,13 +53,13 @@ codon_code = {
 }
 
 
-def minority_mutations_detector(vcf, ref, sample_id, protein_initial):
+def minority_mutations_detector(vcf, ref, sample_id, gene_initial):
     mut = []
     ref_seq = ref
     df = vcf
     for index, row in df.iterrows():
 
-        ref, alt, pos, allele_freq, allele_dp = df.REF.iloc[index], df.ALT.iloc[index], df.POS.iloc[index], df.AF.iloc[index], df.DP.iloc[index]
+        ref, alt, pos, allele_freq = df.REF.iloc[index], df.ALT.iloc[index], df.POS.iloc[index], df.AF.iloc[index]
 
         n = int(pos) % 3
 
@@ -77,7 +77,7 @@ def minority_mutations_detector(vcf, ref, sample_id, protein_initial):
             ALT = alt
 
         pos = int(pos) - 1
-        aa_pos, protein, aux = int(pos // 3) + 1, protein_initial, 0
+        aa_pos, gene, aux = int(pos // 3) + 1, gene_initial, 0
 
 
         if (n == 1) and (aux <= 0):
@@ -90,28 +90,28 @@ def minority_mutations_detector(vcf, ref, sample_id, protein_initial):
             ref_prot = str(ref_seq[pos:pos + 3])
             prot_ref = codon_code[ref_prot]
             if (aa_classes[prot_ref] != aa_classes[prot_sub]):
-                aa_change = "Amino acid changed from " + aa_classes[prot_ref] + " to " + aa_classes[prot_sub]
+                aa_change = aa_classes[prot_ref] + " --> " + aa_classes[prot_sub]
 
-            elif (aa_classes[prot_ref] == "Special case") and (aa_classes[prot_sub] == "Special case"):
+            elif (aa_classes[prot_ref] == "Special_case") and (aa_classes[prot_sub] == "Special_case"):
                 if (prot_ref != prot_sub):
-                    aa_change = "Amino acid changed from " + aa_classes[prot_ref] + " to " + aa_classes[prot_sub]
+                    aa_change = aa_classes[prot_ref] + " --> " + aa_classes[prot_sub]
 
                 else:
-                    aa_change = "Amino acid did not change, it stayed " + aa_classes[prot_ref]
+                    aa_change = "No_Change, stayed " + aa_classes[prot_ref]
 
             else:
-                aa_change = "Amino acid did not change, it stayed " + aa_classes[prot_ref]
+                aa_change = "No_Change, stayed " + aa_classes[prot_ref]
             if prot_ref != prot_sub:
                 mut = [
-                    sample_id, protein, "NON_SYNONYMOUS",
+                    sample_id, gene, "MUTATION",
                     prot_ref + str(aa_pos) + prot_sub,
-                    aa_change, ref + str(pos+1) + alt, allele_freq, allele_dp
+                    aa_change, ref + str(pos+1) + alt, allele_freq
                 ]
             else:
                 mut = [
-                    sample_id, protein, "SYNONYMOUS",
+                    sample_id, gene, "NO_MUTATION",
                     prot_ref + str(aa_pos) + prot_sub,
-                    aa_change, ref + str(pos+1) + alt, allele_freq, allele_dp
+                    aa_change, ref + str(pos+1) + alt, allele_freq
                 ]
 
         elif (n == 0) and (aux <= 0):
@@ -124,28 +124,28 @@ def minority_mutations_detector(vcf, ref, sample_id, protein_initial):
             ref_prot = str(ref_seq[pos - 2:pos + 1])
             prot_ref = codon_code[ref_prot]
             if (aa_classes[prot_ref] != aa_classes[prot_sub]):
-                aa_change = "Amino acid changed from " + aa_classes[prot_ref] + " to " + aa_classes[prot_sub]
+                aa_change = aa_classes[prot_ref] + " --> " + aa_classes[prot_sub]
 
-            elif (aa_classes[prot_ref] == "Special case") and (aa_classes[prot_sub] == "Special case"):
+            elif (aa_classes[prot_ref] == "Special_case") and (aa_classes[prot_sub] == "Special_case"):
                 if (prot_ref != prot_sub):
-                    aa_change = "Amino acid changed from " + aa_classes[prot_ref] + " to " + aa_classes[prot_sub]
+                    aa_change = aa_classes[prot_ref] + " --> " + aa_classes[prot_sub]
 
                 else:
-                    aa_change = "Amino acid did not change, it stayed " + aa_classes[prot_ref]
+                    aa_change = "No_Change, stayed " + aa_classes[prot_ref]
 
             else:
-                aa_change = "Amino acid did not change, it stayed " + aa_classes[prot_ref]
+                aa_change = "No_Change, stayed " + aa_classes[prot_ref]
             if prot_ref != prot_sub:
                 mut = [
-                    sample_id, protein, "NON_SYNONYMOUS",
+                    sample_id, gene, "MUTATION",
                     prot_ref + str(aa_pos) + prot_sub,
-                    aa_change, ref + str(pos+1) + alt, allele_freq, allele_dp
+                    aa_change, ref + str(pos+1) + alt, allele_freq
                 ]
             else:
                 mut = [
-                    sample_id, protein, "SYNONYMOUS",
+                    sample_id, gene, "NO_MUTATION",
                     prot_ref + str(aa_pos) + prot_sub,
-                    aa_change, ref + str(pos+1) + alt, allele_freq, allele_dp
+                    aa_change, ref + str(pos+1) + alt, allele_freq
                 ]
 
         else:
@@ -157,28 +157,28 @@ def minority_mutations_detector(vcf, ref, sample_id, protein_initial):
                 ref_prot = str(ref_seq[pos - 1:pos + 2])
                 prot_ref = codon_code[ref_prot]
                 if (aa_classes[prot_ref] != aa_classes[prot_sub]):
-                    aa_change = "Amino acid changed from " + aa_classes[prot_ref] + " to " + aa_classes[prot_sub]
+                    aa_change = aa_classes[prot_ref] + " --> " + aa_classes[prot_sub]
 
-                elif (aa_classes[prot_ref] == "Special case") and (aa_classes[prot_sub] == "Special case"):
+                elif (aa_classes[prot_ref] == "Special_case") and (aa_classes[prot_sub] == "Special_case"):
                     if (prot_ref != prot_sub):
-                        aa_change = "Amino acid changed from " + aa_classes[prot_ref] + " to " + aa_classes[prot_sub]
+                        aa_change = aa_classes[prot_ref] + " --> " + aa_classes[prot_sub]
 
                     else:
-                        aa_change = "Amino acid did not change, it stayed " + aa_classes[prot_ref]
+                        aa_change = "No_Change, stayed " + aa_classes[prot_ref]
 
                 else:
-                    aa_change = "Amino acid did not change, it stayed " + aa_classes[prot_ref]
+                    aa_change = "No_Change, stayed " + aa_classes[prot_ref]
 
                 if prot_ref != prot_sub:
                     mut = [
-                        sample_id, protein, "NON_SYNONYMOUS",
+                        sample_id, gene, "MUTATION",
                         prot_ref + str(aa_pos) + prot_sub,
-                        aa_change, ref + str(pos+1) + alt, allele_freq, allele_dp
+                        aa_change, ref + str(pos+1) + alt, allele_freq
                     ]
                 else:
                     mut = [
-                        sample_id, protein, "SYNONYMOUS",
+                        sample_id, gene, "NO_MUTATION",
                         prot_ref + str(aa_pos) + prot_sub,
-                        aa_change, ref + str(pos+1) + alt, allele_freq, allele_dp
+                        aa_change, ref + str(pos+1) + alt, allele_freq
                     ]
     return mut

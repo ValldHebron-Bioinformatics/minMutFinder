@@ -76,8 +76,10 @@ def translateDNA(seq):
                 if o == 0:
                     continue
                 else:
+                    # No codifican mismo aa
                     if aa_opts[o] != aa_opts[o-1]:
                         protein_sequence += "?"
+                    # Si llega al final de la iteracion y no ha entrado en el bucle anterior, son todos iguales
                     else:
                         if o == len(aa_opts)-1:
                             protein_sequence += codon_code[seq_degenerated]

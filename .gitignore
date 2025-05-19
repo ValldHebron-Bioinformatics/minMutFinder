@@ -1,0 +1,34 @@
+# Ignore any Nextflow-specific files
+minMutFinder-nf/work/
+minMutFinder-nf/.nextflow/
+minMutFinder-nf/.nextflow.log
+minMutFinder-nf/reports/
+minMutFinder-nf/timeline.html
+minMutFinder-nf/trace.txt
+
+# Ignore any Python bytecode and cache files
+minMutFinder-nf/bin/__pycache__/
+minMutFinder-nf/bin/*.py[cod]
+minMutFinder-nf/bin/*.pyo
+
+# Ignore operating system files
+minMutFinder-nf/.DS_Store
+minMutFinder-nf/Thumbs.db
+
+# Ignore log files and temporary files
+minMutFinder-nf/*.log
+minMutFinder-nf/*.tmp
+minMutFinder-nf/*.bak
+
+# Ignore Conda environments and packages
+minMutFinder-nf/.env/
+minMutFinder-nf/*.env
+minMutFinder-nf/*.yml
+
+# Ignore results and output folders
+minMutFinder-nf/results/
+minMutFinder-nf/output/
+
+# Ignore any secret or configuration files with credentials
+minMutFinder-nf/secrets.env
+minMutFinder-nf/config/private.config
