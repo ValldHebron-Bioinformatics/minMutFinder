@@ -96,6 +96,11 @@ nextflow run minMutFinder.nf --ref_seq <reference.fasta> --out_path <output_name
 - `--r2`: Path and filename of the reverse FASTQ compressed file
 - `--annotate`: Path and filename of the TSV file containing the annotated mutations (3)
 - `--syn_muts`: "yes" or "no", depending on whether to include synonymous mutations in the output plot (default is "no")
+- `--vcf`: Path and filename of the VCF
+- `--areads`: Path and filename of the SAM or BAM file
+- `--AF`: Number from 0 to 1 with the desired allele frequency of mutations threshold (default 0.05)
+- `--depth`: Integer equal or greater than 0 with the desired depth of mutations threshold (default 20)
+- `--threads`: Number of threads to be used (default 4)
 - `--mapping`: "minimap2" or "bbmap", depending on which mapping tool the user desires to use. Bbmap is highly recommended for reference sequences < 1000nt (default is "minimap2")
 
 ### 📝 Notes
