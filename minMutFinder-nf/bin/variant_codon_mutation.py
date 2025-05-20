@@ -24,15 +24,15 @@ from all_muts_finder import all_muts_finder
 aa_classes = {
     'A': 'Hydrophobic', 'V': 'Hydrophobic',
     'L': 'Hydrophobic', 'M': 'Hydrophobic',
-    'I': 'Hydrophobic', 'S': 'Polar_non_charged',
-    'T': 'Polar_non_charged', 'N': 'Polar_non_charged',
-    'Q': 'Polar_non_charged', 'G': 'Special_case',
-    'C': 'Special_case', 'P': 'Special_case',
-    'U': 'Special_case', 'F': 'Aromatic_Hydrophobic',
-    'Y': 'Aromatic_Hydrophobic', 'W': 'Aromatic_Hydrophobic',
-    'K': 'Positively_charged', 'R': 'Positively_charged',
-    'H': 'Positively_charged', 'D': 'Positively_charged',
-    'E': 'Positively_charged', '*': 'Stop'
+    'I': 'Hydrophobic', 'S': 'Polar non charged',
+    'T': 'Polar non charged', 'N': 'Polar non charged',
+    'Q': 'Polar non charged', 'G': 'Special case',
+    'C': 'Special case', 'P': 'Special case',
+    'U': 'Special case', 'F': 'Aromatic Hydrophobic',
+    'Y': 'Aromatic Hydrophobic', 'W': 'Aromatic Hydrophobic',
+    'K': 'Positively charged', 'R': 'Positively charged',
+    'H': 'Positively charged', 'D': 'Positively charged',
+    'E': 'Positively charged', '*': 'Stop'
 }
 
 codon_code = {
@@ -55,11 +55,11 @@ codon_code = {
 }
 
 
-def variant_codon_mutation(codon_data, ref_seq, reads, aa_pos, sample_id, gene):
+def variant_codon_mutation(codon_data, ref_seq, reads, aa_pos, sample_id, protein, AF, DP):
     muts = []
 
     # Data loading
-    codon, fasta, aa_pos = codon_data, ref_seq, int(aa_pos)
+    codon, fasta, aa_pos, FREQ_CUTOFF, DEPTH_CUTOFF = codon_data, ref_seq, int(aa_pos), float(AF), int(DP)
 
     reference_codon = fasta[(aa_pos * 3) - 3:(aa_pos * 3)]
     reference_codon = reference_codon.upper()
@@ -92,10 +92,10 @@ def variant_codon_mutation(codon_data, ref_seq, reads, aa_pos, sample_id, gene):
         for mut in muts_list:
             if reference_codon != mut:
                 n_reads_mut = reads_seq[reads_seq[aa_pos-1] == mut].shape[0]
-                percentage, gene_pos = (n_reads_mut / count), gene  # *100
-                if percentage >= 0.05:
+                percentage, protein_pos, dp = (n_reads_mut / count), protein, n_reads_mut
+                if percentage >= FREQ_CUTOFF and dp >= DEPTH_CUTOFF:
 
-                    gene_pos, mut_dic[mut], prot_sub = gene, percentage, codon_code[mut]
+                    protein_pos, mut_dic[mut], prot_sub = protein, percentage, codon_code[mut]
                     prot_ref, nt_mutation = codon_code[reference_codon], ''
 
                     mut_aa_dic[prot_sub] = prot_ref
@@ -107,30 +107,32 @@ def variant_codon_mutation(codon_data, ref_seq, reads, aa_pos, sample_id, gene):
                                 nt_mutation += str(", " + str(reference_codon[i]) + str(i + (aa_pos * 3) - 2) + str(mut[i]))
 
                     if (aa_classes[prot_ref] != aa_classes[prot_sub]):
-                        aa_change = aa_classes[prot_ref] + " --> " + aa_classes[prot_sub]
+                        aa_change = "Amino acid changed from " + aa_classes[prot_ref] + " to " + aa_classes[prot_sub]
 
-                    elif (aa_classes[prot_ref] == "Special_case") and (aa_classes[prot_sub] == "Special_case"):
+                    elif (aa_classes[prot_ref] == "Special case") and (aa_classes[prot_sub] == "Special case"):
                         if (prot_ref != prot_sub):
-                            aa_change = aa_classes[prot_ref] + " --> " + aa_classes[prot_sub]
+                            aa_change = "Amino acid changed from " + aa_classes[prot_ref] + " to " + aa_classes[prot_sub]
 
                         else:
-                            aa_change = "No_Change, stayed " + aa_classes[prot_ref]
+                            aa_change = "Amino acid did not change, it stayed " + aa_classes[prot_ref]
 
                     else:
-                        aa_change = "No_Change, stayed " + aa_classes[prot_ref]
+                        aa_change = "Amino acid did not change, it stayed " + aa_classes[prot_ref]
 
                     if prot_ref != prot_sub:
                         mut_aux = [
-                            sample_id, gene_pos, "MUTATION",
+                            sample_id, protein_pos, "NON_SYNONYMOUS",
                             prot_ref + str(aa_pos) + prot_sub,
-                            aa_change, nt_mutation, str(percentage)
+                            aa_change, nt_mutation, str(percentage),
+                            str(dp)
                         ]
 
                     else:
                         mut_aux = [
-                            sample_id, gene_pos, "NO_MUTATION",
+                            sample_id, protein_pos, "SYNONYMOUS",
                             prot_ref + str(aa_pos) + prot_sub,
-                            aa_change, nt_mutation, str(percentage)
+                            aa_change, nt_mutation, str(percentage),
+                            str(dp)
                         ]
                     muts.append(mut_aux)
 
@@ -151,9 +153,10 @@ def variant_codon_mutation(codon_data, ref_seq, reads, aa_pos, sample_id, gene):
                 fixed_nts = replacer_vcm(fixed_nts, str(ALT), int(AA_INDEX))
                 r_fixed.append(AA_INDEX)
                 fixed_mut_freq = float(codon.AF.iloc[index])
+                fixed_mut_dp = float(codon.DP.iloc[index])
             else:
                 r_not_fixed.append(AA_INDEX)
-        gene_pos = gene
+        protein_pos = protein
 
         muts_list = []
         for w in r:
@@ -172,18 +175,21 @@ def variant_codon_mutation(codon_data, ref_seq, reads, aa_pos, sample_id, gene):
                             freq_mut = b["AF"].to_string(index=False).split('\n')[0]
                             freq_non_fixed = float(freq_mut)
                             fixed_mut_freq = fixed_mut_freq - freq_non_fixed
+                            dp_mut = b["DP"].to_string(index=False).split('\n')[0]
+                            dp_non_fixed = float(dp_mut)
+                            fixed_mut_dp = fixed_mut_dp - dp_non_fixed
                             prot_sub = codon_code[mutated_codon]
 
                             if (aa_classes[prot_ref] != aa_classes[prot_sub]):
-                                aa_change = aa_classes[prot_ref] + " --> " + aa_classes[prot_sub]
+                                aa_change = "Amino acid changed from " + aa_classes[prot_ref] + " to " + aa_classes[prot_sub]
 
-                            elif (aa_classes[prot_ref] == "Special_case") and (aa_classes[prot_sub] == "Special_case"):
+                            elif (aa_classes[prot_ref] == "Special case") and (aa_classes[prot_sub] == "Special case"):
                                 if (prot_ref != prot_sub):
-                                    aa_change = aa_classes[prot_ref] + " --> " + aa_classes[prot_sub]
+                                    aa_change = "Amino acid changed from " + aa_classes[prot_ref] + " to " + aa_classes[prot_sub]
                                 else:
-                                    aa_change = "No_Change, stayed " + aa_classes[prot_ref]
+                                    aa_change = "Amino acid did not change, it stayed " + aa_classes[prot_ref]
                             else:
-                                aa_change = "No_Change, stayed " + aa_classes[prot_ref]
+                                aa_change = "Amino acid did not change, it stayed " + aa_classes[prot_ref]
 
                             nt_mutation = ''
                             for y in r:
@@ -204,18 +210,21 @@ def variant_codon_mutation(codon_data, ref_seq, reads, aa_pos, sample_id, gene):
                                         )
 
                             percentage = freq_non_fixed
-                            if percentage >= 0.05:
+                            dp = dp_non_fixed
+                            if percentage >= FREQ_CUTOFF and dp >= DEPTH_CUTOFF:
                                 if prot_ref != prot_sub:
                                     mut_aux = [
-                                        sample_id, gene_pos, "MUTATION",
+                                        sample_id, protein_pos, "NON_SYNONYMOUS",
                                         prot_ref + str(aa_pos) + prot_sub,
-                                        aa_change, nt_mutation, str(percentage)
+                                        aa_change, nt_mutation, str(percentage),
+                                        str(dp)
                                     ]
                                 else:
                                     mut_aux = [
-                                        sample_id, gene_pos, "NO_MUTATION",
+                                        sample_id, protein_pos, "SYNONYMOUS",
                                         prot_ref + str(aa_pos) + prot_sub,
-                                        aa_change, nt_mutation, str(percentage)
+                                        aa_change, nt_mutation, str(percentage),
+                                        str(dp)
                                     ]
                                 muts.append(mut_aux)
                 else:
@@ -225,14 +234,14 @@ def variant_codon_mutation(codon_data, ref_seq, reads, aa_pos, sample_id, gene):
         for i in r_fixed:
             prot_sub = codon_code[fixed_nts]
             if (aa_classes[prot_ref] != aa_classes[prot_sub]):
-                aa_change = aa_classes[prot_ref] + " --> " + aa_classes[prot_sub]
-            elif (aa_classes[prot_ref] == "Special_case") and (aa_classes[prot_sub] == "Special_case"):
+                aa_change = "Amino acid changed from " + aa_classes[prot_ref] + " to " + aa_classes[prot_sub]
+            elif (aa_classes[prot_ref] == "Special case") and (aa_classes[prot_sub] == "Special case"):
                 if (prot_ref != prot_sub):
-                    aa_change = aa_classes[prot_ref] + " --> " + aa_classes[prot_sub]
+                    aa_change = "Amino acid changed from " + aa_classes[prot_ref] + " to " + aa_classes[prot_sub]
                 else:
-                    aa_change = "No_Change, stayed " + aa_classes[prot_ref]
+                    aa_change = "Amino acid did not change, it stayed " + aa_classes[prot_ref]
             else:
-                aa_change = "No_Change, stayed " + aa_classes[prot_ref]
+                aa_change = "Amino acid did not change, it stayed " + aa_classes[prot_ref]
 
             nt_mutation = ''
             for i in r:
@@ -261,19 +270,22 @@ def variant_codon_mutation(codon_data, ref_seq, reads, aa_pos, sample_id, gene):
             if nt_mutation not in nt_fixed_list:
                 nt_fixed_list.append(nt_mutation)
                 percentage = fixed_mut_freq
+                dp = fixed_mut_dp
 
-                if percentage >= 0.05:
+                if percentage >= FREQ_CUTOFF and dp >= DEPTH_CUTOFF:
                     if prot_ref != prot_sub:
                         mut_aux = [
-                            sample_id, gene_pos, "MUTATION",
+                            sample_id, protein_pos, "NON_SYNONYMOUS",
                             prot_ref + str(aa_pos) + prot_sub,
-                            aa_change, nt_mutation, str(percentage)
+                            aa_change, nt_mutation, str(percentage),
+                            str(dp)
                         ]
                     else:
                         mut_aux = [
-                            sample_id, gene_pos, "NO_MUTATION",
+                            sample_id, protein_pos, "SYNONYMOUS",
                             prot_ref + str(aa_pos) + prot_sub,
-                            aa_change, nt_mutation, str(percentage)
+                            aa_change, nt_mutation, str(percentage),
+                            str(dp)
                         ]
                     muts.append(mut_aux)
             else:
@@ -281,7 +293,7 @@ def variant_codon_mutation(codon_data, ref_seq, reads, aa_pos, sample_id, gene):
 
     mut_def = [item for sublist in muts for item in ([sublist] if isinstance(sublist, list) else [sublist])]
     mut_df = pd.DataFrame(mut_def,columns=[
-                "SampleID", "Gene", "Mutation_type", "Aa_change", "Type_of_aa_change ",
-                "Nt_mutation", "Mutation_frequency"
+                "SampleID", "Protein", "Mutation_type", "Aa_change", "Amino_Acid_Property_Change",
+                "Nt_mutation", "Mutation_frequency", "Mutation_depth"
             ])
     return mut_df

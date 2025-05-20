@@ -18,94 +18,106 @@
 // Copyright (C) 2024 Ignasi Prats Méndez
 
 process waitForOutMuts {
+    errorStrategy 'terminate'
+    publishDir "$params.out_path/mutations", mode: 'copy', pattern: "${out_path.baseName}_mutations.csv"
     input:
     path out_path
-    path fq_path
-    path assembly_path
-    path ref_path
-    path vcf_path
-    path muts_path
-    path plots_path
-    path qc_path
-    file indelqual_prot_bam
-    file indelqual_prot_bam_indexed
-    file prot_variants_vcf
-    file indelqual_prot_sam
-    file samfile
-    file prot_variants_vcf_gz
-    file prot_variants_vcf_gz_indexed
-    file vcf_file
-    file prot_variants_AF05_vcf_gz
-    file prot_variants_AF05_vcf_gz_indexed
-    file prot_variants_AF05_fasta
-    file mutations
-    file qc_metrics
-    file depth
+    file stopper
 
     output:
-    path("${muts_path}/${out_path.baseName}_mutations.csv"), optional: true
+    path("${out_path.baseName}_mutations.csv"), optional: true
 
     script:
     """
-#    if [[ \$(wc -l ${assembly_path}/prot_names.txt | cut -d\$' ' -f1) == \$(wc -l ${muts_path}/stopper | cut -d\$' ' -f1) ]]; then
-    if [[ \$(awk 'END {print NR}' ${assembly_path}/prot_names.txt) == \$(awk 'END {print NR}' ${muts_path}/stopper) ]]; then
-        rm ${muts_path}/stopper
-        for file in ${muts_path}/"${out_path.baseName}"_*_mutations.csv; do
+    # Check if all mutations have been processed
+    if [[ \$(awk 'END {print NR}' ${out_path}/assembly/prot_names.txt) == \$(awk 'END {print NR}' ${stopper}) ]]; then
+        rm ${stopper}
+        if [[ -s ${out_path}/mutations/stopper ]]; then
+            rm ${out_path}/mutations/stopper
+        fi
+        # Merge all mutations files
+
+        for file in "${out_path}/mutations/${out_path.baseName}"_*_mutations.csv; do
             if [[ -f \$file ]]; then
-                tail -n +2 \$file >> ${muts_path}/${out_path.baseName}_mutations.csv
+                echo \$file
+                tail -n +2 \$file >> ${out_path.baseName}_mutations.csv
                 rm \$file
             fi
         done
-#        sed -i 1i"SampleID;Gene;Mutation_type;Aa_change;Type_of_aa_change;Nt_mutation;Mutation_frequency" ${muts_path}/${out_path.baseName}_mutations.csv
-#        sed -i '' '1i\\SampleID;Gene;Mutation_type;Aa_change;Type_of_aa_change;Nt_mutation;Mutation_frequency' ${muts_path}/${out_path.baseName}_mutations.csv
-        printf "SampleID;Gene;Mutation_type;Aa_change;Type_of_aa_change;Nt_mutation;Mutation_frequency\\n\$(cat ${muts_path}/${out_path.baseName}_mutations.csv)" > temp && mv temp  ${muts_path}/${out_path.baseName}_mutations.csv
+
+        # Add header to merged mutations file
+        printf "SampleID;Protein;Mutation_type;Aa_change;Amino_Acid_Property_Change;Nt_mutation;Mutation_frequency;Mutation_depth\\n\$(cat ${out_path.baseName}_mutations.csv)" > temp && mv temp ${out_path.baseName}_mutations.csv
     fi
     """
 }
 
 process vizNoAnnot {
+    errorStrategy 'terminate'
     input:
     path out_path
-    path fq_path
-    path assembly_path
-    path ref_path
-    path vcf_path
-    path muts_path
-    path plots_path
-    path qc_path
-    file ref_seq
     file muts
     val syn_muts
+    file ref_seq
 
     output:
-    stdout
+    tuple path("${out_path}/plots/Mutations_summary.html"), path("${out_path}/plots/qc_metrics_summary.html")
 
     script:
     """
-    python3 $projectDir/bin/viz_no_annotate.py --out-dir ${out_path} --ref-seq ${params.ref_seq} --prot-names ${assembly_path}/prot_names.txt --syn-muts ${params.syn_muts}
+    # Generate visualization without annotation
+    python3 ${params.project_data}/bin/viz_no_annotate.py --out-dir ${out_path} --ref-seq ${ref_seq} --prot-names ${out_path}/assembly/prot_names.txt --syn-muts ${params.syn_muts}
+    rm ${out_path}/assembly/prot_names.txt
     """
 }
 
 process annotateAndViz {
+    errorStrategy 'terminate'
     input:
     path out_path
-    path fq_path
-    path assembly_path
-    path ref_path
-    path vcf_path
-    path muts_path
-    path plots_path
-    path qc_path
-    file ref_seq
     file annotate
     file muts
     val syn_muts
+    file ref_seq
+
+    output:
+    tuple path("${out_path}/plots/Mutations_summary.html"), path("${out_path}/plots/qc_metrics_summary.html")
+
+    script:
+    """
+    # Generate visualization with annotation
+    python3 ${params.project_data}/bin/annotate_and_viz.py --out-dir ${out_path} --annotate ${params.annotate} --ref-seq ${ref_seq} --prot-names ${out_path}/assembly/prot_names.txt --syn-muts ${params.syn_muts}
+    rm ${out_path}/assembly/prot_names.txt
+    """
+}
+
+/*
+process clean_output {
+    errorStrategy 'terminate'
+    input:
+    path out_path
+    tuple file(muts_plot), file(qc_plot)
 
     output:
     stdout
 
     script:
     """
-    python3 $projectDir/bin/annotate_and_viz.py --out-dir ${out_path} --annotate ${params.annotate} --ref-seq ${params.ref_seq} --prot-names ${assembly_path}/prot_names.txt --syn-muts ${params.syn_muts}
+    DIR_SAMPLE=${out_path}
+    SAMPLE=\$(basename \${DIR_SAMPLE})
+    ASSEMBLY=${out_path}/assembly
+    VARIANT_CALLING=${out_path}/variant_calling
+    # FASTQ=${out_path}/fastq
+
+    # Clean up intermediate files and directories
+    rm -r \$ASSEMBLY
+    # if [[ -d \$FASTQ ]]; then
+    #     rm -r \$FASTQ
+    # fi
+    rm \$VARIANT_CALLING/samfile.sam \$VARIANT_CALLING/reads_multifasta_*.fasta \$VARIANT_CALLING/samfile_*.tsv \$VARIANT_CALLING/sam_to_loop_*.sam
+    rm \$VARIANT_CALLING/"\$SAMPLE"_indelqual_prot* \$VARIANT_CALLING/"\$SAMPLE"_prot_variants*
+    if [[ -d \$VARIANT_CALLING ]] && [[ -z "\$(ls -A "\$VARIANT_CALLING")" ]]; then
+        rm -rf \$VARIANT_CALLING
+    fi
     """
 }
+*/

@@ -22,17 +22,17 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import numpy as np
 
-def visualizer(tsv_check, csv, csv_muts, outd_p, outd_csv, genes, annotate, SAMPLE, syn_muts, lengths_df):
-    genes_list = genes
-    rows = len(genes_list)
+def visualizer(tsv_check, csv, csv_muts, outd_p, outd_csv, proteins, annotate, SAMPLE, syn_muts, lengths_df):
+    proteins_list = proteins
+    rows = len(proteins_list)
 
     if tsv_check:
         qc = pd.read_csv(csv, sep=';')
         qc.columns = ["ref", "test", "Count"]
 
-        qc_T = pd.DataFrame(columns=['gene', 'Length', 'N_percentage', 'Coverage', 'Q1_Depth', 'Median_Depth', 'Q3_Depth'])
+        qc_T = pd.DataFrame(columns=['protein', 'Length', 'N_percentage', 'Coverage', 'Q1_Depth', 'Median_Depth', 'Q3_Depth'])
 
-        for g in genes_list:
+        for g in proteins_list:
             df = pd.concat(
                 [
                     qc[qc.test.str.replace('length_', '') == g],
@@ -48,8 +48,8 @@ def visualizer(tsv_check, csv, csv_muts, outd_p, outd_csv, genes, annotate, SAMP
                 df = df.drop(['ref'], axis=1)
                 df = df.T
                 df = df[1:]
-                df.insert(0, 'gene', g)
-                df.columns = ['gene', 'Length', 'N_percentage', 'Coverage', 'Q1_Depth', 'Median_Depth', 'Q3_Depth']
+                df.insert(0, 'protein', g)
+                df.columns = ['protein', 'Length', 'N_percentage', 'Coverage', 'Q1_Depth', 'Median_Depth', 'Q3_Depth']
                 qc_T.loc[len(qc_T.index)] = df.iloc[0]
 
         fig2 = make_subplots(
@@ -64,7 +64,7 @@ def visualizer(tsv_check, csv, csv_muts, outd_p, outd_csv, genes, annotate, SAMP
                             align='left'
                             ),
                 cells=dict(values=[
-                    qc_T.gene, qc_T.Length, qc_T.N_percentage,
+                    qc_T.protein, qc_T.Length, qc_T.N_percentage,
                     qc_T.Coverage, qc_T.Q1_Depth, qc_T.Median_Depth,
                     qc_T.Q3_Depth
                 ],
@@ -84,11 +84,24 @@ def visualizer(tsv_check, csv, csv_muts, outd_p, outd_csv, genes, annotate, SAMP
         qc = pd.read_csv(csv, sep=';')
         qc.columns = ["ref", "test", "Count"]
 
-        qc_T = pd.DataFrame(columns=['gene', 'Length', 'Coverage'])
+        qc_T = pd.DataFrame(columns=['protein', 'Length', 'Coverage'])
 
-        genes_list = genes
+        for g in proteins_list:
+            df = pd.concat(
+                [
+                    qc[qc.test.str.replace('length_', '') == g],
+                    qc[qc.test.str.replace('coverage_', '') == g]
+                ]
+            ).reset_index(drop=True)
 
-        rows = len(genes_list)
+            if df.size > 0:
+                df = df.drop(['ref'], axis=1)
+                df = df.T
+                df = df[1:]
+                df.insert(0, 'protein', g)
+                print(df)
+                df.columns = ['protein', 'Length', 'Coverage']
+                qc_T.loc[len(qc_T.index)] = df.iloc[0]
 
         fig2 = make_subplots(
             rows=1, cols=1,
@@ -101,7 +114,7 @@ def visualizer(tsv_check, csv, csv_muts, outd_p, outd_csv, genes, annotate, SAMP
                             fill_color='lightblue',
                             align='left'
                             ),
-                cells=dict(values=[qc_T.gene, qc_T.Length, qc_T.Coverage],
+                cells=dict(values=[qc_T.protein, qc_T.Length, qc_T.Coverage],
                            fill_color='white',
                            align='left')
                            ),
@@ -118,15 +131,15 @@ def visualizer(tsv_check, csv, csv_muts, outd_p, outd_csv, genes, annotate, SAMP
 
     muts = csv_muts
     muts.columns = [
-        "SampleID", "Gene", "Mutation_type", "Aa_change",
-        "Type_of_aa_change", "Nt_mutation", "Mutation_frequency"
+        "SampleID", "Protein", "Mutation_type", "Aa_change",
+        "Amino_Acid_Property_Change", "Nt_mutation", "Mutation_frequency", "Mutation_depth"
     ]
     muts['ColorCode'] = muts['Mutation_type']
-    muts.loc[muts['ColorCode'] == 'MUTATION', 'ColorCode'] =  '#2243f5'
-    muts.loc[muts['ColorCode'] == 'NO_MUTATION', 'ColorCode'] = '#b9c3fa'
+    muts.loc[muts['ColorCode'] == 'NON_SYNONYMOUS', 'ColorCode'] =  '#2243f5'
+    muts.loc[muts['ColorCode'] == 'SYNONYMOUS', 'ColorCode'] = '#b9c3fa'
     muts['Type'] = muts['Mutation_type']
-    muts.loc[muts['Type'] == 'MUTATION', 'Type'] =  'Non Synonymous Mutation'
-    muts.loc[muts['Type'] == 'NO_MUTATION', 'Type'] = 'Synonymous Mutation'
+    muts.loc[muts['Type'] == 'NON_SYNONYMOUS', 'Type'] =  'Non Synonymous Mutation'
+    muts.loc[muts['Type'] == 'SYNONYMOUS', 'Type'] = 'Synonymous Mutation'
     muts['Order'] = muts.Aa_change.str.extract(r'(\d+)', expand=False)
     muts['Order'] = pd.to_numeric(muts['Order'])
     muts = muts.sort_values('Order')
@@ -135,7 +148,7 @@ def visualizer(tsv_check, csv, csv_muts, outd_p, outd_csv, genes, annotate, SAMP
 
         figR = make_subplots(
             rows=rows, cols=1,
-            subplot_titles=list(genes_list)
+            subplot_titles=list(proteins_list)
         )
 
         muts['Annotated_mutation'] = muts.Aa_change
@@ -143,9 +156,9 @@ def visualizer(tsv_check, csv, csv_muts, outd_p, outd_csv, genes, annotate, SAMP
 
         annot_m = annotate
         annot_m.columns = [
-            "SampleID", "Gene", "Mutation_type", "Aa_change",
-            "Type_of_aa_change", "Nt_mutation", "Mutation_frequency",
-            "Annotated", "Annotated_mutation"
+            "SampleID", "Protein", "Mutation_type", "Aa_change",
+            "Amino_Acid_Property_Change", "Nt_mutation", "Mutation_frequency",
+            "Mutation_depth", "Annotated", "Annotated_mutation"
         ]
         annot_m['Order'] = annot_m.Aa_change.str.extract(r'(\d+)', expand=False)
         annot_m['Order'] = pd.to_numeric(annot_m['Order'])
@@ -160,11 +173,11 @@ def visualizer(tsv_check, csv, csv_muts, outd_p, outd_csv, genes, annotate, SAMP
             muts.loc[muts.Aa_change == i, 'Type'] = 'Annotated Mutation'
 
         muts['TextData'] = muts["Type"] + " = " + muts['Annotated_mutation']
-        muts['CustomData'] = "Freq = " + round(muts["Mutation_frequency"], 3).astype(str)
+        muts['CustomData'] = "Freq = " + round(muts["Mutation_frequency"], 3).astype(str) + ", " + "Depth = " + muts["Mutation_depth"].astype(str)
 
-        for g in genes_list:
+        for g in proteins_list:
 
-            muts_p = muts[muts.Gene == g].reset_index(drop=True)
+            muts_p = muts[muts.Protein == g].reset_index(drop=True)
 
             figR.add_trace(
                 go.Scatter(
@@ -180,7 +193,6 @@ def visualizer(tsv_check, csv, csv_muts, outd_p, outd_csv, genes, annotate, SAMP
             c += 1
 
         hover_template = "%{text}<br>%{customdata}"
-        # Customize axes for each subplot
         figR.update_traces(hovertemplate=hover_template)
         for i in range(2, rows + 1):
             figR.update_yaxes(range=[0, 1.1], row=i, col=1)
@@ -194,21 +206,21 @@ def visualizer(tsv_check, csv, csv_muts, outd_p, outd_csv, genes, annotate, SAMP
         )
         figR.write_html(outd_p + '/Mutations_summary.html')
 
-        muts_df_end = muts.drop(['ColorCode', 'TextData', 'CustomData', 'Order'], axis=1)
+        muts_df_end = muts.drop(['ColorCode', 'TextData', 'CustomData', 'Order', 'Type'], axis=1)
         muts_df_end.to_csv(outd_csv + '/' + SAMPLE + '_mutations.csv', sep=';', index=False)
     else:
         fig = make_subplots(
             rows=rows, cols=1,
-            subplot_titles=list(genes_list)
+            subplot_titles=list(proteins_list)
         )
 
         muts['TextData'] = muts["Type"] + " = " + muts['Aa_change']
-        muts['CustomData'] = "Freq = " + round(muts["Mutation_frequency"], 3).astype(str)
+        muts['CustomData'] = "Freq = " + round(muts["Mutation_frequency"], 3).astype(str) + ", " + "Depth = " + muts["Mutation_depth"].astype(str)
         c = 1
 
-        for g in genes_list:
+        for g in proteins_list:
 
-            muts_p = muts[muts.Gene == g].reset_index(drop=True)
+            muts_p = muts[muts.Protein == g].reset_index(drop=True)
 
             fig.add_trace(
                 go.Scatter(
@@ -225,7 +237,6 @@ def visualizer(tsv_check, csv, csv_muts, outd_p, outd_csv, genes, annotate, SAMP
 
         hover_template = "%{text}<br>%{customdata}"
         fig.update_traces(hovertemplate=hover_template)
-        # Customize axes for each subplot
         for i in range(1, rows + 1):
             fig.update_yaxes(range=[0, 1.1], row=i, col=1)
         for i in range(1, rows + 1):
@@ -236,4 +247,7 @@ def visualizer(tsv_check, csv, csv_muts, outd_p, outd_csv, genes, annotate, SAMP
             """,
             height=400 * (rows + 1), showlegend=False
         )
+
         fig.write_html(outd_p + '/Mutations_summary.html')
+        muts_df_end = muts.drop(['ColorCode', 'TextData', 'CustomData', 'Order', 'Type'], axis=1)
+        muts_df_end.to_csv(outd_csv + '/' + SAMPLE + '_mutations.csv', sep=';', index=False)

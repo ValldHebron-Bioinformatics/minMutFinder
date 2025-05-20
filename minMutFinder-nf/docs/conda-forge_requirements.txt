@@ -1,4 +1,0 @@
-# conda-forge requirements
-
-# conda dependencies
-libgcc-ng>=12

@@ -1,8 +1,43 @@
+#!/usr/bin/env nextflow
 
-![Version](https://img.shields.io/badge/Version-1.2.0-blue) ![License](https://img.shields.io/badge/License-GPL_V3-green)
+// This file is part of minMutFinder.
+//
+// minMutFinder is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// minMutFinder is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with minMutFinder. If not, see <https://www.gnu.org/licenses/>.
+//
+// Copyright (C) 2024 Ignasi Prats Méndez
 
+nextflow.enable.dsl = 2
 
-# **minMutFinder**
+include { dirCreator; refCheck } from './modules/initialization'
+include { fastqProcessing;  mapping1_minimap2; mapping1_bbmap; variant_calling_fq; variant_calling_areads; mapping2_minimap2; mapping2_bbmap; read_depth; reads_qc_metrics } from './modules/from_fq_to_vcf'
+include { inVcf; inAlignedReads } from './modules/input_bam_sam_vcf'
+include { byProteinAnalysis; protNames } from './modules/by_protein'
+include { waitForOutMuts; vizNoAnnot; annotateAndViz } from './modules/viz_and_annotate'
+
+def versionMessage() {
+    log.info """
+    MINORITY MUTATION FINDER (minMutFinder) - Version: ${workflow.manifest.version}
+    """.stripIndent()
+}
+
+def helpMessage() {
+    log.info """
+    minMutFinder v1.2.0 under GPL-3.0 license
+
+Author: Ignasi Prats-Méndez
+Institution: HUVH & VHIR  
+Group: Servei de Microbiologia - Unitat de Virus Respiratoris  
 
 ## 📜 Table of Contents
 - [🎯 Overview](#-overview)
@@ -46,7 +81,6 @@ Ensure the following programs are installed:
 | **libgcc-ng** | 12 or higher | [conda-forge](https://conda-forge.org/) |
 | **Trimmomatic** | 0.39   | [Bioconda](https://bioconda.github.io/) |
 | **Minimap2**  | 2.26    | [Bioconda](https://bioconda.github.io/) |
-| **BBmap**  | 38.18 or higher   | [Bioconda](https://bioconda.github.io/) |
 | **Lofreq**    | 2.1.5   | [Bioconda](https://bioconda.github.io/) |
 | **Bcftools**  | 1.17 or higher    | [Bioconda](https://bioconda.github.io/) |
 | **Samtools**  | 1.17 or higher   | [Bioconda](https://bioconda.github.io/) |
@@ -96,13 +130,6 @@ nextflow run minMutFinder.nf --ref_seq <reference.fasta> --out_path <output_name
 - `--r2`: Path and filename of the reverse FASTQ compressed file
 - `--annotate`: Path and filename of the TSV file containing the annotated mutations (3)
 - `--syn_muts`: "yes" or "no", depending on whether to include synonymous mutations in the output plot (default is "no")
-- `--vcf`: Path and filename of the VCF
-- `--areads`: Path and filename of the SAM or BAM file
-- `--AF`: Number from 0 to 1 with the desired allele frequency of mutations threshold (default 0.05)
-- `--depth`: Integer equal or greater than 0 with the desired depth of mutations threshold (default 20)
-- `--threads`: Number of threads to be used (default 4)
-- `--SB`: Integer equal or greater than 0 with the desired strand bias for mutations threshold (default 29, for less strict filtering, recommended to use really high SB)
-- `--mapping`: "minimap2" or "bbmap", depending on which mapping tool the user desires to use. Bbmap is highly recommended for reference sequences < 1000nt (default is "minimap2")
 
 ### 📝 Notes
 
@@ -166,3 +193,142 @@ We're always happy to help!
 - [Lofreq](https://csb5.github.io/lofreq/)
 - [Bcftools](http://samtools.github.io/bcftools/bcftools.html)
 - [Samtools](http://www.htslib.org/)
+
+"""
+}
+
+/**
+ * Prints version when asked for
+ */
+workflow HELP_AND_VERSION_MESSAGES {
+    if (params.version || params.v) {
+        versionMessage()
+        exit 0
+    }
+
+    if (params.help || params.h || params.isEmpty()) {
+        helpMessage()
+        exit 0
+    } else {
+        // Creates working dir
+        workingpath = params.out_path
+        workingdir = file(workingpath)
+        if (!workingdir.exists()) {
+            if (!workingdir.mkdirs()) {
+                exit 1, "Cannot create working directory: $workingpath"
+            }
+        }
+    }
+}
+
+/**
+ * Check if files exist
+ */
+workflow FILE_CHECK {
+    if (params.r1 && !file("${params.r1}").exists()) {
+        exit 1, "File ${params.r1} does not exist. Exiting..."
+    }
+
+    if (params.r2 && !file("${params.r2}").exists()) {
+        exit 1, "File ${params.r2} does not exist. Exiting..."
+    }
+
+    if (params.ref_seq && !file("${params.ref_seq}").exists()) {
+        exit 1, "File ${params.ref_seq} does not exist. Exiting..."
+    }
+
+    if (params.vcf && !file("${params.vcf}").exists()) {
+        exit 1, "File ${params.vcf} does not exist. Exiting..."
+    }
+
+    if (params.areads && !file("${params.areads}").exists()) {
+        exit 1, "File ${params.areads} does not exist. Exiting..."
+    }
+
+    if (params.annotate && !file("${params.annotate}").exists()) {
+        exit 1, "File ${params.annotate} does not exist. Exiting..."
+    }
+}
+
+/**
+ * Log information about the workflow
+ */
+workflow LOG_INFO {
+    log.info """---------------------------------------------
+    MINORITY MUTATIONS FINDER (minMutFinder)
+    ---------------------------------------------
+
+    Beginning of analysis:
+    """
+
+    def summary = [:]
+    summary['Starting time'] = new java.util.Date()
+    summary['Environment'] = ""
+    summary['Pipeline Name'] = 'minMutFinder'
+    summary['Pipeline Version'] = workflow.manifest.version
+}
+
+/**
+ * Main workflow
+ */
+workflow MAIN_WORKFLOW {
+    HELP_AND_VERSION_MESSAGES()
+    FILE_CHECK()
+    LOG_INFO()
+
+    dirCreator(params.out_path)
+    refs = refCheck(params.out_path, file(params.ref_seq))
+    ref_only = refs.map { it[0] }
+
+    if (file("${params.areads}").exists()) {
+        out_map = inAlignedReads(file(params.areads), params.out_path)
+        if (file("${params.vcf}").exists()) {
+            out_vcf = inVcf(file(params.vcf), params.out_path, out_map, params.AF, params.depth, params.SB, ref_only)
+        } else {
+            out_vcf = variant_calling_areads(params.out_path, out_map, params.AF, params.depth, params.SB, ref_only, params.threads)
+        }
+        out_depth = false
+    } else {
+        out_fq = fastqProcessing(file(params.r1), file(params.r2), params.out_path)
+        if (params.mapping == "minimap2") {
+            out_map = mapping1_minimap2(params.out_path, out_fq, ref_only)
+        } else if (params.mapping == "bbmap") {
+            out_map = mapping1_bbmap(params.out_path, out_fq, ref_only)
+        } else {
+            log.error "Mapping method not recognized. Please use 'minimap2' or 'bbmap'."
+            exit "Mapping method not recognized. Please use 'minimap2' or 'bbmap'."
+            exit 1
+        }
+        out_vcf = variant_calling_fq(params.out_path, out_map, params.AF, params.depth, params.SB, ref_only, params.threads)
+        if (params.mapping == "minimap2") {
+            out_map2 = mapping2_minimap2(params.out_path, out_vcf, out_fq)
+        } else if (params.mapping == "bbmap") {
+            out_map2 = mapping2_bbmap(params.out_path, out_vcf, out_fq)
+        } else {
+            log.error "Mapping method not recognized. Please use 'minimap2' or 'bbmap'."
+            exit "Mapping method not recognized. Please use 'minimap2' or 'bbmap'."
+            exit 1
+        }
+        out_depth = read_depth(params.out_path, out_map2)
+    }
+    samfile_only = out_vcf.map { it[2] }
+    names = protNames(params.out_path, out_vcf)
+    out_muts = byProteinAnalysis(params.out_path, names.flatten(), params.AF, params.depth, out_depth, samfile_only, ref_only)
+    stopper_only = out_muts.map { it[0] }
+    out_wait = waitForOutMuts(params.out_path, stopper_only)
+
+    if (params.annotate) {
+        annotateAndViz(params.out_path, file(params.annotate), out_wait, params.syn_muts, ref_only)
+    } else {
+        vizNoAnnot(params.out_path, out_wait, params.syn_muts, ref_only)
+    }
+
+    if (file("${params.r1}").exists() && file("${params.r2}").exists()) {
+        reads_qc_metrics(file(params.r1), file(params.r2), params.out_path, out_fq, out_wait)
+    }
+
+}
+
+workflow {
+    MAIN_WORKFLOW()
+}
