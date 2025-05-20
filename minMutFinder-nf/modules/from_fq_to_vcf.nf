@@ -41,7 +41,8 @@ process fastqProcessing {
     time (trimmomatic PE -threads 64 -phred33 ${r1} ${r2} \${FQ_R1} \${FQ_U_R1} \${FQ_R2} \${FQ_U_R2} LEADING:30 TRAILING:30 SLIDINGWINDOW:10:30)
     """
 }
-process mapping1 {
+
+process mapping1_minimap2 {
     errorStrategy 'terminate'
 
     input:
@@ -60,6 +61,29 @@ process mapping1 {
     # Mapping against reference sequence using Minimap2
     echo -e "\nMINIMAP2\n->Mapping against ${ref_seq}\n"
     time (minimap2 -ax sr ${ref_seq} ${fqr1} ${fqr2} > \${SAMPLE}_reads-mapped_to_prot.sam)
+    samtools view -bS \${SAMPLE}_reads-mapped_to_prot.sam | samtools sort - -o \${SAMPLE}_reads-mapped_to_prot.bam
+    """
+}
+
+process mapping1_bbmap {
+    errorStrategy 'terminate'
+
+    input:
+    path out_path 
+    tuple file(fqr1), file(fqr2), file(fqUPr1), file(fqUPr2)
+    file ref_seq
+
+    output:
+    tuple file("${out_path.baseName}_reads-mapped_to_prot.sam"), file("${out_path.baseName}_reads-mapped_to_prot.bam")
+
+    script:
+    """
+    SAMPLE=\$(basename ${out_path})
+    ASSEMBLY="assembly"
+
+    # Mapping against reference sequence using Minimap2
+    echo -e "\nMINIMAP2\n->Mapping against ${ref_seq}\n"
+    time (bbmap.sh ref=${ref_seq} in=${fqr1} in2=${fqr2} out=\${SAMPLE}_reads-mapped_to_prot.sam sam=1.3)
     samtools view -bS \${SAMPLE}_reads-mapped_to_prot.sam | samtools sort - -o \${SAMPLE}_reads-mapped_to_prot.bam
     """
 }
@@ -155,7 +179,7 @@ process variant_calling_areads {
     """
 }
 
-process mapping2 {
+process mapping2_minimap2 {
     errorStrategy 'terminate'
     input:
     path out_path
@@ -171,6 +195,26 @@ process mapping2 {
 
     # Mapping against consensus sequence using Minimap2
     time (minimap2 -ax sr ${prot_variants_AF_fasta} ${fqr1} ${fqr2} > "\$SAMPLE"_reads_mapped_consensus.sam)
+    samtools view -bS "\$SAMPLE"_reads_mapped_consensus.sam | samtools sort - -o "\$SAMPLE"_reads_mapped_consensus.bam
+    """
+}
+
+process mapping2_bbmap {
+    errorStrategy 'terminate'
+    input:
+    path out_path
+    tuple file(prot_variants_vcf), file(indelqual_prot_sam), file(samfile), file(prot_variants_vcf_gz), file(prot_variants_vcf_gz_indexed), file(prot_variants_AF_vcf), file(prot_variants_AF_vcf_gz), file(prot_variants_AF_vcf_gz_indexed), file(prot_variants_AF_fasta)
+    tuple file(fqr1), file(fqr2), file(fqUPr1), file(fqUPr2)
+
+    output:
+    tuple file("${out_path.baseName}_reads_mapped_consensus.sam"), file("${out_path.baseName}_reads_mapped_consensus.bam")
+
+    script:
+    """
+    SAMPLE=${out_path.baseName}
+
+    # Mapping against consensus sequence using Minimap2
+    time (bbmap.sh ref=${prot_variants_AF_fasta} in=${fqr1} in2=${fqr2} out="\$SAMPLE"_reads_mapped_consensus.sam sam=1.3)
     samtools view -bS "\$SAMPLE"_reads_mapped_consensus.sam | samtools sort - -o "\$SAMPLE"_reads_mapped_consensus.bam
     """
 }

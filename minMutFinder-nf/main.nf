@@ -20,7 +20,7 @@
 nextflow.enable.dsl = 2
 
 include { dirCreator; refCheck } from './modules/initialization'
-include { fastqProcessing; mapping1; variant_calling_fq; variant_calling_areads; mapping2; read_depth; reads_qc_metrics } from './modules/from_fq_to_vcf'
+include { fastqProcessing;  mapping1_minimap2; mapping1_bbmap; variant_calling_fq; variant_calling_areads; mapping2_minimap2; mapping2_bbmap; read_depth; reads_qc_metrics } from './modules/from_fq_to_vcf'
 include { inVcf; inAlignedReads } from './modules/input_bam_sam_vcf'
 include { byProteinAnalysis; protNames } from './modules/by_protein'
 include { waitForOutMuts; vizNoAnnot; annotateAndViz } from './modules/viz_and_annotate'
@@ -290,9 +290,25 @@ workflow MAIN_WORKFLOW {
         out_depth = false
     } else {
         out_fq = fastqProcessing(file(params.r1), file(params.r2), params.out_path)
-        out_map = mapping1(params.out_path, out_fq, ref_only)
+        if (params.mapping == "minimap2") {
+            out_map = mapping1_minimap2(params.out_path, out_fq, ref_only)
+        } else if (params.mapping == "bbmap") {
+            out_map = mapping1_bbmap(params.out_path, out_fq, ref_only)
+        } else {
+            log.error "Mapping method not recognized. Please use 'minimap2' or 'bbmap'."
+            exit "Mapping method not recognized. Please use 'minimap2' or 'bbmap'."
+            exit 1
+        }
         out_vcf = variant_calling_fq(params.out_path, out_map, params.AF, params.depth, ref_only, params.threads)
-        out_map2 = mapping2(params.out_path, out_vcf, out_fq)
+        if (params.mapping == "minimap2") {
+            out_map2 = mapping2_minimap2(params.out_path, out_vcf, out_fq)
+        } else if (params.mapping == "bbmap") {
+            out_map2 = mapping2_bbmap(params.out_path, out_vcf, out_fq)
+        } else {
+            log.error "Mapping method not recognized. Please use 'minimap2' or 'bbmap'."
+            exit "Mapping method not recognized. Please use 'minimap2' or 'bbmap'."
+            exit 1
+        }
         out_depth = read_depth(params.out_path, out_map2)
     }
     samfile_only = out_vcf.map { it[2] }
