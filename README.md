@@ -46,6 +46,7 @@ Ensure the following programs are installed:
 | **libgcc-ng** | 12 or higher | [conda-forge](https://conda-forge.org/) |
 | **Trimmomatic** | 0.39   | [Bioconda](https://bioconda.github.io/) |
 | **Minimap2**  | 2.26    | [Bioconda](https://bioconda.github.io/) |
+| **BBmap**  | 38.18 or higher   | [Bioconda](https://bioconda.github.io/) |
 | **Lofreq**    | 2.1.5   | [Bioconda](https://bioconda.github.io/) |
 | **Bcftools**  | 1.17 or higher    | [Bioconda](https://bioconda.github.io/) |
 | **Samtools**  | 1.17 or higher   | [Bioconda](https://bioconda.github.io/) |
@@ -95,6 +96,7 @@ nextflow run minMutFinder.nf --ref_seq <reference.fasta> --out_path <output_name
 - `--r2`: Path and filename of the reverse FASTQ compressed file
 - `--annotate`: Path and filename of the TSV file containing the annotated mutations (3)
 - `--syn_muts`: "yes" or "no", depending on whether to include synonymous mutations in the output plot (default is "no")
+- `--mapping`: "minimap2" or "bbmap", depending on which mapping tool the user desires to use. Bbmap is highly recommended for reference sequences < 1000nt (default is "minimap2")
 
 ### 📝 Notes
 
