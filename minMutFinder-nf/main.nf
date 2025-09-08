@@ -20,8 +20,8 @@
 nextflow.enable.dsl = 2
 
 include { dirCreator; refCheck } from './modules/initialization'
-include { fastqProcessing;  mapping1_minimap2; mapping1_bbmap; variant_calling_fq; variant_calling_areads; mapping2_minimap2; mapping2_bbmap; read_depth; reads_qc_metrics } from './modules/from_fq_to_vcf'
-include { inVcf; inAlignedReads } from './modules/input_bam_sam_vcf'
+include { fastqProcessing;  mapping1_minimap2; mapping1_bbmap; variant_calling_fq; variant_calling_fq_noSB; variant_calling_areads; variant_calling_areads_noSB; mapping2_minimap2; mapping2_bbmap; read_depth; reads_qc_metrics } from './modules/from_fq_to_vcf'
+include { inVcf; inVcf_noSB; inAlignedReads } from './modules/input_bam_sam_vcf'
 include { byProteinAnalysis; protNames } from './modules/by_protein'
 include { waitForOutMuts; vizNoAnnot; annotateAndViz } from './modules/viz_and_annotate'
 
@@ -33,7 +33,7 @@ def versionMessage() {
 
 def helpMessage() {
     log.info """
-    minMutFinder v1.2.0 under GPL-3.0 license
+    minMutFinder v1.3.0 under GPL-3.0 license
 
 Author: Ignasi Prats-Méndez
 Institution: HUVH & VHIR  
@@ -283,9 +283,11 @@ workflow MAIN_WORKFLOW {
     if (file("${params.areads}").exists()) {
         out_map = inAlignedReads(file(params.areads), params.out_path)
         if (file("${params.vcf}").exists()) {
-            out_vcf = inVcf(file(params.vcf), params.out_path, out_map, params.AF, params.depth, params.SB, ref_only)
+            out_vcf = inVcf_noSB(file(params.vcf), params.out_path, out_map, params.AF, params.depth, ref_only)
+            // out_vcf = inVcf(file(params.vcf), params.out_path, out_map, params.AF, params.depth, params.SB, ref_only)
         } else {
-            out_vcf = variant_calling_areads(params.out_path, out_map, params.AF, params.depth, params.SB, ref_only, params.threads)
+            // out_vcf = variant_calling_areads(params.out_path, out_map, params.AF, params.depth, params.SB, ref_only, params.threads)
+            out_vcf = variant_calling_areads_noSB(params.out_path, out_map, params.AF, params.depth, ref_only, params.threads)
         }
         out_depth = false
     } else {
@@ -299,7 +301,8 @@ workflow MAIN_WORKFLOW {
             exit "Mapping method not recognized. Please use 'minimap2' or 'bbmap'."
             exit 1
         }
-        out_vcf = variant_calling_fq(params.out_path, out_map, params.AF, params.depth, params.SB, ref_only, params.threads)
+        // out_vcf = variant_calling_fq(params.out_path, out_map, params.AF, params.depth, params.SB, ref_only, params.threads)
+        out_vcf = variant_calling_fq_noSB(params.out_path, out_map, params.AF, params.depth, ref_only, params.threads)
         if (params.mapping == "minimap2") {
             out_map2 = mapping2_minimap2(params.out_path, out_vcf, out_fq)
         } else if (params.mapping == "bbmap") {

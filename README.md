@@ -1,5 +1,5 @@
 
-![Version](https://img.shields.io/badge/Version-1.2.0-blue) ![License](https://img.shields.io/badge/License-GPL_V3-green)
+![Version](https://img.shields.io/badge/Version-1.3.0-blue) ![License](https://img.shields.io/badge/License-GPL_V3-green)
 
 
 # **minMutFinder**
@@ -101,7 +101,7 @@ nextflow run minMutFinder.nf --ref_seq <reference.fasta> --out_path <output_name
 - `--AF`: Number from 0 to 1 with the desired allele frequency of mutations threshold (default 0.05)
 - `--depth`: Integer equal or greater than 0 with the desired depth of mutations threshold (default 20)
 - `--threads`: Number of threads to be used (default 4)
-- `--SB`: Integer equal or greater than 0 with the desired strand bias for mutations threshold (default 29, for less strict filtering, recommended to use really high SB)
+- `--SB`: Integer equal or greater than 0 with the desired strand bias for mutations threshold (default 29)
 - `--mapping`: "minimap2" or "bbmap", depending on which mapping tool the user desires to use. Bbmap is highly recommended for reference sequences < 1000nt (default is "minimap2")
 
 ### 📝 Notes

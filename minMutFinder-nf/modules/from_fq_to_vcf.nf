@@ -136,6 +136,52 @@ process variant_calling_fq {
     """
 }
 
+process variant_calling_fq_noSB {
+    errorStrategy 'terminate'
+    publishDir "$params.out_path/variant_calling", mode: 'copy', pattern: "${out_path.baseName}_prot_variants_AF${AF}.vcf"
+    publishDir "$params.out_path/assembly", mode: 'copy', pattern: "${out_path.baseName}_prot_variants_AF${AF}.fasta"
+
+    input:
+    path out_path
+    tuple file(sam), file(bam)
+    val AF
+    val depth
+    file ref_seq
+    val threads
+
+    output:
+    tuple file("${out_path.baseName}_prot_variants.vcf"), file("${out_path.baseName}_indelqual_prot.sam"), file("samfile.sam"), file("${out_path.baseName}_prot_variants.vcf.gz"), file("${out_path.baseName}_prot_variants.vcf.gz.csi"), file("${out_path.baseName}_prot_variants_AF${AF}.vcf"), file("${out_path.baseName}_prot_variants_AF${AF}.vcf.gz"), file("${out_path.baseName}_prot_variants_AF${AF}.vcf.gz.csi"), file("${out_path.baseName}_prot_variants_AF${AF}.fasta")
+
+    script:
+    """
+    SAMPLE=\$(basename ${out_path})
+    BAM2=${bam}
+
+    # Call variants using LoFreq
+    echo -e "\nLOFREQ\n->Variant Calling Step: Mutation detection\n"
+    echo -e "lofreq indelqual --dindel -f ${ref_seq} -o "\${SAMPLE}_indelqual_prot.bam" "\$BAM2""
+    lofreq indelqual --dindel -f ${ref_seq} -o "\${SAMPLE}_indelqual_prot.bam" "\$BAM2"
+    INDELQUAL_BAM="\${SAMPLE}_indelqual_prot.bam"
+    samtools index "\${INDELQUAL_BAM}"
+    time (lofreq call-parallel --pp-threads ${threads} --call-indels -f "${ref_seq}" -o "\${SAMPLE}_prot_variants.vcf" "\${INDELQUAL_BAM}")
+
+    samtools view -h -o "\${SAMPLE}_indelqual_prot.sam" "\${INDELQUAL_BAM}"
+    awk '(\$6 != "*") && (\$12 != "") && (\$3 != "*")' "\${SAMPLE}_indelqual_prot.sam" > samfile.sam
+
+    # Generate consensus sequence using BCFtools
+    echo -e "\nBCFTOOLS\n->Variant Calling Step: Consensus sequence obtantion\n"
+    bgzip -c "\${SAMPLE}_prot_variants.vcf" > "\${SAMPLE}_prot_variants.vcf.gz"
+    bcftools index "\${SAMPLE}_prot_variants.vcf.gz"
+    FREQ_CUTOFF=${AF}
+    MIN_DEPTH=${depth}
+    bcftools filter -i'INFO/AF>='\${FREQ_CUTOFF}' && INFO/DP>='\${MIN_DEPTH}'' "\${SAMPLE}_prot_variants.vcf.gz" > "\${SAMPLE}_prot_variants_AF\${FREQ_CUTOFF}.vcf"
+    VCF_FILE_CUTOFF="\${SAMPLE}_prot_variants_AF\${FREQ_CUTOFF}.vcf"
+    bgzip -c "\${SAMPLE}_prot_variants_AF\${FREQ_CUTOFF}.vcf" > "\${SAMPLE}_prot_variants_AF\${FREQ_CUTOFF}.vcf.gz"
+    bcftools index \${SAMPLE}_prot_variants_AF\${FREQ_CUTOFF}.vcf.gz
+    cat "${ref_seq}" | bcftools consensus -s - "\${SAMPLE}_prot_variants_AF\${FREQ_CUTOFF}.vcf.gz" -o "\${SAMPLE}_prot_variants_AF\${FREQ_CUTOFF}.fasta"
+    """
+}
+
 process variant_calling_areads {
     errorStrategy 'terminate'
     publishDir "$params.out_path/variant_calling", mode: 'copy', pattern: "${out_path.baseName}_prot_variants_AF${AF}.vcf*"
@@ -176,6 +222,51 @@ process variant_calling_areads {
     MIN_DEPTH=${depth}
     SB=${SB}
     bcftools filter -i'INFO/AF>='\${FREQ_CUTOFF}' && INFO/DP>='\${MIN_DEPTH}' && INFO/SB<='\${SB}'' "\${SAMPLE}_prot_variants.vcf.gz" > "\${SAMPLE}_prot_variants_AF\${FREQ_CUTOFF}.vcf"
+    VCF_FILE_CUTOFF="\${SAMPLE}_prot_variants_AF\${FREQ_CUTOFF}.vcf"
+    bgzip -c "\${SAMPLE}_prot_variants_AF\${FREQ_CUTOFF}.vcf" > "\${SAMPLE}_prot_variants_AF\${FREQ_CUTOFF}.vcf.gz"
+    bcftools index \${SAMPLE}_prot_variants_AF\${FREQ_CUTOFF}.vcf.gz
+    cat ${ref_seq} | bcftools consensus -s - "\${SAMPLE}_prot_variants_AF\${FREQ_CUTOFF}.vcf.gz" -o "\${SAMPLE}_prot_variants_AF\${FREQ_CUTOFF}.fasta"
+    """
+}
+
+process variant_calling_areads_noSB {
+    errorStrategy 'terminate'
+    publishDir "$params.out_path/variant_calling", mode: 'copy', pattern: "${out_path.baseName}_prot_variants_AF${AF}.vcf*"
+    publishDir "$params.out_path/assembly", mode: 'copy', pattern: "${out_path.baseName}_prot_variants_AF${AF}.fasta"
+
+    input:
+    path out_path
+    tuple file(sam), file(bam)
+    val AF
+    val depth
+    file ref_seq
+    val threads
+
+    output:
+    tuple file("${out_path.baseName}_prot_variants.vcf"), file("${out_path.baseName}_indelqual_prot.sam"), file("samfile.sam"), file("${out_path.baseName}_prot_variants.vcf.gz"), file("${out_path.baseName}_prot_variants.vcf.gz.csi"), file("${out_path.baseName}_prot_variants_AF${AF}.vcf"), file("${out_path.baseName}_prot_variants_AF${AF}.vcf.gz"), file("${out_path.baseName}_prot_variants_AF${AF}.vcf.gz.csi"), file("${out_path.baseName}_prot_variants_AF${AF}.fasta")
+
+    script:
+    """
+    SAMPLE=\$(basename ${out_path})
+
+    # Call variants using LoFreq
+    echo -e "\nLOFREQ\n->Variant Calling Step: Mutation detection\n"
+    INDELQUAL_BAM="${bam}"
+    INDELQUAL_SAM="${sam}"
+    samtools index "\${INDELQUAL_BAM}"
+    samtools faidx ${ref_seq}
+
+    time (lofreq call-parallel --pp-threads ${threads} --call-indels -f "${ref_seq}" -o "\${SAMPLE}_prot_variants.vcf" "\${INDELQUAL_BAM}")
+
+    awk '(\$6 != "*") && (\$12 != "") && (\$3 != "*")' "\${INDELQUAL_SAM}" > "samfile.sam"
+
+    # Generate consensus sequence using BCFtools
+    echo -e "\nBCFTOOLS\n->Variant Calling Step: Consensus sequence obtantion\n"
+    bgzip -c "\${SAMPLE}_prot_variants.vcf" > "\${SAMPLE}_prot_variants.vcf.gz"
+    bcftools index "\${SAMPLE}_prot_variants.vcf.gz"
+    FREQ_CUTOFF=${AF}
+    MIN_DEPTH=${depth}
+    bcftools filter -i'INFO/AF>='\${FREQ_CUTOFF}' && INFO/DP>='\${MIN_DEPTH}'' "\${SAMPLE}_prot_variants.vcf.gz" > "\${SAMPLE}_prot_variants_AF\${FREQ_CUTOFF}.vcf"
     VCF_FILE_CUTOFF="\${SAMPLE}_prot_variants_AF\${FREQ_CUTOFF}.vcf"
     bgzip -c "\${SAMPLE}_prot_variants_AF\${FREQ_CUTOFF}.vcf" > "\${SAMPLE}_prot_variants_AF\${FREQ_CUTOFF}.vcf.gz"
     bcftools index \${SAMPLE}_prot_variants_AF\${FREQ_CUTOFF}.vcf.gz

@@ -67,6 +67,54 @@ process inVcf {
     """
 }
 
+process inVcf_noSB {
+    errorStrategy 'terminate'
+    publishDir "$params.out_path/variant_calling", mode: 'copy', pattern: "${out_path.baseName}_prot_variants_AF${AF}.vcf*"
+    publishDir "$params.out_path/assembly", mode: 'copy', pattern: "${out_path.baseName}_prot_variants_AF${AF}.fasta"
+
+    input:
+    file vcf
+    path out_path
+    tuple file(sam), file(bam)
+    val AF
+    val depth
+    file ref_seq
+
+    output:
+    tuple path("${out_path}/variant_calling/${out_path.baseName}_prot_variants.vcf"), file("${out_path.baseName}_indelqual_prot.sam"), file("samfile.sam"), file("${out_path.baseName}_prot_variants.vcf.gz"), file("${out_path.baseName}_prot_variants.vcf.gz.csi"), file("${out_path.baseName}_prot_variants_AF${AF}.vcf"), file("${out_path.baseName}_prot_variants_AF${AF}.vcf.gz"), file("${out_path.baseName}_prot_variants_AF${AF}.vcf.gz.csi"), file("${out_path.baseName}_prot_variants_AF${AF}.fasta")
+
+    script:
+    """
+    SAMPLE=${out_path.baseName}
+
+    # Filter SAM file
+    awk '(\$6 != "*") && (\$12 != "") && (\$3 != "*")' ${sam} > "samfile.sam"
+
+    # Consensus sequence
+    echo -e "\nBCFTOOLS\n->Variant Calling Step: Consensus sequence obtantion\n"
+    if [[ ${vcf} == *".vcf"* ]]; then
+        python3 ${params.project_data}/bin/in_vcf.py --out-dir ${out_path} --vcf ${vcf}
+    else
+        python3 ${params.project_data}/bin/tsv2vcf.py --out-dir ${out_path} --tsv ${vcf}
+    fi
+
+    # Compress and index VCF file
+    bgzip -c "${out_path}/variant_calling/${out_path.baseName}_prot_variants.vcf" > ""\${SAMPLE}"_prot_variants.vcf.gz"
+    bcftools index ""\${SAMPLE}"_prot_variants.vcf.gz"
+
+    # Filter VCF file by allele frequency and depth
+    FREQ_CUTOFF=${AF}
+    MIN_DEPTH=${depth}
+    bcftools filter -i'INFO/AF>='\${FREQ_CUTOFF}' && INFO/DP>='\${MIN_DEPTH}'' ""\${SAMPLE}"_prot_variants.vcf.gz" > ""\${SAMPLE}"_prot_variants_AF"\${FREQ_CUTOFF}".vcf"
+    VCF_FILE_CUTOFF=""\${SAMPLE}"_prot_variants_AF\${FREQ_CUTOFF}.vcf"
+    bgzip -c "\${VCF_FILE_CUTOFF}" > "\${VCF_FILE_CUTOFF}.gz"
+    bcftools index "\${VCF_FILE_CUTOFF}.gz"
+
+    # Generate consensus sequence
+    cat ${ref_seq} | bcftools consensus -s - "\${VCF_FILE_CUTOFF}".gz -o ""\${SAMPLE}"_prot_variants_AF"\${FREQ_CUTOFF}".fasta"
+    """
+}
+
 process inAlignedReads {
     errorStrategy 'terminate'
     input:

@@ -186,8 +186,25 @@ if get_text(VCF_FILE_CUTOFF, header, 'bool'):
             else:
                 vcf_expand_list.append(vcf_row)
 
+        vcf_prot_expanded_1 = pd.DataFrame(vcf_expand_list).reset_index(drop=True)
+
+        vcf_expand_list = []
+        for _, vcf_row in vcf_prot_expanded_1.iterrows():
+            if '+' in vcf_row['ALT']:  # Only expand if there are multiple ALT values
+                vcf_row['ALT'] = vcf_row['ALT'].replace('+', vcf_row['REF'])
+                vcf_expand_list.append(vcf_row)
+            elif '-' in vcf_row['ALT']:  # Only expand if there are multiple ALT values
+                aux_alt = vcf_row['ALT'].replace('-', '')
+                aux_ref = vcf_row['REF']
+                vcf_row['ALT'] = aux_ref
+                vcf_row['REF'] = aux_ref + aux_alt
+                vcf_expand_list.append(vcf_row)
+            else:
+                vcf_expand_list.append(vcf_row)
+
         vcf_prot_expanded = pd.DataFrame(vcf_expand_list).reset_index(drop=True)
         vcf_prot_expanded.POS = pd.to_numeric(vcf_prot_expanded.POS)
+
         vcf_prot_expanded['AA_POS'] = ((vcf_prot_expanded.POS - 1) // 3) + 1
         vcf_prot_expanded['AA_INDEX'] = ((vcf_prot_expanded.POS - 1) % 3)
         INFO=pd.DataFrame((pd.DataFrame(vcf_prot_expanded.INFO.str.split(pat=';'))['INFO'].to_list()))
@@ -259,12 +276,12 @@ if get_text(VCF_FILE_CUTOFF, header, 'bool'):
             for df_index in alone_aa.index:
                 muts_aux, n_nt_df = [], alone_aa[alone_aa.index == df_index]
                 n_nt_df = n_nt_df.reset_index(drop=True)
-                print(n_nt_df)
-                print(ref_seq)
-                print(header)
+                # print(n_nt_df)
+                # print(ref_seq)
+                # print(header)
                 muts_aux = minority_mutations_detector(n_nt_df, ref_seq, SAMPLE, header)
                 muts.append(muts_aux)
-            print(muts)
+            # print(muts)
             dfmuts = pd.DataFrame(muts, columns=columns_muts)
 
             dfmuts.to_csv(
@@ -281,7 +298,7 @@ if get_text(VCF_FILE_CUTOFF, header, 'bool'):
                 muts = muts.dropna(axis=1, how='all')
                 muts_aux = muts_aux.dropna(axis=1, how='all')
                 muts = pd.concat([muts, muts_aux]).reset_index(drop=True)
-            print(muts)
+            # print(muts)
 
             muts.to_csv(
                 MUTATIONS + '/' + SAMPLE + '_' + header + '_indel_mutations.csv', sep=';', index=False
@@ -337,8 +354,8 @@ if get_text(VCF_FILE_CUTOFF, header, 'bool'):
                     # take from samfile regioninside rangemax and rangemin
             else:
                 range_max, range_min = maximum + 3, minimum - max_read_len
-                print(range_min)
-                print(range_max)
+                # print(range_min)
+                # print(range_max)
                 sam_to_loop = df_sam[df_sam[3] >= range_min][df_sam[df_sam[3] >= range_min][3] <= range_max]
                 sam_to_loop = sam_to_loop.reset_index(drop=True)
                 sam_to_loop.to_csv(SAM_TO_LOOP, index=False, sep='\t', header=None)

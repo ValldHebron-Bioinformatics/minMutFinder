@@ -31,7 +31,7 @@ VARIANT_CALLING = out_dir + '/variant_calling'
 
 ivar_tsv = pd.read_csv(in_tsv, sep='\t')
 
-with open(VARIANT_CALLING + '/' + SAMPLE + '_prot_variants.vcf', "w") as vcf_file:
+with open(VARIANT_CALLING + '/' + SAMPLE + '_prot_variants.vcf', "a+") as vcf_file:
     vcf_file.write("##fileformat=VCFv4.2\n")
     vcf_file.write("##INFO=<ID=DP,Number=1,Type=Integer,Description=\"Total Depth\">\n")
     vcf_file.write("##INFO=<ID=AF,Number=A,Type=Float,Description=\"Allele Frequency\">\n")
@@ -48,3 +48,5 @@ with open(VARIANT_CALLING + '/' + SAMPLE + '_prot_variants.vcf', "w") as vcf_fil
         info = f"DP={total_dp};AF={alt_freq}"
 
         vcf_file.write(f"{chrom}\t{pos}\t.\t{ref}\t{alt}\t.\tPASS\t{info}\n")
+
+vcf_file.close()
