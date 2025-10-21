@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with minMutFinder. If not, see <https://www.gnu.org/licenses/>.
 //
-// Copyright (C) 2024 Ignasi Prats Méndez
+// Copyright (C) 2024 Respiratory Viruses Unit, Microbiology Department, Vall d’Hebron Hospital Universitari, Vall d’Hebron Institut de Recerca (VHIR), Vall d’Hebron Barcelona Hospital Campus, Passeig Vall d’Hebron 119-129, 08035 Barcelona, Spain
 
 include { dirCreator; refCheck } from './modules/initialization'
 include { fastqProcessing; mapping1; variant_calling; read_depth; mapping2; reads_qc_plot } from './modules/from_fq_to_vcf'
