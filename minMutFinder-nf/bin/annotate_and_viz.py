@@ -93,19 +93,27 @@ for index in annotate.index:
 if (one):
     one = pd.DataFrame(one)
     one.columns = annotate.columns
+    # already_seen = False
     for index in one.index:
         if (df_muts_ALL.Protein[df_muts_ALL.Protein == str(one.name[index])].shape[0] > 0):
             prot_df = df_muts_ALL[df_muts_ALL.Protein == str(one.name[index])]
             if (prot_df[prot_df.Aa_change == str(one.mutation[index])].shape[0] > 0):
+                # already_seen = True
                 row = prot_df[prot_df.Aa_change == str(one.mutation[index])].reset_index(drop=True)
                 row.columns = prot_df.columns
                 row['Annotated'] = ['yes']*row.shape[0]
                 row['Annotated_mutation'] = [str(one.mutation[index])]*row.shape[0]
+
                 if annotated_df.size > 0:
-                    annotated_df = pd.concat([annotated_df, row])
+                    if (annotated_df[annotated_df.Aa_change.str.contains(row['Aa_change'].loc[0])].shape[0] > 0):
+                        print('Already in annotated df')
+                        continue
+                    else:
+                        annotated_df = pd.concat([annotated_df, row])
                 else:
                     annotated_df = row
-            elif ('POI' in str(one.mutation[index])):
+
+            elif ('POI' in str(one.mutation[index])): # and (already_seen == False):
                 aux_df = prot_df
                 aux_df['Order'] = aux_df.Aa_change.str.extract(r'(\d+)', expand=False)
                 aux_df['Order'] = pd.to_numeric(aux_df['Order'])
@@ -124,9 +132,16 @@ if (one):
                     row['Annotated'] = ['yes']*row.shape[0]
                     aux_row = aux_df[aux_df.Order == aux_df2.Order[index]]
                     value = aux_row.Aa_change.values[0]
+                    
                     row['Annotated_mutation'] = [value+" is in a POI"]*row.shape[0]
                     if annotated_df.size > 0:
-                        annotated_df = pd.concat([annotated_df, row])
+                        for i in range(row.shape[0]):
+                            row_aux=row[row.Aa_change == row['Aa_change'].loc[i]]
+                            if (annotated_df[annotated_df.Aa_change.str.contains(row_aux['Aa_change'].loc[i])].shape[0] > 0):
+                                print('Already in annotated df')
+                                continue
+                            else:
+                                annotated_df = pd.concat([annotated_df, row_aux])
                     else:
                         annotated_df = row
                 # df_muts_ALL = df_muts_ALL.drop(['Order'], axis = 1)
