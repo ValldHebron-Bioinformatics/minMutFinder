@@ -133,17 +133,23 @@ if (one):
                     aux_row = aux_df[aux_df.Order == aux_df2.Order[index]]
                     value = aux_row.Aa_change.values[0]
                     
-                    row['Annotated_mutation'] = [value+" is in a POI"]*row.shape[0]
                     if annotated_df.size > 0:
                         for i in range(row.shape[0]):
                             row_aux=row[row.Aa_change == row['Aa_change'].loc[i]]
-                            if (annotated_df[annotated_df.Aa_change.str.contains(row_aux['Aa_change'].loc[i])].shape[0] > 0):
+                            value_aux=row_aux['Aa_change'].loc[i]
+                            if (annotated_df[annotated_df.Aa_change.str.contains(value_aux)].shape[0] > 0):
                                 print('Already in annotated df')
                                 continue
                             else:
+                                row_aux['Annotated_mutation'] = [value_aux+" is in a POI"]*row_aux.shape[0]
                                 annotated_df = pd.concat([annotated_df, row_aux])
                     else:
                         annotated_df = row
+                        for i in range(row.shape[0]):
+                            row_aux=row[row.Aa_change == row['Aa_change'].loc[i]]
+                            value_aux=row_aux['Aa_change'].loc[i]
+                            annotated_df.loc[annotated_df.Aa_change == value_aux, 'Annotated_mutation'] = [value_aux+" is in a POI"]*row_aux.shape[0]
+
                 # df_muts_ALL = df_muts_ALL.drop(['Order'], axis = 1)
                 one = one.drop(['Order'], axis = 1)
             else: continue
