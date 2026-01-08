@@ -102,8 +102,8 @@ def indel_mutations_detector(vcf, ref, sample_id, protein_initial):
                         alt_complete=ref_complete.replace(ref[1:],'')[0:3]
                         for i in range(0,len(ref_complete),3):
                             if len(ref_complete[i:i+3]) == 3:
-                                prot_ref=translateDNA(ref_complete[i:i+3])
-                                prot_sub=translateDNA(alt_complete)
+                                prot_ref=codon_code[ref_complete[i:i+3]]
+                                prot_sub=codon_code[alt_complete]
                                 if ((n != 0) and (i == 0)): # or (len(ref) > 4))  and (len(alt_complete) > 2):
                                     if (aa_classes[prot_ref] != aa_classes[prot_sub]):
                                         aa_change = "Amino acid changed from " + aa_classes[prot_ref] + " to " + aa_classes[prot_sub]
@@ -122,14 +122,14 @@ def indel_mutations_detector(vcf, ref, sample_id, protein_initial):
                                         if ref_complete[i:i+3] != alt_complete:
                                             mut_aux = [
                                                 sample_id, protein, "SYNONYMOUS",
-                                                translateDNA(ref_complete[i:i+3]) + str(aa_pos) + translateDNA(alt_complete),
+                                                codon_code[ref_complete[i:i+3]] + str(aa_pos) + codon_code[alt_complete],
                                                 aa_change, ref_complete[i:i+3] + str(pos+1) + alt_complete, allele_freq, allele_dp
                                             ]
                                             mut.append(mut_aux)
                                     else:
                                         mut_aux = [
                                             sample_id, protein, "NON_SYNONYMOUS",
-                                            translateDNA(ref_complete[i:i+3]) + str(aa_pos) + translateDNA(alt_complete),
+                                            codon_code[ref_complete[i:i+3]] + str(aa_pos) + codon_code[alt_complete],
                                             aa_change, ref_complete[i:i+3] + str(pos+1) + alt_complete, allele_freq, allele_dp
                                         ]
                                         mut.append(mut_aux)                                        
@@ -138,7 +138,7 @@ def indel_mutations_detector(vcf, ref, sample_id, protein_initial):
                                         
                                         mut_aux = [
                                             sample_id, protein, "NON_SYNONYMOUS",
-                                            translateDNA(ref_complete[i:i+3]) + str((((POS-n_positional)+i)//3)+1) + '-',
+                                            codon_code[ref_complete[i:i+3]] + str((((POS-n_positional)+i)//3)+1) + '-',
                                             "Deletion", ref_complete[i:i+3] + str((POS-n_positional+1)+i) + '-', allele_freq, allele_dp
                                         ]
                                         mut.append(mut_aux)
@@ -163,8 +163,8 @@ def indel_mutations_detector(vcf, ref, sample_id, protein_initial):
                         #alt_complete=ref_seq[POS-n:POS+len(ref)+((len(ref)+1)%3)]
                         for i in range(0,len(alt_complete),3):
                             if len(alt_complete[i:i+3]) == 3:
-                                prot_sub=translateDNA(alt_complete[i:i+3])
-                                prot_ref=translateDNA(ref_complete)
+                                prot_sub=codon_code[alt_complete[i:i+3]]
+                                prot_ref=codon_code[ref_complete]
                                 if ((n != 0) and (i == 0)): # and (len(ref_complete) > 2):
                                     if (aa_classes[prot_ref] != aa_classes[prot_sub]):
                                         aa_change = "Amino acid changed from " + aa_classes[prot_ref] + " to " + aa_classes[prot_sub]
@@ -183,14 +183,14 @@ def indel_mutations_detector(vcf, ref, sample_id, protein_initial):
                                         if alt_complete[i:i+3] != ref_complete:
                                             mut_aux = [
                                                 sample_id, protein, "SYNONYMOUS",
-                                                translateDNA(ref_complete) + str(aa_pos) + translateDNA(alt_complete[i:i+3]),
+                                                codon_code[ref_complete] + str(aa_pos) + codon_code[alt_complete[i:i+3]],
                                                 aa_change, ref_complete + str(pos+1) + alt_complete[i:i+3], allele_freq, allele_dp
                                             ]
                                             mut.append(mut_aux)
                                     else:
                                         mut_aux = [
                                             sample_id, protein, "NON_SYNONYMOUS",
-                                            translateDNA(ref_complete) + str(aa_pos) + translateDNA(alt_complete[i:i+3]),
+                                            codon_code[ref_complete] + str(aa_pos) + codon_code[alt_complete[i:i+3]],
                                             aa_change, ref_complete + str(pos+1) + alt_complete[i:i+3], allele_freq, allele_dp
                                         ]
                                         mut.append(mut_aux)                                        
@@ -198,7 +198,7 @@ def indel_mutations_detector(vcf, ref, sample_id, protein_initial):
                                     if (prot_ref != prot_sub) or n == 0:
                                         mut_aux = [
                                             sample_id, protein, "NON_SYNONYMOUS",
-                                            '-' + str((((POS-n_positional)+i)//3)+1) + translateDNA(alt_complete[i:i+3]),
+                                            '-' + str((((POS-n_positional)+i)//3)+1) + codon_code[alt_complete[i:i+3]],
                                             "Insertion", '-' + str((POS-n_positional+1)+i) + alt_complete[i:i+3], allele_freq, allele_dp
                                         ]
                                         mut.append(mut_aux)
