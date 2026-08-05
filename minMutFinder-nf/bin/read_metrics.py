@@ -20,11 +20,6 @@
 import gzip
 import sys
 import os
-import shutil
-import pysam
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
 from Bio import SeqIO
 from read_count import read_count
 
@@ -51,7 +46,7 @@ for i in range(len(sys.argv)):
 
 FASTQ = out_dir + '/fastq'
 QC_DIR = out_dir + '/qc'
-qc_metrics_file = QC_DIR + '/qc_metrics.csv'
+qc_metrics_file = QC_DIR + '/QC_metrics.csv'
 PLOTS = out_dir + '/plots'
 ASSEMBLY = out_dir + '/assembly'
 
@@ -68,19 +63,12 @@ reads_filt_qc_unpaired = read_count(R1_qc_file, R2_qc_file)
 reads_filt_qc_paired = read_count(R1_qc_paired_file, R2_qc_paired_file)
 reads_filt_qc = int(reads_filt_qc_paired) + int(reads_filt_qc_unpaired)
 
-if os.path.isfile(QC_DIR + '/qc_metrics.csv') is False:
-    with open(QC_DIR + '/qc_metrics.csv', 'w') as qc_metrics:
-        print('QC metrics file created')
-        qc_metrics.write('sample;test;score' + '\n')
+if os.path.isfile(qc_metrics_file) is False:
+    with open(qc_metrics_file, 'a+') as qc_metrics:
         qc_metrics.write(SAMPLE + ';reads_total;' + str(reads_total) + '\n')
         qc_metrics.write(SAMPLE + ';reads_filt_qc;' + str(reads_filt_qc) + '\n')
         qc_metrics.write(SAMPLE + ';reads_filt_qc_paired;' + str(reads_filt_qc_paired) + '\n')
-qc_metrics.close()
+    qc_metrics.close()
 
-qc = pd.read_csv(qc_metrics_file, sep=';')
-
-sns.set_style("darkgrid", {"axes.facecolor": ".9"})
-sns.set_context("paper")
-pl = sns.barplot(x=qc.test, y=qc.score)
-pl.tick_params(axis='x', labelsize=5)
-plt.savefig(PLOTS + '/qc_metrics.svg', format='svg', dpi=2400)
+else:
+    print('No qc file provided')
