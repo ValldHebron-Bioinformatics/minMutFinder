@@ -1,5 +1,6 @@
 
-![Static Badge](https://img.shields.io/badge/Version-Pre--Release-blue) ![License](https://img.shields.io/badge/License-GPL_V3-green)
+![Version](https://img.shields.io/badge/Version-1.1.1-blue) ![License](https://img.shields.io/badge/License-GPL_V3-green)
+
 
 # **minMutFinder**
 
@@ -40,14 +41,15 @@ Ensure the following programs are installed:
 ### Required Software
 | Software      | Version | Installation |
 | ------------- | ------- | ------------ |
-| **Nextflow**  | 23.10.1 or higher | [Install](https://www.nextflow.io/docs/latest/install.html) |
+| **Nextflow**  | 26.04.6 | [Install](https://www.nextflow.io/docs/latest/install.html) |
 | **Python**    | 3.9    |  |
 | **libgcc-ng** | 12 or higher | [conda-forge](https://conda-forge.org/) |
 | **Trimmomatic** | 0.39   | [Bioconda](https://bioconda.github.io/) |
 | **Minimap2**  | 2.26    | [Bioconda](https://bioconda.github.io/) |
+| **BBmap**  | 38.18 or higher   | [Bioconda](https://bioconda.github.io/) |
 | **Lofreq**    | 2.1.5   | [Bioconda](https://bioconda.github.io/) |
-| **Bcftools**  | 1.17    | [Bioconda](https://bioconda.github.io/) |
-| **Samtools**  | 1.17    | [Bioconda](https://bioconda.github.io/) |
+| **Bcftools**  | 1.17 or higher    | [Bioconda](https://bioconda.github.io/) |
+| **Samtools**  | 1.17 or higher   | [Bioconda](https://bioconda.github.io/) |
 
 ### Required Python Packages:
 ```bash
@@ -94,6 +96,13 @@ nextflow run minMutFinder.nf --ref_seq <reference.fasta> --out_path <output_name
 - `--r2`: Path and filename of the reverse FASTQ compressed file
 - `--annotate`: Path and filename of the TSV file containing the annotated mutations (3)
 - `--syn_muts`: "yes" or "no", depending on whether to include synonymous mutations in the output plot (default is "no")
+- `--vcf`: Path and filename of the VCF
+- `--areads`: Path and filename of the SAM or BAM file
+- `--AF`: Number from 0 to 1 with the desired allele frequency of mutations threshold (default 0.05)
+- `--depth`: Integer equal or greater than 0 with the desired depth of mutations threshold (default 20)
+- `--threads`: Number of threads to be used (default 4)
+- `--SB`: Integer equal or greater than 0 with the desired strand bias for mutations threshold (default 29)
+- `--mapping`: "minimap2" or "bbmap", depending on which mapping tool the user desires to use. Bbmap is highly recommended for reference sequences < 1000nt (default is "minimap2")
 
 ### 📝 Notes
 
