@@ -1,0 +1,86 @@
+// main.nf.test
+//
+// nf-test for the full minMutFinder pipeline (main.nf).
+// this uses a `nextflow_pipeline` test, which runs `main.nf`
+// end-to-end with the given params and then checks:
+//   1) that all expected output files/directories were generated
+//   2) that the final mutations.csv contains the expected minority mutations
+//
+
+nextflow_pipeline {
+
+    name "Test minMutFinder pipeline"
+    script "main.nf"
+
+    test("Should run the full pipeline and generate all expected output files with the expected mutations") {
+
+        when {
+            params {
+                out_path = "${outputDir}/test_sample"
+                r1       = "${projectDir}/tests/data/sample_R1.fastq.gz"
+                r2       = "${projectDir}/tests/data/sample_R2.fastq.gz"
+                ref_seq  = "${projectDir}/tests/data/reference.fasta"
+            }
+        }
+
+        then {
+            // The pipeline must complete successfully
+            assert workflow.success
+
+            // Sample name derived from out_path (baseName), as done by the processes
+            def sampleName = file(params.out_path).name
+
+            // ---- 1) Directory structure created by dirCreator ----
+            assert file("${params.out_path}/qc").exists()
+            assert file("${params.out_path}/assembly").exists()
+            assert file("${params.out_path}/variant_calling").exists()
+            assert file("${params.out_path}/mutations").exists()
+            assert file("${params.out_path}/plots").exists()
+
+            // ---- 2) Key intermediate files (mapping, variant calling, depth) ----
+            assert file("${params.out_path}/assembly/${sampleName}_prot_variants_AF${params.AF}.fasta").exists()
+            assert file("${params.out_path}/variant_calling/${sampleName}_prot_variants_AF${params.AF}.vcf").exists()
+            assert file("${params.out_path}/assembly/${sampleName}_depth_consensus.tsv").exists()
+
+            // ---- 3) QC metrics (reads_qc_metrics) ----
+            assert file("${params.out_path}/qc/QC_metrics.csv").exists()
+
+            // ---- 4) Final mutations table (waitForOutMuts) ----
+            def mutationsFile = file("${params.out_path}/mutations/${sampleName}_mutations.csv")
+            assert mutationsFile.exists()
+
+            def mutationsContent = mutationsFile.text
+
+            // Expected CSV header
+            assert mutationsContent.contains(
+                "SampleID;Protein;Mutation_type;Aa_change;Amino_Acid_Property_Change;Nt_mutation;Mutation_frequency;Mutation_depth;Annotated_mutation;Annotated;mAb;Phenotype;Fold_change"
+            )
+
+            // Specific minority mutations expected with the test data
+            // (REPLACE these with the real values for your sample)
+            assert mutationsContent.contains("AAAA")
+            assert mutationsContent.contains("BBBB")
+
+            // ---- 5) Final visualizations
+            assert file("${params.out_path}/plots/Mutations_summary.html").exists()
+            assert file("${params.out_path}/plots/qc_metrics_summary.html").exists()
+        }
+    }
+
+    test("Should fail if the reference file does not exist") {
+
+        when {
+            params {
+                out_path = "${outputDir}/test_sample_bad_ref"
+                r1       = "${projectDir}/tests/data/sample_R1.fastq.gz"
+                r2       = "${projectDir}/tests/data/sample_R2.fastq.gz"
+                ref_seq  = "${projectDir}/tests/data/does_not_exist.fasta"
+            }
+        }
+
+        then {
+            // FILE_CHECK() must exit 1 if ref_seq does not exist
+            assert workflow.failed
+        }
+    }
+}
