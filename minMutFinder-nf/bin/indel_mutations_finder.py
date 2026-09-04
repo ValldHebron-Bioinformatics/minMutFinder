@@ -103,6 +103,9 @@ def indel_mutations_detector(vcf, ref, sample_id, protein_initial):
                         for i in range(0,len(ref_complete),3):
                             if len(ref_complete[i:i+3]) == 3:
                                 prot_ref=codon_code[ref_complete[i:i+3]]
+                                if not alt_complete or len(alt_complete) != 3:
+                                    continue
+                                prot_sub=codon_code[alt_complete]
                                 prot_sub=codon_code[alt_complete]
                                 if ((n != 0) and (i == 0)): # or (len(ref) > 4))  and (len(alt_complete) > 2):
                                     if (aa_classes[prot_ref] != aa_classes[prot_sub]):
