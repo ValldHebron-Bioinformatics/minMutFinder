@@ -1,86 +1,523 @@
-// main.nf.test
+// tests/main.nf.test
 //
-// nf-test for the full minMutFinder pipeline (main.nf).
-// this uses a `nextflow_pipeline` test, which runs `main.nf`
-// end-to-end with the given params and then checks:
-//   1) that all expected output files/directories were generated
-//   2) that the final mutations.csv contains the expected minority mutations
+// Validation suite — minMutFinder NF26_2
+// 5 viral protocols × 3 replicates = 15 pipeline runs
 //
+// GROUND TRUTH: tests/data/synthetic_mutations.csv
+//   All mutations inserted in the synthetic dataset, with:
+//   - nominal AF%  (designed frequency)
+//   - AF range     (3-sigma Binomial interval at 500x coverage)
+//   - annotated_expected: "yes" if the mutation is in the real annotation file
+//
+// ANNOTATION FILES (real, no custom file generated):
+//   Influenza (H1N1, H3N2, FluB) → tests/data/resistant_mutations_2026.tsv
+//   RSV (RSVA, RSVB)             → tests/data/Fprot_annotated_mutations.tsv
+//
+// HOW TO RUN (all 15 runs self-contained, no external script needed):
+//   nf-test test tests/main.nf.test --profile docker,test --parallel
+//
+//   Each main test uses setup { run() } to pre-run replicates 2 and 3
+//   before the main when{} block runs replicate 1.
+//   With --parallel, the 5 virus tests run simultaneously.
+//
+// RESULTS written to: ${projectDir}/tests/results/{sample_id}/
 
 nextflow_pipeline {
+    name "minMutFinder — Full validation suite (NF26_2)"
+    script "minMutFinder-nf/main.nf"
 
-    name "Test minMutFinder pipeline"
-    script "main.nf"
+    // ══════════════════════════════════════════════════════════════════════
+    // SETUP TESTS — replicates 2 and 3 for each virus
+    // Named with "_" prefix; called via setup { run() } from main tests
+    // ══════════════════════════════════════════════════════════════════════
 
-    test("Should run the full pipeline and generate all expected output files with the expected mutations") {
+    test("_H1N1_rep2") {
+        when { params {
+            out_path = "${projectDir}/tests/results/H1N1-cov500-rep2"
+            ref_seq  = "${projectDir}/tests/data/refs/H1N1.fasta"
+            annotate = "${projectDir}/tests/data/resistant_mutations_2026.tsv"
+            areads   = "${projectDir}/tests/data/areads/H1N1/H1N1-cov500-rep2_H1N1_indelqual_prot.bam"
+            vcf      = "${projectDir}/tests/data/VCF/H1N1/H1N1-cov500-rep2_H1N1_variants_prot.vcf"
+            syn_muts = "yes"; AF = 0.05
+        }}
+        then { assert workflow.success : "H1N1 rep2 failed — check Nextflow log" }
+    }
+    test("_H1N1_rep3") {
+        when { params {
+            out_path = "${projectDir}/tests/results/H1N1-cov500-rep3"
+            ref_seq  = "${projectDir}/tests/data/refs/H1N1.fasta"
+            annotate = "${projectDir}/tests/data/resistant_mutations_2026.tsv"
+            areads   = "${projectDir}/tests/data/areads/H1N1/H1N1-cov500-rep3_H1N1_indelqual_prot.bam"
+            vcf      = "${projectDir}/tests/data/VCF/H1N1/H1N1-cov500-rep3_H1N1_variants_prot.vcf"
+            syn_muts = "yes"; AF = 0.05
+        }}
+        then { assert workflow.success : "H1N1 rep3 failed" }
+    }
+    test("_H3N2_rep2") {
+        when { params {
+            out_path = "${projectDir}/tests/results/H3N2-cov500-rep2"
+            ref_seq  = "${projectDir}/tests/data/refs/H3N2.fasta"
+            annotate = "${projectDir}/tests/data/resistant_mutations_2026.tsv"
+            areads   = "${projectDir}/tests/data/areads/H3N2/H3N2-cov500-rep2_H3N2_indelqual_prot.bam"
+            vcf      = "${projectDir}/tests/data/VCF/H3N2/H3N2-cov500-rep2_H3N2_variants_prot.vcf"
+            syn_muts = "yes"; AF = 0.05
+        }}
+        then { assert workflow.success : "H3N2 rep2 failed" }
+    }
+    test("_H3N2_rep3") {
+        when { params {
+            out_path = "${projectDir}/tests/results/H3N2-cov500-rep3"
+            ref_seq  = "${projectDir}/tests/data/refs/H3N2.fasta"
+            annotate = "${projectDir}/tests/data/resistant_mutations_2026.tsv"
+            areads   = "${projectDir}/tests/data/areads/H3N2/H3N2-cov500-rep3_H3N2_indelqual_prot.bam"
+            vcf      = "${projectDir}/tests/data/VCF/H3N2/H3N2-cov500-rep3_H3N2_variants_prot.vcf"
+            syn_muts = "yes"; AF = 0.05
+        }}
+        then { assert workflow.success : "H3N2 rep3 failed" }
+    }
+    test("_FluB_rep2") {
+        when { params {
+            out_path = "${projectDir}/tests/results/FluB-cov500-rep2"
+            ref_seq  = "${projectDir}/tests/data/refs/H0N0.fasta"
+            annotate = "${projectDir}/tests/data/resistant_mutations_2026.tsv"
+            areads   = "${projectDir}/tests/data/areads/FluB/FluB-cov500-rep2_B-Victoria_indelqual_prot.bam"
+            vcf      = "${projectDir}/tests/data/VCF/FluB/FluB-cov500-rep2_B-Victoria_variants_prot.vcf"
+            syn_muts = "yes"; AF = 0.05
+        }}
+        then { assert workflow.success : "FluB rep2 failed" }
+    }
+    test("_FluB_rep3") {
+        when { params {
+            out_path = "${projectDir}/tests/results/FluB-cov500-rep3"
+            ref_seq  = "${projectDir}/tests/data/refs/H0N0.fasta"
+            annotate = "${projectDir}/tests/data/resistant_mutations_2026.tsv"
+            areads   = "${projectDir}/tests/data/areads/FluB/FluB-cov500-rep3_B-Victoria_indelqual_prot.bam"
+            vcf      = "${projectDir}/tests/data/VCF/FluB/FluB-cov500-rep3_B-Victoria_variants_prot.vcf"
+            syn_muts = "yes"; AF = 0.05
+        }}
+        then { assert workflow.success : "FluB rep3 failed" }
+    }
+    test("_RSVA_rep2") {
+        when { params {
+            out_path = "${projectDir}/tests/results/RSVA-cov500-rep2"
+            ref_seq  = "${projectDir}/tests/data/refs/MH447951_ref-prot.fasta"
+            annotate = "${projectDir}/tests/data/Fprot_annotated_mutations.tsv"
+            areads   = "${projectDir}/tests/data/areads/RSVA/RSVA-cov500-rep2_VRS-A_indelqual_prot.bam"
+            vcf      = "${projectDir}/tests/data/VCF/RSVA/RSVA-cov500-rep2_VRS-A_variants_prot.vcf"
+            syn_muts = "yes"; AF = 0.05
+        }}
+        then { assert workflow.success : "RSVA rep2 failed" }
+    }
+    test("_RSVA_rep3") {
+        when { params {
+            out_path = "${projectDir}/tests/results/RSVA-cov500-rep3"
+            ref_seq  = "${projectDir}/tests/data/refs/MH447951_ref-prot.fasta"
+            annotate = "${projectDir}/tests/data/Fprot_annotated_mutations.tsv"
+            areads   = "${projectDir}/tests/data/areads/RSVA/RSVA-cov500-rep3_VRS-A_indelqual_prot.bam"
+            vcf      = "${projectDir}/tests/data/VCF/RSVA/RSVA-cov500-rep3_VRS-A_variants_prot.vcf"
+            syn_muts = "yes"; AF = 0.05
+        }}
+        then { assert workflow.success : "RSVA rep3 failed" }
+    }
+    test("_RSVB_rep2") {
+        when { params {
+            out_path = "${projectDir}/tests/results/RSVB-cov500-rep2"
+            ref_seq  = "${projectDir}/tests/data/refs/JX576761_ref-prot.fasta"
+            annotate = "${projectDir}/tests/data/Fprot_annotated_mutations.tsv"
+            areads   = "${projectDir}/tests/data/areads/RSVB/RSVB-cov500-rep2_VRS-B_indelqual_prot.bam"
+            vcf      = "${projectDir}/tests/data/VCF/RSVB/RSVB-cov500-rep2_VRS-B_variants_prot.vcf"
+            syn_muts = "yes"; AF = 0.05
+        }}
+        then { assert workflow.success : "RSVB rep2 failed" }
+    }
+    test("_RSVB_rep3") {
+        when { params {
+            out_path = "${projectDir}/tests/results/RSVB-cov500-rep3"
+            ref_seq  = "${projectDir}/tests/data/refs/JX576761_ref-prot.fasta"
+            annotate = "${projectDir}/tests/data/Fprot_annotated_mutations.tsv"
+            areads   = "${projectDir}/tests/data/areads/RSVB/RSVB-cov500-rep3_VRS-B_indelqual_prot.bam"
+            vcf      = "${projectDir}/tests/data/VCF/RSVB/RSVB-cov500-rep3_VRS-B_variants_prot.vcf"
+            syn_muts = "yes"; AF = 0.05
+        }}
+        then { assert workflow.success : "RSVB rep3 failed" }
+    }
 
+    // ══════════════════════════════════════════════════════════════════════
+    // MAIN VALIDATION TESTS — one per virus
+    // Each test: setup runs rep2+rep3, when{} runs rep1, then{} validates all 3
+    // ══════════════════════════════════════════════════════════════════════
+
+    test("IAV H1N1pdm09 — synthetic dataset validation (3 replicates)") {
         when {
             params {
-                out_path = "${outputDir}/test_sample"
-                r1       = "${projectDir}/tests/data/sample_R1.fastq.gz"
-                r2       = "${projectDir}/tests/data/sample_R2.fastq.gz"
-                ref_seq  = "${projectDir}/tests/data/reference.fasta"
+                out_path = "${projectDir}/tests/results/H1N1-cov500-rep1"
+                ref_seq  = "${projectDir}/tests/data/refs/H1N1.fasta"
+                annotate = "${projectDir}/tests/data/resistant_mutations_2026.tsv"
+                areads   = "${projectDir}/tests/data/areads/H1N1/H1N1-cov500-rep1_H1N1_indelqual_prot.bam"
+                vcf      = "${projectDir}/tests/data/VCF/H1N1/H1N1-cov500-rep1_H1N1_variants_prot.vcf"
+                syn_muts = "yes"
+                AF       = 0.05
             }
         }
-
         then {
-            // The pipeline must complete successfully
-            assert workflow.success
+            assert workflow.success : "H1N1 rep1 failed — check Nextflow log"
 
-            // Sample name derived from out_path (baseName), as done by the processes
-            def sampleName = file(params.out_path).name
+            // ── Shared helpers (declared per-test for nf-test autonomy) ──
+            def RESULTS = "${projectDir}/tests/results"
+            def AF_PAR  = "0.05"
 
-            // ---- 1) Directory structure created by dirCreator ----
-            assert file("${params.out_path}/qc").exists()
-            assert file("${params.out_path}/assembly").exists()
-            assert file("${params.out_path}/variant_calling").exists()
-            assert file("${params.out_path}/mutations").exists()
-            assert file("${params.out_path}/plots").exists()
+            def parseOutput = { String sid ->
+                def dir = file("${RESULTS}/${sid}")
+                def mf  = file("${dir}/mutations/${sid}_mutations.csv")
+                assert mf.exists() : "Output missing for ${sid}: ${mf.absolutePath}"
+                def lines = mf.readLines(); def h = lines[0].split(";")
+                def rows  = lines.tail().collect { [h, it.split(";", -1)].transpose().collectEntries() }
+                [dir:dir, sid:sid, rows:rows,
+                 det: rows.collectEntries { [it["Aa_change"], it["Mutation_frequency"].toFloat()] },
+                 ann: rows.collectEntries { [it["Aa_change"], it["Annotated"]] }]
+            }
 
-            // ---- 2) Key intermediate files (mapping, variant calling, depth) ----
-            assert file("${params.out_path}/assembly/${sampleName}_prot_variants_AF${params.AF}.fasta").exists()
-            assert file("${params.out_path}/variant_calling/${sampleName}_prot_variants_AF${params.AF}.vcf").exists()
-            assert file("${params.out_path}/assembly/${sampleName}_depth_consensus.tsv").exists()
+            def loadGroundTruth = { String virus ->
+                new File("${projectDir}/tests/data/synthetic_mutations.csv")
+                    .readLines().drop(1).findAll { it.trim() }.collect {
+                        def p = it.split(",", -1)
+                        [virus:p[0], protein:p[1], mutation:p[2],
+                         nominal:p[3].toFloat(), af_min:p[4].toFloat()/100,
+                         af_max:p[5].toFloat()/100, annotated:p[6]]
+                    }.findAll { it.virus == virus }
+            }
 
-            // ---- 3) QC metrics (reads_qc_metrics) ----
-            assert file("${params.out_path}/qc/QC_metrics.csv").exists()
+            def mark = { boolean ok -> ok ? "✓" : "✗" }
 
-            // ---- 4) Final mutations table (waitForOutMuts) ----
-            def mutationsFile = file("${params.out_path}/mutations/${sampleName}_mutations.csv")
-            assert mutationsFile.exists()
+            // ── Load all 3 replicates ─────────────────────────────────────
+            def sids = ["H1N1-cov500-rep1","H1N1-cov500-rep2","H1N1-cov500-rep3"]
+            def reps = sids.collect { parseOutput(it) }
+            def gt   = loadGroundTruth("H1N1")
+            def errs = []
 
-            def mutationsContent = mutationsFile.text
+            println "\n" + "═"*72
+            println "[H1N1] SYNTHETIC DATASET VALIDATION — 500x, 3-sigma Binomial ranges"
+            println "═"*72
 
-            // Expected CSV header
-            assert mutationsContent.contains(
-                "SampleID;Protein;Mutation_type;Aa_change;Amino_Acid_Property_Change;Nt_mutation;Mutation_frequency;Mutation_depth;Annotated_mutation;Annotated;mAb;Phenotype;Fold_change"
-            )
+            // ── Per-replicate checks ───────────────────────────────────────
+            reps.each { rep ->
+                def sid = rep.sid; def dir = rep.dir
+                def rows = rep.rows; def det = rep.det; def ann = rep.ann
 
-            // Specific minority mutations expected with the test data
-            // (REPLACE these with the real values for your sample)
-            assert mutationsContent.contains("AAAA")
-            assert mutationsContent.contains("BBBB")
+                println "\n[TEST INFO] ┌─── ${sid} ───"
 
-            // ---- 5) Final visualizations
-            assert file("${params.out_path}/plots/Mutations_summary.html").exists()
-            assert file("${params.out_path}/plots/qc_metrics_summary.html").exists()
+                // 1. Output files
+                def vcf = file("${dir}/variant_calling/${sid}_prot_variants_AF${AF_PAR}.vcf")
+                def vcfOk = vcf.exists() && vcf.size() > 0
+                def ctgOk = vcfOk && vcf.text.contains("NA_A_Victoria_2570_2019")
+                def conFa = file("${dir}/assembly/${sid}_prot_variants_AF${AF_PAR}.fasta")
+                def qcCsv  = file("${dir}/qc/QC_metrics.csv")
+                def mutHtm = file("${dir}/plots/Mutations_summary.html")
+                [vcfOk,ctgOk,conFa.exists(),qcCsv.exists(),mutHtm.exists()].eachWithIndex { ok, i ->
+                    if (!ok) errs.add("[${sid}] Output file #${i+1} absent")
+                }
+                println "[TEST INFO] │  VCF: ${mark(vcfOk)} | contig NA: ${mark(ctgOk)} | " +
+                        "consensus: ${mark(conFa.exists())} | " +
+                        "QC: ${mark(qcCsv.exists())} | HTML: ${mark(mutHtm.exists())}"
+
+                // 2. No frameshifts (would indicate reference mismatch)
+                def fs = rows.count { it["Aa_change"]?.contains("Frameshift") }
+                if (fs > 0) errs.add("[${sid}] ${fs} frameshifts detected — reference mismatch")
+                println "[TEST INFO] │  Frameshifts: ${fs} ${mark(fs==0)}"
+
+                // 3. Quantitative metrics
+                def nCons = rows.count { it["Mutation_frequency"].toFloat() >= 0.50 }
+                def nMino = rows.count { def af=it["Mutation_frequency"].toFloat(); af>=0.05 && af<0.50 }
+                println "[TEST INFO] │  ≥50% (consensus): ${nCons} | 5-50% (minority): ${nMino}"
+
+                // 4. Synthetic ground truth — mutation by mutation
+                println "[TEST INFO] │  MUTATION      NOMINAL   FOUND      RANGE(3σ,500x)  ANNOTATED  STATUS"
+                gt.each { g ->
+                    def found  = det.containsKey(g.mutation)
+                    def fAF    = found ? det[g.mutation] : null
+                    def afOk   = found && fAF >= (g.af_min - 0.02) && fAF <= (g.af_max + 0.02)
+                    def annOk  = g.annotated != "yes" || (found && ann[g.mutation] == "yes")
+                    def fStr   = found ? String.format("%.2f%%", fAF*100) : "NOT FOUND"
+                    def rStr   = String.format("[%.1f%%,%.1f%%]", g.af_min*100, g.af_max*100)
+                    def aStr   = g.annotated=="yes" ? (annOk ? "yes ✓" : "KO ✗") : "-"
+                    println String.format("[TEST INFO] │  %-13s %-9s %-10s %-15s %-10s %s",
+                        g.mutation,"${g.nominal.toInteger()}%",fStr,rStr,aStr,mark((!found)||(afOk&&annOk)))
+                    if (found && !afOk)
+                        errs.add("[${sid}] ${g.mutation} AF=${String.format('%.2f',fAF*100)}% outside ${rStr} (±2% buffer)")
+                    if (found && !annOk)
+                        errs.add("[${sid}] ${g.mutation} expected Annotated=yes but got '${ann[g.mutation]}'")
+                }
+                println "[TEST INFO] └" + "─"*65
+            }
+
+            // ── Cross-replicate reproducibility (±2pp) ────────────────────
+            println "\n[TEST INFO] ┌─── REPRODUCIBILITY across ${reps.size()} replicates (tolerance ±2pp) ───"
+            println "[TEST INFO] │  " + "─"*65
+            println "[TEST INFO] │  MUTATION      " +
+                    reps.collect { it.sid.replace("H1N1-cov500-","") }.join("         ") +
+                    "    MAX_DIF   STATUS"
+
+            def allMuts = reps.collect { it.det.keySet() }.flatten().toSet()
+            allMuts.sort().each { mut ->
+                def afs   = reps.collect { r -> r.det.containsKey(mut) ? r.det[mut] : null }
+                def valid = afs.findAll { it != null }
+                if (valid.size() < 2) return
+                def maxD  = (valid.max() - valid.min()) * 100
+                def repOk = maxD <= 2.0
+                def isKey = gt.any { it.mutation == mut }
+                if (isKey && !repOk)
+                    errs.add("${mut} not reproducible across replicates: diff ${String.format('%.2f',maxD)}pp > 2pp")
+                def aStr = afs.collect { it!=null ? String.format("%.2f%%",it*100) : "N/A" }
+                println String.format("[TEST INFO] │  %-13s %-12s %-12s %-12s %-9s %s",
+                    mut, aStr[0], aStr.size()>1?aStr[1]:"", aStr.size()>2?aStr[2]:"",
+                    String.format("%.2fpp",maxD), mark(repOk||!isKey))
+            }
+            def nByRep = reps.collect { it.rows.size() }
+            def nOk    = nByRep.max() - nByRep.min() <= 2
+            if (!nOk) errs.add("Inconsistent mutation count across replicates: ${nByRep}")
+            println "[TEST INFO] │  Mutations per replicate: ${nByRep.join(' / ')} ${mark(nOk)}"
+            println "[TEST INFO] └" + "─"*65
+
+            // ── Final summary ─────────────────────────────────────────────
+            println "\n" + "═"*72
+            println "[H1N1] SUMMARY — ${reps.size()} replicates"
+            println "═"*72
+            if (errs.isEmpty()) {
+                println "[TEST INFO] ✅ ALL CHECKS PASSED"
+                println "[TEST INFO]    Ground truth mutations checked: ${gt.size()} per replicate"
+            } else {
+                println "[TEST INFO] ❌ FAILED (${errs.size()}):"
+                errs.eachWithIndex { e, i -> println "[TEST INFO]   ${i+1}. ${e}" }
+            }
+            println "═"*72 + "\n"
+
+            assert errs.isEmpty() :
+                "\n\n[H1N1] TEST FAILED:\n" + errs.collect { "  • ${it}" }.join("\n") + "\n"
         }
     }
 
-    test("Should fail if the reference file does not exist") {
 
+    test("IAV H3N2 — synthetic dataset validation (3 replicates)") {
         when {
             params {
-                out_path = "${outputDir}/test_sample_bad_ref"
-                r1       = "${projectDir}/tests/data/sample_R1.fastq.gz"
-                r2       = "${projectDir}/tests/data/sample_R2.fastq.gz"
-                ref_seq  = "${projectDir}/tests/data/does_not_exist.fasta"
+                out_path = "${projectDir}/tests/results/H3N2-cov500-rep1"
+                ref_seq  = "${projectDir}/tests/data/refs/H3N2.fasta"
+                annotate = "${projectDir}/tests/data/resistant_mutations_2026.tsv"
+                areads   = "${projectDir}/tests/data/areads/H3N2/H3N2-cov500-rep1_H3N2_indelqual_prot.bam"
+                vcf      = "${projectDir}/tests/data/VCF/H3N2/H3N2-cov500-rep1_H3N2_variants_prot.vcf"
+                syn_muts = "yes"; AF = 0.05
             }
         }
-
         then {
-            // FILE_CHECK() must exit 1 if ref_seq does not exist
-            assert workflow.failed
+            assert workflow.success : "H3N2 rep1 failed"
+            def RESULTS="${projectDir}/tests/results"; def AFP="0.05"
+            def parseOut={String sid->def dir=file("${RESULTS}/${sid}");def mf=file("${dir}/mutations/${sid}_mutations.csv");assert mf.exists():"Missing: ${mf}";def lines=mf.readLines();def h=lines[0].split(";");def rows=lines.tail().collect{[h,it.split(";", -1)].transpose().collectEntries()};[dir:dir,sid:sid,rows:rows,det:rows.collectEntries{[it["Aa_change"],it["Mutation_frequency"].toFloat()]},ann:rows.collectEntries{[it["Aa_change"],it["Annotated"]]}]}
+            def loadGT={String v->new File("${projectDir}/tests/data/synthetic_mutations.csv").readLines().drop(1).findAll{it.trim()}.collect{def p=it.split(",", -1);[virus:p[0],protein:p[1],mutation:p[2],nominal:p[3].toFloat(),af_min:p[4].toFloat()/100,af_max:p[5].toFloat()/100,annotated:p[6]]}.findAll{it.virus==v}}
+            def mark={boolean ok->ok?"✓":"✗"}
+            def reps=["H3N2-cov500-rep1","H3N2-cov500-rep2","H3N2-cov500-rep3"].collect{parseOut(it)}
+            def gt=loadGT("H3N2"); def errs=[]
+            println "\n"+"═"*72; println "[H3N2] SYNTHETIC DATASET VALIDATION"; println "═"*72
+            reps.each{rep->
+                def sid=rep.sid;def dir=rep.dir;def rows=rep.rows;def det=rep.det;def ann=rep.ann
+                println "\n[TEST INFO] ┌─── ${sid} ───"
+                def vcf=file("${dir}/variant_calling/${sid}_prot_variants_AF${AFP}.vcf")
+                def vOk=vcf.exists()&&vcf.size()>0;def cOk=vOk&&vcf.text.contains("NA_A_Darwin_9_2021")
+                if(!vOk)errs.add("[${sid}] VCF missing");if(!cOk)errs.add("[${sid}] NA contig missing in VCF")
+                println "[TEST INFO] │  VCF: ${mark(vOk)} | contig NA_A_Darwin_9_2021: ${mark(cOk)}"
+                def fs=rows.count{it["Aa_change"]?.contains("Frameshift")};if(fs>0)errs.add("[${sid}] ${fs} frameshifts")
+                def nC=rows.count{it["Mutation_frequency"].toFloat()>=0.50};def nM=rows.count{def a=it["Mutation_frequency"].toFloat();a>=0.05&&a<0.50}
+                println "[TEST INFO] │  Frameshifts: ${fs} ${mark(fs==0)} | ≥50%: ${nC} | 5-50%: ${nM}"
+                println "[TEST INFO] │  MUTATION      NOMINAL   FOUND      RANGE(3σ)       ANNOTATED  STATUS"
+                gt.each{g->def found=det.containsKey(g.mutation);def fAF=found?det[g.mutation]:null
+                    def afOk=found&&fAF>=(g.af_min-0.02)&&fAF<=(g.af_max+0.02);def annOk=g.annotated!="yes"||(found&&ann[g.mutation]=="yes")
+                    println String.format("[TEST INFO] │  %-13s %-9s %-10s %-15s %-10s %s",g.mutation,"${g.nominal.toInteger()}%",found?String.format("%.2f%%",fAF*100):"NOT FOUND",String.format("[%.1f%%,%.1f%%]",g.af_min*100,g.af_max*100),g.annotated=="yes"?(annOk?"yes ✓":"KO ✗"):"-",mark((!found)||(afOk&&annOk)))
+                    if(found&&!afOk)errs.add("[${sid}] ${g.mutation} AF=${String.format('%.2f',fAF*100)}% outside range")
+                    if(found&&!annOk)errs.add("[${sid}] ${g.mutation} expected Annotated=yes")}
+                println "[TEST INFO] └"+"─"*65}
+            println "\n[TEST INFO] ┌─── REPRODUCIBILITY H3N2 (±2pp) ───"
+            reps.collect{it.det.keySet()}.flatten().toSet().sort().each{mut->
+                def afs=reps.collect{r->r.det.containsKey(mut)?r.det[mut]:null};def valid=afs.findAll{it!=null};if(valid.size()<2)return
+                def maxD=(valid.max()-valid.min())*100;def repOk=maxD<=2.0
+                def isKey=gt.any{it.mutation==mut}
+                if(isKey&&!repOk)errs.add("${mut} not reproducible: ${String.format('%.2f',maxD)}pp>2pp")
+                def aStr=afs.collect{it!=null?String.format("%.2f%%",it*100):"N/A"}
+                println String.format("[TEST INFO] │  %-13s %-12s %-12s %-12s %-9s %s",mut,aStr[0],aStr.size()>1?aStr[1]:"",aStr.size()>2?aStr[2]:"",String.format("%.2fpp",maxD),mark(repOk||!isKey))}
+            def nB=reps.collect{it.rows.size()};def nOk=nB.max()-nB.min()<=2;if(!nOk)errs.add("Inconsistent count: ${nB}")
+            println "[TEST INFO] │  Mutations per replicate: ${nB.join(' / ')} ${mark(nOk)}"
+            println "[TEST INFO] └"+"─"*65
+            println "\n"+"═"*72;println "[H3N2] SUMMARY — ${reps.size()} replicates";println "═"*72
+            if(errs.isEmpty())println "[TEST INFO] ✅ ALL CHECKS PASSED"
+            else{println "[TEST INFO] ❌ FAILED (${errs.size()}):";errs.eachWithIndex{e,i->println "[TEST INFO]   ${i+1}. ${e}"}}
+            println "═"*72+"\n"
+            assert errs.isEmpty():"\n\n[H3N2] TEST FAILED:\n"+errs.collect{"  • ${it}"}.join("\n")+"\n"
+        }
+    }
+
+
+    test("IAV B Victoria — synthetic dataset validation (3 replicates)") {
+        when {
+            params {
+                out_path = "${projectDir}/tests/results/FluB-cov500-rep1"
+                ref_seq  = "${projectDir}/tests/data/refs/H0N0.fasta"
+                annotate = "${projectDir}/tests/data/resistant_mutations_2026.tsv"
+                areads   = "${projectDir}/tests/data/areads/FluB/FluB-cov500-rep1_B-Victoria_indelqual_prot.bam"
+                vcf      = "${projectDir}/tests/data/VCF/FluB/FluB-cov500-rep1_B-Victoria_variants_prot.vcf"
+                syn_muts = "yes"; AF = 0.05
+            }
+        }
+        then {
+            assert workflow.success : "FluB rep1 failed"
+            def RESULTS="${projectDir}/tests/results"; def AFP="0.05"
+            def parseOut={String sid->def dir=file("${RESULTS}/${sid}");def mf=file("${dir}/mutations/${sid}_mutations.csv");assert mf.exists():"Missing: ${mf}";def lines=mf.readLines();def h=lines[0].split(";");def rows=lines.tail().collect{[h,it.split(";", -1)].transpose().collectEntries()};[dir:dir,sid:sid,rows:rows,det:rows.collectEntries{[it["Aa_change"],it["Mutation_frequency"].toFloat()]},ann:rows.collectEntries{[it["Aa_change"],it["Annotated"]]}]}
+            def loadGT={String v->new File("${projectDir}/tests/data/synthetic_mutations.csv").readLines().drop(1).findAll{it.trim()}.collect{def p=it.split(",", -1);[virus:p[0],protein:p[1],mutation:p[2],nominal:p[3].toFloat(),af_min:p[4].toFloat()/100,af_max:p[5].toFloat()/100,annotated:p[6]]}.findAll{it.virus==v}}
+            def mark={boolean ok->ok?"✓":"✗"}
+            def reps=["FluB-cov500-rep1","FluB-cov500-rep2","FluB-cov500-rep3"].collect{parseOut(it)}
+            def gt=loadGT("FluB"); def errs=[]
+            println "\n"+"═"*72;println "[FluB] SYNTHETIC DATASET VALIDATION";println "═"*72
+            reps.each{rep->
+                def sid=rep.sid;def dir=rep.dir;def rows=rep.rows;def det=rep.det;def ann=rep.ann
+                println "\n[TEST INFO] ┌─── ${sid} ───"
+                def vcf=file("${dir}/variant_calling/${sid}_prot_variants_AF${AFP}.vcf")
+                def vOk=vcf.exists()&&vcf.size()>0;def cOk=vOk&&vcf.text.contains("NA_B_Austria_1359417_2021")
+                if(!vOk)errs.add("[${sid}] VCF missing");if(!cOk)errs.add("[${sid}] NA_B contig missing")
+                println "[TEST INFO] │  VCF: ${mark(vOk)} | contig NA_B: ${mark(cOk)}"
+                def fs=rows.count{it["Aa_change"]?.contains("Frameshift")};if(fs>0)errs.add("[${sid}] ${fs} frameshifts")
+                def nC=rows.count{it["Mutation_frequency"].toFloat()>=0.50};def nM=rows.count{def a=it["Mutation_frequency"].toFloat();a>=0.05&&a<0.50}
+                println "[TEST INFO] │  Frameshifts: ${fs} ${mark(fs==0)} | ≥50%: ${nC} | 5-50%: ${nM}"
+                println "[TEST INFO] │  MUTATION      NOMINAL   FOUND      RANGE(3σ)       ANNOTATED  STATUS"
+                gt.each{g->def found=det.containsKey(g.mutation);def fAF=found?det[g.mutation]:null
+                    def afOk=found&&fAF>=(g.af_min-0.02)&&fAF<=(g.af_max+0.02);def annOk=g.annotated!="yes"||(found&&ann[g.mutation]=="yes")
+                    println String.format("[TEST INFO] │  %-13s %-9s %-10s %-15s %-10s %s",g.mutation,"${g.nominal.toInteger()}%",found?String.format("%.2f%%",fAF*100):"NOT FOUND",String.format("[%.1f%%,%.1f%%]",g.af_min*100,g.af_max*100),g.annotated=="yes"?(annOk?"yes ✓":"KO ✗"):"-",mark((!found)||(afOk&&annOk)))
+                    if(found&&!afOk)errs.add("[${sid}] ${g.mutation} AF outside range")
+                    if(found&&!annOk)errs.add("[${sid}] ${g.mutation} expected Annotated=yes")}
+                println "[TEST INFO] └"+"─"*65}
+            println "\n[TEST INFO] ┌─── REPRODUCIBILITY FluB (±2pp) ───"
+            reps.collect{it.det.keySet()}.flatten().toSet().sort().each{mut->
+                def afs=reps.collect{r->r.det.containsKey(mut)?r.det[mut]:null};def valid=afs.findAll{it!=null};if(valid.size()<2)return
+                def maxD=(valid.max()-valid.min())*100;def repOk=maxD<=2.0;def isKey=gt.any{it.mutation==mut}
+                if(isKey&&!repOk)errs.add("${mut} not reproducible: ${String.format('%.2f',maxD)}pp>2pp")
+                def aStr=afs.collect{it!=null?String.format("%.2f%%",it*100):"N/A"}
+                println String.format("[TEST INFO] │  %-13s %-12s %-12s %-12s %-9s %s",mut,aStr[0],aStr.size()>1?aStr[1]:"",aStr.size()>2?aStr[2]:"",String.format("%.2fpp",maxD),mark(repOk||!isKey))}
+            def nB=reps.collect{it.rows.size()};def nOk=nB.max()-nB.min()<=2;if(!nOk)errs.add("Inconsistent count: ${nB}")
+            println "[TEST INFO] │  Mutations per replicate: ${nB.join(' / ')} ${mark(nOk)}"
+            println "[TEST INFO] └"+"─"*65
+            println "\n"+"═"*72;println "[FluB] SUMMARY — ${reps.size()} replicates";println "═"*72
+            if(errs.isEmpty())println "[TEST INFO] ✅ ALL CHECKS PASSED"
+            else{println "[TEST INFO] ❌ FAILED (${errs.size()}):";errs.eachWithIndex{e,i->println "[TEST INFO]   ${i+1}. ${e}"}}
+            println "═"*72+"\n"
+            assert errs.isEmpty():"\n\n[FluB] TEST FAILED:\n"+errs.collect{"  • ${it}"}.join("\n")+"\n"
+        }
+    }
+
+
+    test("HRSV-A — synthetic dataset validation (3 replicates)") {
+        when {
+            params {
+                out_path = "${projectDir}/tests/results/RSVA-cov500-rep1"
+                ref_seq  = "${projectDir}/tests/data/refs/MH447951_ref-prot.fasta"
+                annotate = "${projectDir}/tests/data/Fprot_annotated_mutations.tsv"
+                areads   = "${projectDir}/tests/data/areads/RSVA/RSVA-cov500-rep1_VRS-A_indelqual_prot.bam"
+                vcf      = "${projectDir}/tests/data/VCF/RSVA/RSVA-cov500-rep1_VRS-A_variants_prot.vcf"
+                syn_muts = "yes"; AF = 0.05
+            }
+        }
+        then {
+            assert workflow.success : "RSVA rep1 failed"
+            def RESULTS="${projectDir}/tests/results"; def AFP="0.05"
+            def parseOut={String sid->def dir=file("${RESULTS}/${sid}");def mf=file("${dir}/mutations/${sid}_mutations.csv");assert mf.exists():"Missing: ${mf}";def lines=mf.readLines();def h=lines[0].split(";");def rows=lines.tail().collect{[h,it.split(";", -1)].transpose().collectEntries()};[dir:dir,sid:sid,rows:rows,det:rows.collectEntries{[it["Aa_change"],it["Mutation_frequency"].toFloat()]},ann:rows.collectEntries{[it["Aa_change"],it["Annotated"]]}]}
+            def loadGT={String v->new File("${projectDir}/tests/data/synthetic_mutations.csv").readLines().drop(1).findAll{it.trim()}.collect{def p=it.split(",", -1);[virus:p[0],protein:p[1],mutation:p[2],nominal:p[3].toFloat(),af_min:p[4].toFloat()/100,af_max:p[5].toFloat()/100,annotated:p[6]]}.findAll{it.virus==v}}
+            def mark={boolean ok->ok?"✓":"✗"}
+            def reps=["RSVA-cov500-rep1","RSVA-cov500-rep2","RSVA-cov500-rep3"].collect{parseOut(it)}
+            def gt=loadGT("RSVA"); def errs=[]
+            println "\n"+"═"*72;println "[RSVA] SYNTHETIC DATASET VALIDATION";println "═"*72
+            reps.each{rep->
+                def sid=rep.sid;def dir=rep.dir;def rows=rep.rows;def det=rep.det;def ann=rep.ann
+                println "\n[TEST INFO] ┌─── ${sid} ───"
+                def vcf=file("${dir}/variant_calling/${sid}_prot_variants_AF${AFP}.vcf")
+                def vOk=vcf.exists()&&vcf.size()>0;def cOk=vOk&&vcf.text.contains("F_MH447951")
+                if(!vOk)errs.add("[${sid}] VCF missing");if(!cOk)errs.add("[${sid}] F_MH447951 contig missing")
+                println "[TEST INFO] │  VCF: ${mark(vOk)} | contig F_MH447951: ${mark(cOk)}"
+                def fs=rows.count{it["Aa_change"]?.contains("Frameshift")};if(fs>0)errs.add("[${sid}] ${fs} frameshifts")
+                def nC=rows.count{it["Mutation_frequency"].toFloat()>=0.50};def nM=rows.count{def a=it["Mutation_frequency"].toFloat();a>=0.05&&a<0.50}
+                println "[TEST INFO] │  Frameshifts: ${fs} ${mark(fs==0)} | ≥50%: ${nC} | 5-50%: ${nM}"
+                println "[TEST INFO] │  MUTATION      NOMINAL   FOUND      RANGE(3σ)       ANNOTATED  STATUS"
+                gt.each{g->def found=det.containsKey(g.mutation);def fAF=found?det[g.mutation]:null
+                    def afOk=found&&fAF>=(g.af_min-0.02)&&fAF<=(g.af_max+0.02);def annOk=g.annotated!="yes"||(found&&ann[g.mutation]=="yes")
+                    println String.format("[TEST INFO] │  %-13s %-9s %-10s %-15s %-10s %s",g.mutation,"${g.nominal.toInteger()}%",found?String.format("%.2f%%",fAF*100):"NOT FOUND",String.format("[%.1f%%,%.1f%%]",g.af_min*100,g.af_max*100),g.annotated=="yes"?(annOk?"yes ✓":"KO ✗"):"-",mark((!found)||(afOk&&annOk)))
+                    if(found&&!afOk)errs.add("[${sid}] ${g.mutation} AF outside range")
+                    if(found&&!annOk)errs.add("[${sid}] ${g.mutation} expected Annotated=yes")}
+                println "[TEST INFO] └"+"─"*65}
+            println "\n[TEST INFO] ┌─── REPRODUCIBILITY RSVA (±2pp) ───"
+            reps.collect{it.det.keySet()}.flatten().toSet().sort().each{mut->
+                def afs=reps.collect{r->r.det.containsKey(mut)?r.det[mut]:null};def valid=afs.findAll{it!=null};if(valid.size()<2)return
+                def maxD=(valid.max()-valid.min())*100;def repOk=maxD<=2.0;def isKey=gt.any{it.mutation==mut}
+                if(isKey&&!repOk)errs.add("${mut} not reproducible: ${String.format('%.2f',maxD)}pp>2pp")
+                def aStr=afs.collect{it!=null?String.format("%.2f%%",it*100):"N/A"}
+                println String.format("[TEST INFO] │  %-13s %-12s %-12s %-12s %-9s %s",mut,aStr[0],aStr.size()>1?aStr[1]:"",aStr.size()>2?aStr[2]:"",String.format("%.2fpp",maxD),mark(repOk||!isKey))}
+            def nB=reps.collect{it.rows.size()};def nOk=nB.max()-nB.min()<=2;if(!nOk)errs.add("Inconsistent count: ${nB}")
+            println "[TEST INFO] │  Mutations per replicate: ${nB.join(' / ')} ${mark(nOk)}"
+            println "[TEST INFO] └"+"─"*65
+            println "\n"+"═"*72;println "[RSVA] SUMMARY — ${reps.size()} replicates";println "═"*72
+            if(errs.isEmpty())println "[TEST INFO] ✅ ALL CHECKS PASSED"
+            else{println "[TEST INFO] ❌ FAILED (${errs.size()}):";errs.eachWithIndex{e,i->println "[TEST INFO]   ${i+1}. ${e}"}}
+            println "═"*72+"\n"
+            assert errs.isEmpty():"\n\n[RSVA] TEST FAILED:\n"+errs.collect{"  • ${it}"}.join("\n")+"\n"
+        }
+    }
+
+
+    test("HRSV-B — synthetic dataset validation (3 replicates)") {
+        when {
+            params {
+                out_path = "${projectDir}/tests/results/RSVB-cov500-rep1"
+                ref_seq  = "${projectDir}/tests/data/refs/JX576761_ref-prot.fasta"
+                annotate = "${projectDir}/tests/data/Fprot_annotated_mutations.tsv"
+                areads   = "${projectDir}/tests/data/areads/RSVB/RSVB-cov500-rep1_VRS-B_indelqual_prot.bam"
+                vcf      = "${projectDir}/tests/data/VCF/RSVB/RSVB-cov500-rep1_VRS-B_variants_prot.vcf"
+                syn_muts = "yes"; AF = 0.05
+            }
+        }
+        then {
+            assert workflow.success : "RSVB rep1 failed"
+            def RESULTS="${projectDir}/tests/results"; def AFP="0.05"
+            def parseOut={String sid->def dir=file("${RESULTS}/${sid}");def mf=file("${dir}/mutations/${sid}_mutations.csv");assert mf.exists():"Missing: ${mf}";def lines=mf.readLines();def h=lines[0].split(";");def rows=lines.tail().collect{[h,it.split(";", -1)].transpose().collectEntries()};[dir:dir,sid:sid,rows:rows,det:rows.collectEntries{[it["Aa_change"],it["Mutation_frequency"].toFloat()]},ann:rows.collectEntries{[it["Aa_change"],it["Annotated"]]}]}
+            def loadGT={String v->new File("${projectDir}/tests/data/synthetic_mutations.csv").readLines().drop(1).findAll{it.trim()}.collect{def p=it.split(",", -1);[virus:p[0],protein:p[1],mutation:p[2],nominal:p[3].toFloat(),af_min:p[4].toFloat()/100,af_max:p[5].toFloat()/100,annotated:p[6]]}.findAll{it.virus==v}}
+            def mark={boolean ok->ok?"✓":"✗"}
+            def reps=["RSVB-cov500-rep1","RSVB-cov500-rep2","RSVB-cov500-rep3"].collect{parseOut(it)}
+            def gt=loadGT("RSVB"); def errs=[]
+            println "\n"+"═"*72;println "[RSVB] SYNTHETIC DATASET VALIDATION";println "═"*72
+            reps.each{rep->
+                def sid=rep.sid;def dir=rep.dir;def rows=rep.rows;def det=rep.det;def ann=rep.ann
+                println "\n[TEST INFO] ┌─── ${sid} ───"
+                def vcf=file("${dir}/variant_calling/${sid}_prot_variants_AF${AFP}.vcf")
+                def vOk=vcf.exists()&&vcf.size()>0;def cOk=vOk&&vcf.text.contains("F_JX576761")
+                if(!vOk)errs.add("[${sid}] VCF missing");if(!cOk)errs.add("[${sid}] F_JX576761 contig missing")
+                println "[TEST INFO] │  VCF: ${mark(vOk)} | contig F_JX576761: ${mark(cOk)}"
+                def fs=rows.count{it["Aa_change"]?.contains("Frameshift")};if(fs>0)errs.add("[${sid}] ${fs} frameshifts")
+                def nC=rows.count{it["Mutation_frequency"].toFloat()>=0.50};def nM=rows.count{def a=it["Mutation_frequency"].toFloat();a>=0.05&&a<0.50}
+                println "[TEST INFO] │  Frameshifts: ${fs} ${mark(fs==0)} | ≥50%: ${nC} | 5-50%: ${nM}"
+                println "[TEST INFO] │  MUTATION      NOMINAL   FOUND      RANGE(3σ)       ANNOTATED  STATUS"
+                gt.each{g->def found=det.containsKey(g.mutation);def fAF=found?det[g.mutation]:null
+                    def afOk=found&&fAF>=(g.af_min-0.02)&&fAF<=(g.af_max+0.02);def annOk=g.annotated!="yes"||(found&&ann[g.mutation]=="yes")
+                    println String.format("[TEST INFO] │  %-13s %-9s %-10s %-15s %-10s %s",g.mutation,"${g.nominal.toInteger()}%",found?String.format("%.2f%%",fAF*100):"NOT FOUND",String.format("[%.1f%%,%.1f%%]",g.af_min*100,g.af_max*100),g.annotated=="yes"?(annOk?"yes ✓":"KO ✗"):"-",mark((!found)||(afOk&&annOk)))
+                    if(found&&!afOk)errs.add("[${sid}] ${g.mutation} AF outside range")
+                    if(found&&!annOk)errs.add("[${sid}] ${g.mutation} expected Annotated=yes")}
+                println "[TEST INFO] └"+"─"*65}
+            println "\n[TEST INFO] ┌─── REPRODUCIBILITY RSVB (±2pp) ───"
+            reps.collect{it.det.keySet()}.flatten().toSet().sort().each{mut->
+                def afs=reps.collect{r->r.det.containsKey(mut)?r.det[mut]:null};def valid=afs.findAll{it!=null};if(valid.size()<2)return
+                def maxD=(valid.max()-valid.min())*100;def repOk=maxD<=2.0;def isKey=gt.any{it.mutation==mut}
+                if(isKey&&!repOk)errs.add("${mut} not reproducible: ${String.format('%.2f',maxD)}pp>2pp")
+                def aStr=afs.collect{it!=null?String.format("%.2f%%",it*100):"N/A"}
+                println String.format("[TEST INFO] │  %-13s %-12s %-12s %-12s %-9s %s",mut,aStr[0],aStr.size()>1?aStr[1]:"",aStr.size()>2?aStr[2]:"",String.format("%.2fpp",maxD),mark(repOk||!isKey))}
+            def nB=reps.collect{it.rows.size()};def nOk=nB.max()-nB.min()<=2;if(!nOk)errs.add("Inconsistent count: ${nB}")
+            println "[TEST INFO] │  Mutations per replicate: ${nB.join(' / ')} ${mark(nOk)}"
+            println "[TEST INFO] └"+"─"*65
+            println "\n"+"═"*72;println "[RSVB] SUMMARY — ${reps.size()} replicates";println "═"*72
+            if(errs.isEmpty())println "[TEST INFO] ✅ ALL CHECKS PASSED"
+            else{println "[TEST INFO] ❌ FAILED (${errs.size()}):";errs.eachWithIndex{e,i->println "[TEST INFO]   ${i+1}. ${e}"}}
+            println "═"*72+"\n"
+            assert errs.isEmpty():"\n\n[RSVB] TEST FAILED:\n"+errs.collect{"  • ${it}"}.join("\n")+"\n"
         }
     }
 }

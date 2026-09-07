@@ -1,0 +1,32 @@
+##fileformat=VCFv4.0
+##FILTER=<ID=PASS,Description="All filters passed">
+##fileDate=20260907
+##source=lofreq call -f /home/vhir/Desktop/ngs-analysis/nf-pipeline/../viruses/gripe/resources/v5/flu-b/proteins/H0N0.fasta --call-indels --no-default-filter -r NA_B_Austria_1359417_2021:1-87 -o /tmp/lofreq2_call_parallelqgajlfi5/0.vcf.gz /home/vhir/Desktop/ngs-analysis/results/try/viruses/gripe/samples/FluB-cov500-rep1/variant_calling/FluB-cov500-rep1_B-Victoria_indelqual_prot.bam 
+##reference=/home/vhir/Desktop/ngs-analysis/nf-pipeline/../viruses/gripe/resources/v5/flu-b/proteins/H0N0.fasta
+##INFO=<ID=DP,Number=1,Type=Integer,Description="Raw Depth">
+##INFO=<ID=AF,Number=1,Type=Float,Description="Allele Frequency">
+##INFO=<ID=SB,Number=1,Type=Integer,Description="Phred-scaled strand bias at this position">
+##INFO=<ID=DP4,Number=4,Type=Integer,Description="Counts for ref-forward bases, ref-reverse, alt-forward and alt-reverse bases">
+##INFO=<ID=INDEL,Number=0,Type=Flag,Description="Indicates that the variant is an INDEL.">
+##INFO=<ID=CONSVAR,Number=0,Type=Flag,Description="Indicates that the variant is a consensus variant (as opposed to a low frequency variant).">
+##INFO=<ID=HRUN,Number=1,Type=Integer,Description="Homopolymer length to the right of report indel position">
+##FILTER=<ID=min_snvqual_20,Description="Minimum SNV Quality (Phred) 20">
+##FILTER=<ID=min_indelqual_20,Description="Minimum Indel Quality (Phred) 20">
+##FILTER=<ID=min_snvqual_27,Description="Minimum SNV Quality (Phred) 27">
+##contig=<ID=NA_B_Austria_1359417_2021>
+##FILTER=<ID=min_snvqual_24,Description="Minimum SNV Quality (Phred) 24">
+##bcftools_concatVersion=1.22+htslib-1.22.1
+##bcftools_concatCommand=concat -a -O z -o /tmp/lofreq2_call_parallelqgajlfi5/concat.vcf.gz /tmp/lofreq2_call_parallelqgajlfi5/0.vcf.gz /tmp/lofreq2_call_parallelqgajlfi5/1.vcf.gz /tmp/lofreq2_call_parallelqgajlfi5/2.vcf.gz /tmp/lofreq2_call_parallelqgajlfi5/3.vcf.gz /tmp/lofreq2_call_parallelqgajlfi5/4.vcf.gz /tmp/lofreq2_call_parallelqgajlfi5/5.vcf.gz /tmp/lofreq2_call_parallelqgajlfi5/6.vcf.gz /tmp/lofreq2_call_parallelqgajlfi5/7.vcf.gz /tmp/lofreq2_call_parallelqgajlfi5/8.vcf.gz /tmp/lofreq2_call_parallelqgajlfi5/9.vcf.gz /tmp/lofreq2_call_parallelqgajlfi5/10.vcf.gz /tmp/lofreq2_call_parallelqgajlfi5/11.vcf.gz /tmp/lofreq2_call_parallelqgajlfi5/12.vcf.gz /tmp/lofreq2_call_parallelqgajlfi5/13.vcf.gz /tmp/lofreq2_call_parallelqgajlfi5/14.vcf.gz /tmp/lofreq2_call_parallelqgajlfi5/15.vcf.gz; Date=Mon Sep  7 10:22:35 2026
+##FILTER=<ID=min_dp_10,Description="Minimum Coverage 10">
+##FILTER=<ID=sb_fdr,Description="Strand-Bias Multiple Testing Correction: fdr corr. pvalue > 0.001000">
+##FILTER=<ID=min_snvqual_35,Description="Minimum SNV Quality (Phred) 35">
+##FILTER=<ID=min_indelqual_20,Description="Minimum Indel Quality (Phred) 20">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+NA_B_Austria_1359417_2021	89	.	A	T	2914	PASS	DP=236;AF=0.411017;SB=0;DP4=139,0,97,0
+NA_B_Austria_1359417_2021	151	.	C	T	1438	PASS	DP=309;AF=0.194175;SB=0;DP4=249,0,60,0
+NA_B_Austria_1359417_2021	178	.	G	T	469	PASS	DP=330;AF=0.075758;SB=0;DP4=305,0,25,0
+NA_B_Austria_1359417_2021	418	.	G	T	17211	PASS	DP=627;AF=0.808612;SB=0;DP4=60,60,246,261
+NA_B_Austria_1359417_2021	589	.	G	A	923	PASS	DP=630;AF=0.079365;SB=4;DP4=295,285,22,28
+NA_B_Austria_1359417_2021	613	.	A	C	13660	PASS	DP=605;AF=0.687603;SB=6;DP4=103,86,203,213
+NA_B_Austria_1359417_2021	838	.	G	C	11887	PASS	DP=589;AF=0.628183;SB=10;DP4=93,126,185,185
+NA_B_Austria_1359417_2021	1139	.	A	T	7057	PASS	DP=376;AF=0.593085;SB=13;DP4=28,125,24,199

@@ -1,0 +1,103 @@
+mAb	HRSV_subtype	name	mutation	Phenotype	Fold_change	Study
+Nirsevimab	HRSV-A	F_MH447951	N63T	Efficiently_neutralized	2.1	Zhu, Q et al. Sci Transl Med, 2017
+Nirsevimab	HRSV-A	F_MH447951	N63S	Efficiently_neutralized	1.5	Zhu, Q et al. Sci Transl Med, 2017
+Nirsevimab	HRSV-A	F_MH447951	E66K	Efficiently_neutralized	1	Zhu, Q et al. Sci Transl Med, 2017
+Nirsevimab	HRSV-A	F_MH447951	D200N	Efficiently_neutralized	1.1	Zhu, Q et al. Sci Transl Med, 2017
+Nirsevimab	HRSV-A	F_MH447951	I206V	Efficiently_neutralized	1.1	Zhu, Q et al. Sci Transl Med, 2017
+Nirsevimab	HRSV-B	F_JX576761	K65Q	Not_efficiently_neutralized	6.5*	Zhu, Q et al. Sci Transl Med, 2017
+Nirsevimab	HRSV-B	F_JX576761	K65T	Not_efficiently_neutralized	8.1*	Zhu, Q et al. Sci Transl Med, 2017
+Nirsevimab	HRSV-B	F_JX576761	E66D	Efficiently_neutralized	0.4	Zhu, Q et al. Sci Transl Med, 2017
+Nirsevimab	HRSV-B	F_JX576761	T67I	Efficiently_neutralized	1.3	Zhu, Q et al. Sci Transl Med, 2017
+Nirsevimab	HRSV-B	F_JX576761	N197S	Efficiently_neutralized	1	Zhu, Q et al. Sci Transl Med, 2017
+Nirsevimab	HRSV-B	F_JX576761	Q209K	Efficiently_neutralized	1.6	Zhu, Q et al. Sci Transl Med, 2017
+Nirsevimab	HRSV-B	F_JX576761	K65Q+S211N	Not_efficiently_neutralized	20*	Zhu, Q et al. Sci Transl Med, 2017
+Nirsevimab	HRSV-A	F_MH447951	N67I	Efficiently_neutralized	1	Zhu, Q. et al, JID, 2018
+Nirsevimab	HRSV-A	F_MH447951	N67I+N208Y	Resistant	475** / 103**	Zhu, Q. et al, JID, 2018 / EMA assesment report EMA/786523/2022 (15/11/2022)  EMA Beyfortus product information (28/04/2023)
+Nirsevimab	HRSV-B	F_JX576761	N208S	Resistant	14523** / >24000**	Zhu, Q. et al, JID, 2018 / EMA assesment report EMA/786523/2022 (15/11/2022)  EMA Beyfortus product information (28/04/2023)
+Nirsevimab	HRSV-B	F_JX576761	K68N+N201S	Resistant	5532** / >13000**	Zhu, Q. et al, JID, 2018 / EMA assesment report EMA/786523/2022 (15/11/2022)  EMA Beyfortus product information (28/04/2023)
+Nirsevimab	HRSV-B	F_JX576761	N208D	Resistant	>25000** / >90000**	Zhu, Q. et al, JID, 2018 / EMA assesment report EMA/786523/2022 (15/11/2022)  EMA Beyfortus product information (28/04/2023)
+Nirsevimab	HRSV-A	F_MH447951	POI68	Not_efficiently_neutralized	>5*	EMA assesment report EMA/786523/2022 (15/11/2022)  EMA Beyfortus product information (28/04/2023)
+Nirsevimab	HRSV-A	F_MH447951	POI208	Not_efficiently_neutralized	>5*	EMA assesment report EMA/786523/2022 (15/11/2022)  EMA Beyfortus product information (28/04/2023)
+Nirsevimab	HRSV-B	F_JX576761	POI68	Not_efficiently_neutralized	>5*	EMA assesment report EMA/786523/2022 (15/11/2022)  EMA Beyfortus product information (28/04/2023)
+Nirsevimab	HRSV-B	F_JX576761	POI201	Not_efficiently_neutralized	>5*	EMA assesment report EMA/786523/2022 (15/11/2022)  EMA Beyfortus product information (28/04/2023)
+Nirsevimab	HRSV-B	F_JX576761	POI206	Not_efficiently_neutralized	>5*	EMA assesment report EMA/786523/2022 (15/11/2022)  EMA Beyfortus product information (28/04/2023)
+Nirsevimab	HRSV-B	F_JX576761	K68N+N208S	Resistant	>90000**	EMA assesment report EMA/786523/2022 (15/11/2022)  EMA Beyfortus product information (28/04/2023)
+Nirsevimab	HRSV-B	F_JX576761	POI208	Not_efficiently_neutralized	>5*	EMA assesment report EMA/786523/2022 (15/11/2022)  EMA Beyfortus product information (28/04/2023)
+Nirsevimab	HRSV-B	F_JX576761	I64T+K68E+I206M+Q209R	Resistant	>447**	EMA assesment report EMA/786523/2022 (15/11/2022)  EMA Beyfortus product information (28/04/2023)
+Palivizumab	HRSV-A	F_MH447951	N276S	Efficiently_neutralized	0	Papenburg, J. et al. EMI, 2012
+Palivizumab	HRSV-A	F_MH447951	S275F	Resistant	>>>**	Zhu, Q. et al, JID, 2011
+Palivizumab	HRSV-A	F_MH447951	S275L	Resistant	>>>**	Zhu, Q. et al, JID, 2011
+Palivizumab	HRSV-B	F_JX576761	K272N	Resistant	>5164**	Zhu, Q. et al, JID, 2011
+Palivizumab	HRSV-B	F_JX576761	K272M	Resistant	>25000**	Zhu, Q. et al, JID, 2011
+Palivizumab	HRSV-B	F_JX576761	K272T	Resistant	>25000**	Zhu, Q. et al, JID, 2011
+Palivizumab	HRSV-B	F_JX576761	K272Q	Resistant	>25000**	Zhu, Q. et al, JID, 2011
+Palivizumab	HRSV-B	F_JX576761	K272E	Resistant	>>>**	Zhu, Q. et al, JID, 2011
+Nirsevimab	HRSV-B	F_JX576761	N201S+Q209K	Efficiently_neutralized	0.9	Zhu, Q. et al, JID, 2011
+Nirsevimab	HRSV-A	F_MH447951	E66G	Efficiently_neutralized	0.62	Rameix-Welti MA et al; 26th ESCV, 2024
+Nirsevimab	HRSV-A	F_MH447951	S211R	Efficiently_neutralized	0.98	Rameix-Welti MA et al; 26th ESCV, 2024
+Nirsevimab	HRSV-B	F_JX576761	N63D	Efficiently_neutralized	0.81	Rameix-Welti MA et al; 26th ESCV, 2024
+Nirsevimab	HRSV-B	F_JX576761	I64M+K65E	Resistant	>500**	Rameix-Welti MA et al; 26th ESCV, 2024
+Nirsevimab	HRSV-B	F_JX576761	I64V	Efficiently_neutralized	1.56	Rameix-Welti MA et al; 26th ESCV, 2024 / Wilkins D. et al., Lancet Infect Dis. 2023 doi:10.1016/S1473-3099(23)00062-2
+Nirsevimab	HRSV-A	F_MH447951	S190R	Resistant	>>?	Cordela, S. et al, Virus Evol, 2026
+Palivizumab	HRSV-A	F_MH447951	K272M	Resistant	>>>**	Wilkins D. et al., Lancet Infect Dis. 2023 doi:10.1016/S1473-3099(23)00062-2
+Palivizumab	HRSV-A	F_MH447951	K272T	Resistant	>>>**	Wilkins D. et al., Lancet Infect Dis. 2023 doi:10.1016/S1473-3099(23)00062-2
+Clesrovimab	HRSV-A	F_MH447951	S443P	Resistant	>>>**	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Clesrovimab	HRSV-A	F_MH447951	G446E	Resistant	>>>**	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Clesrovimab	HRSV-A	F_MH447951	G446W	Resistant	>>>**	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Clesrovimab	HRSV-A	F_MH447951	G446R	Resistant	>>>**	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Clesrovimab	HRSV-A	F_MH447951	I432V	Efficiently_neutralized	<5	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Clesrovimab	HRSV-A	F_MH447951	I432T	Efficiently_neutralized	<5	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Clesrovimab	HRSV-A	F_MH447951	D440G	Efficiently_neutralized	<5	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Nirsevimab	HRSV-B	F_JX576761	I64T	Resistant	>>>**	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Nirsevimab	HRSV-B	F_JX576761	I64T+K68E	Resistant	>>>**	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Nirsevimab	HRSV-B	F_JX576761	I64V+K65E	Resistant	>>>**	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Nirsevimab	HRSV-B	F_JX576761	K68E	Resistant	>>>**	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Nirsevimab	HRSV-B	F_JX576761	K68I	Resistant	>>>**	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Nirsevimab	HRSV-B	F_JX576761	N201S	Resistant	>>>**	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Nirsevimab	HRSV-B	F_JX576761	N201T	Resistant	>>>**	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Nirsevimab	HRSV-B	F_JX576761	L204S	Resistant	>>>**	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Nirsevimab	HRSV-B	F_JX576761	P205S	Resistant	>>>**	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Nirsevimab	HRSV-B	F_JX576761	N208S	Resistant	>>>**	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Nirsevimab	HRSV-B	F_JX576761	N208D	Resistant	>>>**	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Nirsevimab	HRSV-B	F_JX576761	N208K	Resistant	>>>**	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Nirsevimab	HRSV-B	F_JX576761	N208Y	Resistant	>>>**	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Nirsevimab	HRSV-B	F_JX576761	N208I	Resistant	>>>**	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Nirsevimab	HRSV-B	F_JX576761	K68N	Not_efficiently_neutralized		https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Nirsevimab	HRSV-B	F_JX576761	K65E	Not_efficiently_neutralized		https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Nirsevimab	HRSV-B	F_JX576761	N63S	Efficiently_neutralized	<5	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Nirsevimab	HRSV-B	F_JX576761	I64M	Efficiently_neutralized	<5	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Nirsevimab	HRSV-B	F_JX576761	K65R	Efficiently_neutralized	<5	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Nirsevimab	HRSV-B	F_JX576761	T67A	Efficiently_neutralized	<5	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Nirsevimab	HRSV-B	F_JX576761	K68R	Efficiently_neutralized	<5	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Nirsevimab	HRSV-B	F_JX576761	N197D	Efficiently_neutralized	<5	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Nirsevimab	HRSV-B	F_JX576761	N197S	Efficiently_neutralized	<5	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Nirsevimab	HRSV-B	F_JX576761	Q209R	Efficiently_neutralized	<5	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Nirsevimab	HRSV-B	F_JX576761	Q209L	Efficiently_neutralized	<5	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Nirsevimab	HRSV-B	F_JX576761	Q210H	Efficiently_neutralized	<5	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Nirsevimab	HRSV-B	F_JX576761	Q210L	Efficiently_neutralized	<5	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Nirsevimab	HRSV-B	F_JX576761	S211N	Efficiently_neutralized	<5	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Nirsevimab	HRSV-B	F_JX576761	S211I	Efficiently_neutralized	<5	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Palivizumab	HRSV-B	F_JX576761	N63S	Not_efficiently_neutralized		https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Palivizumab	HRSV-B	F_JX576761	K272R	Not_efficiently_neutralized		https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Nirsevimab	HRSV-A	F_MH447951	K68E	Not_efficiently_neutralized	12.6	Wilkins D. et al., Lancet Infect Dis. 2023 doi:10.1016/S1473-3099(23)00062-2
+Nirsevimab	HRSV-B	F_JX576761	K68Q	Resistant	369.5	Wilkins D. et al., Lancet Infect Dis. 2023 doi:10.1016/S1473-3099(23)00062-2
+Nirsevimab	HRSV-A	F_MH447951	K209E	Not_efficiently_neutralized	10.6	Fourati S., et al. Lancet Microbe. 2026. doi:10.1016/j.lanmic.2026.101353
+Nirsevimab	HRSV-A	F_MH447951	K65R	Efficiently_neutralized	<5	Wilkins D. et al., Lancet Infect Dis. 2023 doi:10.1016/S1473-3099(23)00062-2
+Nirsevimab	HRSV-A	F_MH447951	K68N	Efficiently_neutralized	<5	Wilkins D. et al., Lancet Infect Dis. 2023 doi:10.1016/S1473-3099(23)00062-2
+Nirsevimab	HRSV-A	F_MH447951	K68R	Efficiently_neutralized	<5	Wilkins D. et al., Lancet Infect Dis. 2023 doi:10.1016/S1473-3099(23)00062-2
+Nirsevimab	HRSV-A	F_MH447951	N197K	Efficiently_neutralized	<5	Wilkins D. et al., Lancet Infect Dis. 2023 doi:10.1016/S1473-3099(23)00062-2
+Nirsevimab	HRSV-A	F_MH447951	N197H	Efficiently_neutralized	<5	Wilkins D. et al., Lancet Infect Dis. 2023 doi:10.1016/S1473-3099(23)00062-2
+Nirsevimab	HRSV-A	F_MH447951	N197D	Efficiently_neutralized	<5	Wilkins D. et al., Lancet Infect Dis. 2023 doi:10.1016/S1473-3099(23)00062-2
+Nirsevimab	HRSV-A	F_MH447951	I199M	Efficiently_neutralized	<5	Wilkins D. et al., Lancet Infect Dis. 2023 doi:10.1016/S1473-3099(23)00062-2
+Nirsevimab	HRSV-A	F_MH447951	L204I	Efficiently_neutralized	<5	Wilkins D. et al., Lancet Infect Dis. 2023 doi:10.1016/S1473-3099(23)00062-2
+Nirsevimab	HRSV-A	F_MH447951	I206T	Efficiently_neutralized	<5	Wilkins D. et al., Lancet Infect Dis. 2023 doi:10.1016/S1473-3099(23)00062-2
+Nirsevimab	HRSV-A	F_MH447951	V207I	Efficiently_neutralized	<5	Wilkins D. et al., Lancet Infect Dis. 2023 doi:10.1016/S1473-3099(23)00062-2
+Nirsevimab	HRSV-A	F_MH447951	K209R	Efficiently_neutralized	<5	Fourati S., et al. Lancet Microbe. 2026. doi:10.1016/j.lanmic.2026.101353
+Nirsevimab	HRSV-A	F_MH447951	Q210L	Efficiently_neutralized	<5	Wilkins D. et al., Lancet Infect Dis. 2023 doi:10.1016/S1473-3099(23)00062-2
+Clesrovimab	HRSV-B	F_JX576761	S443P	Resistant	>>>**	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Clesrovimab	HRSV-B	F_JX576761	G446E	Resistant	>>>**	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Clesrovimab	HRSV-B	F_JX576761	G446W	Resistant	>>>**	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Clesrovimab	HRSV-B	F_JX576761	G446R	Resistant	>>>**	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Clesrovimab	HRSV-B	F_JX576761	I432V	Efficiently_neutralized	<5	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Clesrovimab	HRSV-B	F_JX576761	I432T	Efficiently_neutralized	<5	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3
+Clesrovimab	HRSV-B	F_JX576761	K445R	Efficiently_neutralized	<5	https://virusfrenchresistance.org/virus-french-resistance-rsv/ November 2025 – Version n°3

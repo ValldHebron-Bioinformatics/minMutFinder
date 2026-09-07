@@ -1,0 +1,33 @@
+##fileformat=VCFv4.0
+##FILTER=<ID=PASS,Description="All filters passed">
+##fileDate=20260907
+##source=lofreq call -f /home/vhir/Desktop/ngs-analysis/nf-pipeline/../viruses/virus-respiratorio-sincitial/resources/v5/proteins/JX576761_ref-prot.fasta --call-indels --no-default-filter -r F_JX576761:1-53 -o /tmp/lofreq2_call_parallelfusy48k_/0.vcf.gz /home/vhir/Desktop/ngs-analysis/results/try/viruses/virus-respiratorio-sincitial/samples/RSVB-cov500-rep3/variant_calling/RSVB-cov500-rep3_VRS-B_indelqual_prot.bam 
+##reference=/home/vhir/Desktop/ngs-analysis/nf-pipeline/../viruses/virus-respiratorio-sincitial/resources/v5/proteins/JX576761_ref-prot.fasta
+##INFO=<ID=DP,Number=1,Type=Integer,Description="Raw Depth">
+##INFO=<ID=AF,Number=1,Type=Float,Description="Allele Frequency">
+##INFO=<ID=SB,Number=1,Type=Integer,Description="Phred-scaled strand bias at this position">
+##INFO=<ID=DP4,Number=4,Type=Integer,Description="Counts for ref-forward bases, ref-reverse, alt-forward and alt-reverse bases">
+##INFO=<ID=INDEL,Number=0,Type=Flag,Description="Indicates that the variant is an INDEL.">
+##INFO=<ID=CONSVAR,Number=0,Type=Flag,Description="Indicates that the variant is a consensus variant (as opposed to a low frequency variant).">
+##INFO=<ID=HRUN,Number=1,Type=Integer,Description="Homopolymer length to the right of report indel position">
+##FILTER=<ID=min_snvqual_20,Description="Minimum SNV Quality (Phred) 20">
+##FILTER=<ID=min_indelqual_20,Description="Minimum Indel Quality (Phred) 20">
+##FILTER=<ID=min_snvqual_24,Description="Minimum SNV Quality (Phred) 24">
+##contig=<ID=F_JX576761>
+##FILTER=<ID=min_indelqual_23,Description="Minimum Indel Quality (Phred) 23">
+##bcftools_concatVersion=1.22+htslib-1.22.1
+##bcftools_concatCommand=concat -a -O z -o /tmp/lofreq2_call_parallelfusy48k_/concat.vcf.gz /tmp/lofreq2_call_parallelfusy48k_/0.vcf.gz /tmp/lofreq2_call_parallelfusy48k_/1.vcf.gz /tmp/lofreq2_call_parallelfusy48k_/2.vcf.gz /tmp/lofreq2_call_parallelfusy48k_/3.vcf.gz /tmp/lofreq2_call_parallelfusy48k_/4.vcf.gz /tmp/lofreq2_call_parallelfusy48k_/5.vcf.gz /tmp/lofreq2_call_parallelfusy48k_/6.vcf.gz /tmp/lofreq2_call_parallelfusy48k_/7.vcf.gz /tmp/lofreq2_call_parallelfusy48k_/8.vcf.gz /tmp/lofreq2_call_parallelfusy48k_/9.vcf.gz /tmp/lofreq2_call_parallelfusy48k_/10.vcf.gz /tmp/lofreq2_call_parallelfusy48k_/11.vcf.gz /tmp/lofreq2_call_parallelfusy48k_/12.vcf.gz /tmp/lofreq2_call_parallelfusy48k_/13.vcf.gz /tmp/lofreq2_call_parallelfusy48k_/14.vcf.gz /tmp/lofreq2_call_parallelfusy48k_/15.vcf.gz /tmp/lofreq2_call_parallelfusy48k_/16.vcf.gz /tmp/lofreq2_call_parallelfusy48k_/17.vcf.gz /tmp/lofreq2_call_parallelfusy48k_/18.vcf.gz /tmp/lofreq2_call_parallelfusy48k_/19.vcf.gz /tmp/lofreq2_call_parallelfusy48k_/20.vcf.gz /tmp/lofreq2_call_parallelfusy48k_/21.vcf.gz /tmp/lofreq2_call_parallelfusy48k_/22.vcf.gz /tmp/lofreq2_call_parallelfusy48k_/23.vcf.gz /tmp/lofreq2_call_parallelfusy48k_/24.vcf.gz /tmp/lofreq2_call_parallelfusy48k_/25.vcf.gz /tmp/lofreq2_call_parallelfusy48k_/26.vcf.gz /tmp/lofreq2_call_parallelfusy48k_/27.vcf.gz /tmp/lofreq2_call_parallelfusy48k_/28.vcf.gz /tmp/lofreq2_call_parallelfusy48k_/29.vcf.gz /tmp/lofreq2_call_parallelfusy48k_/30.vcf.gz /tmp/lofreq2_call_parallelfusy48k_/31.vcf.gz; Date=Mon Sep  7 10:26:19 2026
+##FILTER=<ID=min_dp_10,Description="Minimum Coverage 10">
+##FILTER=<ID=sb_fdr,Description="Strand-Bias Multiple Testing Correction: fdr corr. pvalue > 0.001000">
+##FILTER=<ID=min_snvqual_35,Description="Minimum SNV Quality (Phred) 35">
+##FILTER=<ID=min_indelqual_25,Description="Minimum Indel Quality (Phred) 25">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+F_JX576761	238	.	A	C	6827	PASS	DP=259;AF=0.783784;SB=0;DP4=56,0,203,0
+F_JX576761	298	.	A	T	15717	PASS	DP=429;AF=1;SB=0;DP4=0,0,284,145
+F_JX576761	478	.	C	T	13628	PASS	DP=588;AF=0.697279;SB=1;DP4=91,87,201,209
+F_JX576761	623	.	A	G	1302	PASS	DP=630;AF=0.103175;SB=6;DP4=274,291,37,28
+F_JX576761	690	.	G	T	8126	PASS	DP=609;AF=0.446634;SB=0;DP4=176,161,139,133
+F_JX576761	838	.	A	T	13015	PASS	DP=627;AF=0.641148;SB=0;DP4=118,107,213,189
+F_JX576761	1078	.	G	T	3080	PASS	DP=649;AF=0.194145;SB=3;DP4=243,280,63,63
+F_JX576761	1198	.	A	T	11510	PASS	DP=621;AF=0.589372;SB=2;DP4=133,122,183,183
+F_JX576761	1438	.	C	T	533	PASS	DP=450;AF=0.064444;SB=10;DP4=123,298,4,25

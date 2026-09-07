@@ -1,0 +1,40 @@
+##fileformat=VCFv4.0
+##FILTER=<ID=PASS,Description="All filters passed">
+##fileDate=20260907
+##source=lofreq call -f /home/vhir/Desktop/ngs-analysis/nf-pipeline/../viruses/gripe/resources/v5/flu-a/proteins/H3N2.fasta --call-indels --no-default-filter -r PA_A_Darwin_9_2021:1-67 -o /tmp/lofreq2_call_parallel02636_z3/0.vcf.gz /home/vhir/Desktop/ngs-analysis/results/try/viruses/gripe/samples/H3N2-cov500-rep1/variant_calling/H3N2-cov500-rep1_H3N2_indelqual_prot.bam 
+##reference=/home/vhir/Desktop/ngs-analysis/nf-pipeline/../viruses/gripe/resources/v5/flu-a/proteins/H3N2.fasta
+##INFO=<ID=DP,Number=1,Type=Integer,Description="Raw Depth">
+##INFO=<ID=AF,Number=1,Type=Float,Description="Allele Frequency">
+##INFO=<ID=SB,Number=1,Type=Integer,Description="Phred-scaled strand bias at this position">
+##INFO=<ID=DP4,Number=4,Type=Integer,Description="Counts for ref-forward bases, ref-reverse, alt-forward and alt-reverse bases">
+##INFO=<ID=INDEL,Number=0,Type=Flag,Description="Indicates that the variant is an INDEL.">
+##INFO=<ID=CONSVAR,Number=0,Type=Flag,Description="Indicates that the variant is a consensus variant (as opposed to a low frequency variant).">
+##INFO=<ID=HRUN,Number=1,Type=Integer,Description="Homopolymer length to the right of report indel position">
+##FILTER=<ID=min_snvqual_20,Description="Minimum SNV Quality (Phred) 20">
+##FILTER=<ID=min_indelqual_20,Description="Minimum Indel Quality (Phred) 20">
+##FILTER=<ID=min_snvqual_27,Description="Minimum SNV Quality (Phred) 27">
+##contig=<ID=PA_A_Darwin_9_2021>
+##FILTER=<ID=min_indelqual_24,Description="Minimum Indel Quality (Phred) 24">
+##FILTER=<ID=min_snvqual_24,Description="Minimum SNV Quality (Phred) 24">
+##FILTER=<ID=min_indelqual_23,Description="Minimum Indel Quality (Phred) 23">
+##contig=<ID=NA_A_Darwin_9_2021>
+##bcftools_concatVersion=1.22+htslib-1.22.1
+##bcftools_concatCommand=concat -a -O z -o /tmp/lofreq2_call_parallel02636_z3/concat.vcf.gz /tmp/lofreq2_call_parallel02636_z3/0.vcf.gz /tmp/lofreq2_call_parallel02636_z3/1.vcf.gz /tmp/lofreq2_call_parallel02636_z3/2.vcf.gz /tmp/lofreq2_call_parallel02636_z3/3.vcf.gz /tmp/lofreq2_call_parallel02636_z3/4.vcf.gz /tmp/lofreq2_call_parallel02636_z3/5.vcf.gz /tmp/lofreq2_call_parallel02636_z3/6.vcf.gz /tmp/lofreq2_call_parallel02636_z3/7.vcf.gz /tmp/lofreq2_call_parallel02636_z3/8.vcf.gz /tmp/lofreq2_call_parallel02636_z3/9.vcf.gz /tmp/lofreq2_call_parallel02636_z3/10.vcf.gz /tmp/lofreq2_call_parallel02636_z3/11.vcf.gz /tmp/lofreq2_call_parallel02636_z3/12.vcf.gz /tmp/lofreq2_call_parallel02636_z3/13.vcf.gz /tmp/lofreq2_call_parallel02636_z3/14.vcf.gz /tmp/lofreq2_call_parallel02636_z3/15.vcf.gz /tmp/lofreq2_call_parallel02636_z3/16.vcf.gz /tmp/lofreq2_call_parallel02636_z3/17.vcf.gz /tmp/lofreq2_call_parallel02636_z3/18.vcf.gz /tmp/lofreq2_call_parallel02636_z3/19.vcf.gz /tmp/lofreq2_call_parallel02636_z3/20.vcf.gz /tmp/lofreq2_call_parallel02636_z3/21.vcf.gz /tmp/lofreq2_call_parallel02636_z3/22.vcf.gz /tmp/lofreq2_call_parallel02636_z3/23.vcf.gz /tmp/lofreq2_call_parallel02636_z3/24.vcf.gz /tmp/lofreq2_call_parallel02636_z3/25.vcf.gz /tmp/lofreq2_call_parallel02636_z3/26.vcf.gz /tmp/lofreq2_call_parallel02636_z3/27.vcf.gz /tmp/lofreq2_call_parallel02636_z3/28.vcf.gz /tmp/lofreq2_call_parallel02636_z3/29.vcf.gz /tmp/lofreq2_call_parallel02636_z3/30.vcf.gz /tmp/lofreq2_call_parallel02636_z3/31.vcf.gz /tmp/lofreq2_call_parallel02636_z3/32.vcf.gz /tmp/lofreq2_call_parallel02636_z3/33.vcf.gz /tmp/lofreq2_call_parallel02636_z3/34.vcf.gz /tmp/lofreq2_call_parallel02636_z3/35.vcf.gz /tmp/lofreq2_call_parallel02636_z3/36.vcf.gz /tmp/lofreq2_call_parallel02636_z3/37.vcf.gz /tmp/lofreq2_call_parallel02636_z3/38.vcf.gz /tmp/lofreq2_call_parallel02636_z3/39.vcf.gz /tmp/lofreq2_call_parallel02636_z3/40.vcf.gz /tmp/lofreq2_call_parallel02636_z3/41.vcf.gz /tmp/lofreq2_call_parallel02636_z3/42.vcf.gz /tmp/lofreq2_call_parallel02636_z3/43.vcf.gz /tmp/lofreq2_call_parallel02636_z3/44.vcf.gz /tmp/lofreq2_call_parallel02636_z3/45.vcf.gz /tmp/lofreq2_call_parallel02636_z3/46.vcf.gz /tmp/lofreq2_call_parallel02636_z3/47.vcf.gz; Date=Mon Sep  7 10:18:50 2026
+##FILTER=<ID=min_dp_10,Description="Minimum Coverage 10">
+##FILTER=<ID=sb_fdr,Description="Strand-Bias Multiple Testing Correction: fdr corr. pvalue > 0.001000">
+##FILTER=<ID=min_snvqual_37,Description="Minimum SNV Quality (Phred) 37">
+##FILTER=<ID=min_indelqual_29,Description="Minimum Indel Quality (Phred) 29">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+PA_A_Darwin_9_2021	112	.	A	T	266	PASS	DP=288;AF=0.8125;SB=0;DP4=54,0,234,0
+PA_A_Darwin_9_2021	598	.	A	T	3163	PASS	DP=547;AF=0.661792;SB=0;DP4=93,92,178,184
+PA_A_Darwin_9_2021	1200	.	A	T	16459	PASS	DP=600;AF=0.79;SB=3;DP4=58,68,236,238
+PA_A_Darwin_9_2021	1649	.	T	C	7778	PASS	DP=646;AF=0.413313;SB=6;DP4=199,180,126,141
+NA_A_Darwin_9_2021	88	.	A	T	331	PASS	DP=251;AF=0.071713;SB=0;DP4=233,0,18,0
+NA_A_Darwin_9_2021	148	.	G	T	1376	PASS	DP=279;AF=0.207885;SB=0;DP4=221,0,58,0
+NA_A_Darwin_9_2021	300	.	C	A	10158	PASS	DP=468;AF=0.668803;SB=1;DP4=102,53,212,101
+NA_A_Darwin_9_2021	356	.	A	T	21889	PASS	DP=594;AF=1;SB=0;DP4=0,0,316,278
+NA_A_Darwin_9_2021	598	.	A	T	14410	PASS	DP=628;AF=0.686306;SB=5;DP4=103,94,205,226
+NA_A_Darwin_9_2021	839	.	G	T	17884	PASS	DP=660;AF=0.795455;SB=14;DP4=57,78,276,249
+NA_A_Darwin_9_2021	991	.	A	C	1511	PASS	DP=676;AF=0.102071;SB=8;DP4=341,266,32,37
+NA_A_Darwin_9_2021	1048	.	A	C	12054	PASS	DP=668;AF=0.573353;SB=0;DP4=153,132,210,173
+NA_A_Darwin_9_2021	1289	.	G	T	4448	PASS	DP=369;AF=0.409214;SB=0;DP4=0,218,0,151

@@ -1,0 +1,64 @@
+name: minMutFinder CI
+
+on:
+    [pull_request, release]
+
+jobs:
+  integration_test:
+    name: Run nf-test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -el {0}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7.0.1
+
+      - name: Create Conda environment file
+        run: |
+          cat <<EOF > minMutFinder_env.yaml
+          name: minMutFinder_env
+          channels:
+            - conda-forge
+            - bioconda
+            - defaults
+          dependencies:
+            - python=3.10.14
+            - pandas=2.3.3
+            - numpy=2.2.6
+            - pysam=0.22.1
+            - biopython=1.87
+            - matplotlib=3.9.1
+            - seaborn=0.13.2
+            - plotly=6.9.0
+            - samtools=1.22
+            - bcftools=1.22
+            - lofreq=2.1.5
+            - bbmap=39.26
+            - minimap2=2.28
+            - trimmomatic=0.39
+            - libgcc-ng
+          EOF
+
+      - name: Set up minMutFinder environment (Miniforge + mamba)
+        uses: conda-incubator/setup-miniconda@v4.0.1
+        with:
+          miniforge-version: latest
+          environment-file: minMutFinder_env.yaml
+          activate-environment: minMutFinder_env
+          auto-activate: true
+
+      - name: Install Nextflow
+        uses: nf-core/setup-nextflow@v3.0.1
+        with:
+          version: "latest"
+
+      - name: Setup nf-test
+        uses: nf-core/setup-nf-test@v2.1.0
+        with:
+          version: '0.9.5'
+          install-pdiff: true
+
+      - name: Run Pipeline Test
+        run: nf-test test tests/main.nf.test --verbose
