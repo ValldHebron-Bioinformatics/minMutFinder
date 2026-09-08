@@ -1,0 +1,11 @@
+SampleID;Protein;Mutation_type;Aa_change;Amino_Acid_Property_Change;Nt_mutation;Mutation_frequency;Mutation_depth;Annotated_mutation;Annotated;Antiviral;Phenotype;Fold
+H3N2-cov500-rep1;PA_A_Darwin_9_2021;NON_SYNONYMOUS;I38L;Amino acid did not change, it stayed Hydrophobic;A112T;0.782456;285;I38L;yes;Baloxavir;Resistant;2.2−8
+H3N2-cov500-rep1;NA_A_Darwin_9_2021;NON_SYNONYMOUS;E119V;Amino acid changed from Positively charged to Hydrophobic;A356T;1.0;615;E119V;yes;Oseltamivir;Resistant;18-2057
+H3N2-cov500-rep1;NA_A_Darwin_9_2021;NON_SYNONYMOUS;L140P;Amino acid changed from Hydrophobic to Special case;T419C;0.508224;608;L140P;no;;;
+H3N2-cov500-rep1;NA_A_Darwin_9_2021;NON_SYNONYMOUS;A250S;Amino acid changed from Hydrophobic to Polar non charged;G748T;0.758675;634;A250S;no;;;
+H3N2-cov500-rep1;PA_A_Darwin_9_2021;NON_SYNONYMOUS;E300Q;Amino acid changed from Positively charged to Polar non charged;G898C;0.485618;591;E300Q;no;;;
+H3N2-cov500-rep1;NA_A_Darwin_9_2021;NON_SYNONYMOUS;S331R;Amino acid changed from Polar non charged to Positively charged;A991C;0.096154;676;S331R;yes;Oseltamivir;Resistant;5-77
+H3N2-cov500-rep1;NA_A_Darwin_9_2021;NON_SYNONYMOUS;V380F;Amino acid changed from Hydrophobic to Aromatic Hydrophobic;G1138T;0.291139;474;V380F;no;;;
+H3N2-cov500-rep1;NA_A_Darwin_9_2021;NON_SYNONYMOUS;S440L;Amino acid changed from Polar non charged to Hydrophobic;C1319T;0.057971;345;S440L;no;;;
+H3N2-cov500-rep1;PA_A_Darwin_9_2021;NON_SYNONYMOUS;L500F;Amino acid changed from Hydrophobic to Aromatic Hydrophobic;A1500T;1.0;617;L500F;no;;;
+H3N2-cov500-rep1;PA_A_Darwin_9_2021;NON_SYNONYMOUS;S600F;Amino acid changed from Polar non charged to Aromatic Hydrophobic;C1799T;0.125436;574;S600F;no;;;
