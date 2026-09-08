@@ -1,0 +1,82 @@
+##fileformat=VCFv4.0
+##FILTER=<ID=PASS,Description="All filters passed">
+##fileDate=20260908
+##source=lofreq call -f /home/marc/Desktop/ngs-analysis/nf-pipeline/../viruses/gripe/resources/v5/flu-a/proteins/H1N1.fasta --call-indels --no-default-filter -r PA_A_Victoria_2570_2019:1-134 -o /tmp/lofreq2_call_parallelddqitos3/0.vcf.gz /home/marc/Desktop/ngs-analysis/tryxd/viruses/gripe/samples/H1N1-cov500-rep1/variant_calling/H1N1-cov500-rep1_H1N1_indelqual_prot.bam 
+##reference=/home/marc/Desktop/ngs-analysis/nf-pipeline/../viruses/gripe/resources/v5/flu-a/proteins/H1N1.fasta
+##INFO=<ID=DP,Number=1,Type=Integer,Description="Raw Depth">
+##INFO=<ID=AF,Number=1,Type=Float,Description="Allele Frequency">
+##INFO=<ID=SB,Number=1,Type=Integer,Description="Phred-scaled strand bias at this position">
+##INFO=<ID=DP4,Number=4,Type=Integer,Description="Counts for ref-forward bases, ref-reverse, alt-forward and alt-reverse bases">
+##INFO=<ID=INDEL,Number=0,Type=Flag,Description="Indicates that the variant is an INDEL.">
+##INFO=<ID=CONSVAR,Number=0,Type=Flag,Description="Indicates that the variant is a consensus variant (as opposed to a low frequency variant).">
+##INFO=<ID=HRUN,Number=1,Type=Integer,Description="Homopolymer length to the right of report indel position">
+##FILTER=<ID=min_snvqual_29,Description="Minimum SNV Quality (Phred) 29">
+##FILTER=<ID=min_indelqual_20,Description="Minimum Indel Quality (Phred) 20">
+##contig=<ID=PA_A_Victoria_2570_2019>
+##FILTER=<ID=min_snvqual_27,Description="Minimum SNV Quality (Phred) 27">
+##FILTER=<ID=min_indelqual_23,Description="Minimum Indel Quality (Phred) 23">
+##FILTER=<ID=min_snvqual_24,Description="Minimum SNV Quality (Phred) 24">
+##FILTER=<ID=min_snvqual_20,Description="Minimum SNV Quality (Phred) 20">
+##contig=<ID=HA_A_Victoria_2570_2019>
+##FILTER=<ID=min_snvqual_30,Description="Minimum SNV Quality (Phred) 30">
+##FILTER=<ID=min_snvqual_31,Description="Minimum SNV Quality (Phred) 31">
+##contig=<ID=NA_A_Victoria_2570_2019>
+##bcftools_concatVersion=1.22+htslib-1.22.1
+##bcftools_concatCommand=concat -a -O z -o /tmp/lofreq2_call_parallelddqitos3/concat.vcf.gz /tmp/lofreq2_call_parallelddqitos3/0.vcf.gz /tmp/lofreq2_call_parallelddqitos3/1.vcf.gz /tmp/lofreq2_call_parallelddqitos3/2.vcf.gz /tmp/lofreq2_call_parallelddqitos3/3.vcf.gz /tmp/lofreq2_call_parallelddqitos3/4.vcf.gz /tmp/lofreq2_call_parallelddqitos3/5.vcf.gz /tmp/lofreq2_call_parallelddqitos3/6.vcf.gz /tmp/lofreq2_call_parallelddqitos3/7.vcf.gz /tmp/lofreq2_call_parallelddqitos3/8.vcf.gz /tmp/lofreq2_call_parallelddqitos3/9.vcf.gz /tmp/lofreq2_call_parallelddqitos3/10.vcf.gz /tmp/lofreq2_call_parallelddqitos3/11.vcf.gz /tmp/lofreq2_call_parallelddqitos3/12.vcf.gz /tmp/lofreq2_call_parallelddqitos3/13.vcf.gz /tmp/lofreq2_call_parallelddqitos3/14.vcf.gz /tmp/lofreq2_call_parallelddqitos3/15.vcf.gz /tmp/lofreq2_call_parallelddqitos3/16.vcf.gz /tmp/lofreq2_call_parallelddqitos3/17.vcf.gz /tmp/lofreq2_call_parallelddqitos3/18.vcf.gz /tmp/lofreq2_call_parallelddqitos3/19.vcf.gz /tmp/lofreq2_call_parallelddqitos3/20.vcf.gz /tmp/lofreq2_call_parallelddqitos3/21.vcf.gz /tmp/lofreq2_call_parallelddqitos3/22.vcf.gz /tmp/lofreq2_call_parallelddqitos3/23.vcf.gz /tmp/lofreq2_call_parallelddqitos3/24.vcf.gz /tmp/lofreq2_call_parallelddqitos3/25.vcf.gz /tmp/lofreq2_call_parallelddqitos3/26.vcf.gz /tmp/lofreq2_call_parallelddqitos3/27.vcf.gz /tmp/lofreq2_call_parallelddqitos3/28.vcf.gz /tmp/lofreq2_call_parallelddqitos3/29.vcf.gz /tmp/lofreq2_call_parallelddqitos3/30.vcf.gz /tmp/lofreq2_call_parallelddqitos3/31.vcf.gz /tmp/lofreq2_call_parallelddqitos3/32.vcf.gz /tmp/lofreq2_call_parallelddqitos3/33.vcf.gz /tmp/lofreq2_call_parallelddqitos3/34.vcf.gz /tmp/lofreq2_call_parallelddqitos3/35.vcf.gz /tmp/lofreq2_call_parallelddqitos3/36.vcf.gz /tmp/lofreq2_call_parallelddqitos3/37.vcf.gz /tmp/lofreq2_call_parallelddqitos3/38.vcf.gz /tmp/lofreq2_call_parallelddqitos3/39.vcf.gz /tmp/lofreq2_call_parallelddqitos3/40.vcf.gz /tmp/lofreq2_call_parallelddqitos3/41.vcf.gz /tmp/lofreq2_call_parallelddqitos3/42.vcf.gz /tmp/lofreq2_call_parallelddqitos3/43.vcf.gz /tmp/lofreq2_call_parallelddqitos3/44.vcf.gz /tmp/lofreq2_call_parallelddqitos3/45.vcf.gz /tmp/lofreq2_call_parallelddqitos3/46.vcf.gz /tmp/lofreq2_call_parallelddqitos3/47.vcf.gz; Date=Tue Sep  8 08:37:40 2026
+##FILTER=<ID=min_dp_10,Description="Minimum Coverage 10">
+##FILTER=<ID=sb_fdr,Description="Strand-Bias Multiple Testing Correction: fdr corr. pvalue > 0.001000">
+##FILTER=<ID=min_snvqual_43,Description="Minimum SNV Quality (Phred) 43">
+##FILTER=<ID=min_indelqual_30,Description="Minimum Indel Quality (Phred) 30">
+##bcftools_filterVersion=1.17+htslib-1.17
+##bcftools_filterCommand=filter '-iINFO/AF>=0.05 && INFO/DP>=20' H1N1-cov500-rep2_prot_variants.vcf.gz; Date=Tue Sep  8 09:51:34 2026
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+PA_A_Victoria_2570_2019	112	.	A	C	196	PASS	DP=285;AF=0.768421;SB=0;DP4=66,0,219,0
+PA_A_Victoria_2570_2019	459	.	G	A	11569	PASS	DP=601;AF=1;SB=0;DP4=0,0,297,304
+PA_A_Victoria_2570_2019	786	.	G	A	7904	PASS	DP=534;AF=0.490637;SB=2;DP4=136,136,124,138
+PA_A_Victoria_2570_2019	1287	.	A	C	14397	PASS	DP=590;AF=0.732203;SB=9;DP4=73,85,232,200
+PA_A_Victoria_2570_2019	1337	.	T	C	597	PASS	DP=605;AF=0.059504;SB=0;DP4=301,268,19,17
+PA_A_Victoria_2570_2019	1396	.	A	C	1374	PASS	DP=581;AF=0.113597;SB=0;DP4=269,246,34,32
+PA_A_Victoria_2570_2019	1398	.	T	G	1416	PASS	DP=580;AF=0.117241;SB=0;DP4=266,246,36,32
+PA_A_Victoria_2570_2019	1728	.	A	C	9170	PASS	DP=593;AF=0.49747;SB=0;DP4=146,152,141,154
+HA_A_Victoria_2570_2019	92	.	A	C	2302	PASS	DP=278;AF=0.302158;SB=0;DP4=194,0,84,0
+HA_A_Victoria_2570_2019	99	.	G	A	5229	PASS	DP=306;AF=0.542484;SB=0;DP4=140,0,166,0
+HA_A_Victoria_2570_2019	160	.	A	C	255	PASS	DP=301;AF=0.053156;SB=0;DP4=285,0,16,0
+HA_A_Victoria_2570_2019	162	.	A	T	270	PASS	DP=297;AF=0.057239;SB=0;DP4=280,0,17,0
+HA_A_Victoria_2570_2019	184	.	C	T	4577	PASS	DP=308;AF=0.506494;SB=0;DP4=152,0,156,0
+HA_A_Victoria_2570_2019	194	.	C	A	7080	PASS	DP=296;AF=0.72973;SB=0;DP4=80,0,216,0
+HA_A_Victoria_2570_2019	471	.	A	G	1038	PASS	DP=587;AF=0.093697;SB=0;DP4=266,266,27,28
+HA_A_Victoria_2570_2019	549	.	T	C	21177	PASS	DP=578;AF=1;SB=0;DP4=0,0,270,308
+HA_A_Victoria_2570_2019	565	.	C	G	8463	PASS	DP=590;AF=0.483051;SB=2;DP4=142,163,140,145
+HA_A_Victoria_2570_2019	580	.	A	C	1070	PASS	DP=587;AF=0.093697;SB=1;DP4=258,274,25,30
+HA_A_Victoria_2570_2019	646	.	A	G	502	PASS	DP=614;AF=0.052117;SB=4;DP4=291,291,13,19
+HA_A_Victoria_2570_2019	665	.	A	G	21204	PASS	DP=603;AF=1;SB=0;DP4=0,0,300,303
+HA_A_Victoria_2570_2019	668	.	G	A	14608	PASS	DP=613;AF=0.761827;SB=1;DP4=70,76,233,234
+HA_A_Victoria_2570_2019	1128	.	T	C	8793	PASS	DP=618;AF=0.47411;SB=4;DP4=163,162,158,135
+HA_A_Victoria_2570_2019	1252	.	A	G	1311	PASS	DP=611;AF=0.10802;SB=10;DP4=284,261,27,39
+HA_A_Victoria_2570_2019	1276	.	T	C	15433	PASS	DP=598;AF=0.774247;SB=0;DP4=70,65,236,227
+HA_A_Victoria_2570_2019	1293	.	C	T	562	PASS	DP=612;AF=0.055556;SB=16;DP4=292,286,10,24
+HA_A_Victoria_2570_2019	1314	.	C	T	14329	PASS	DP=548;AF=0.797445;SB=1;DP4=50,61,205,232
+HA_A_Victoria_2570_2019	1351	.	A	C	6319	PASS	DP=434;AF=0.502304;SB=0;DP4=70,146,70,148
+HA_A_Victoria_2570_2019	1353	.	C	A	6339	PASS	DP=434;AF=0.504608;SB=0;DP4=66,149,70,149
+HA_A_Victoria_2570_2019	1452	.	T	C	601	PASS	DP=334;AF=0.08982;SB=0;DP4=0,304,0,30
+NA_A_Victoria_2570_2019	232	.	C	A	4791	PASS	DP=312;AF=0.490385;SB=0;DP4=159,0,153,0
+NA_A_Victoria_2570_2019	285	.	T	C	863	PASS	DP=433;AF=0.099307;SB=0;DP4=297,93,32,11
+NA_A_Victoria_2570_2019	356	.	A	T	22042	PASS	DP=602;AF=1;SB=0;DP4=0,0,298,304
+NA_A_Victoria_2570_2019	380	.	T	G	14480	PASS	DP=619;AF=0.720517;SB=1;DP4=84,89,210,236
+NA_A_Victoria_2570_2019	444	.	C	A	8741	PASS	DP=583;AF=0.48542;SB=0;DP4=139,161,129,154
+NA_A_Victoria_2570_2019	499	.	C	T	542	PASS	DP=595;AF=0.057143;SB=1;DP4=251,310,14,20
+NA_A_Victoria_2570_2019	599	.	G	A	3696	PASS	DP=612;AF=0.235294;SB=1;DP4=234,234,69,75
+NA_A_Victoria_2570_2019	661	.	A	C	3440	PASS	DP=568;AF=0.230634;SB=1;DP4=216,221,67,64
+NA_A_Victoria_2570_2019	810	.	A	G	14793	PASS	DP=587;AF=0.761499;SB=1;DP4=71,69,235,212
+NA_A_Victoria_2570_2019	823	.	C	T	1169	PASS	DP=584;AF=0.10274;SB=3;DP4=263,261,33,27
+NA_A_Victoria_2570_2019	842	.	G	T	14565	PASS	DP=601;AF=0.75208;SB=16;DP4=63,86,240,212
+NA_A_Victoria_2570_2019	885	.	C	T	3905	PASS	DP=618;AF=0.250809;SB=2;DP4=229,234,82,73
+NA_A_Victoria_2570_2019	906	.	G	T	21830	PASS	DP=599;AF=1;SB=0;DP4=0,0,311,288
+NA_A_Victoria_2570_2019	962	.	T	G	518	PASS	DP=620;AF=0.051613;SB=9;DP4=309,279,12,20
+NA_A_Victoria_2570_2019	963	.	T	G	8752	PASS	DP=617;AF=0.482982;SB=1;DP4=167,152,152,146
+NA_A_Victoria_2570_2019	1041	.	A	G	3675	PASS	DP=619;AF=0.240711;SB=6;DP4=227,243,63,86
+NA_A_Victoria_2570_2019	1083	.	A	G	1117	PASS	DP=520;AF=0.105769;SB=15;DP4=206,259,16,39
+NA_A_Victoria_2570_2019	1133	.	A	C	712	PASS	DP=382;AF=0.102094;SB=5;DP4=73,270,5,34
+NA_A_Victoria_2570_2019	1179	.	C	T	4990	PASS	DP=324;AF=0.503086;SB=0;DP4=0,161,1,162
+NA_A_Victoria_2570_2019	1360	.	G	A	826	PASS	DP=142;AF=0.232394;SB=0;DP4=0,109,0,33
+NA_A_Victoria_2570_2019	1376	.	A	G	2226	PASS	DP=93;AF=0.741935;SB=0;DP4=0,24,0,69

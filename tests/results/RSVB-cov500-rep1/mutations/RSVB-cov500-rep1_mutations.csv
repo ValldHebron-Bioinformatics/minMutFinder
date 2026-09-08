@@ -1,0 +1,10 @@
+SampleID;Protein;Mutation_type;Aa_change;Amino_Acid_Property_Change;Nt_mutation;Mutation_frequency;Mutation_depth;Annotated_mutation;Annotated;mAb;Phenotype;Fold_change
+RSVB-cov500-rep1;F_JX576761;NON_SYNONYMOUS;K80Q;Amino acid changed from Positively charged to Polar non charged;A238C;0.783784;259;K80Q;no;;;
+RSVB-cov500-rep1;F_JX576761;NON_SYNONYMOUS;T100S;Amino acid did not change, it stayed Polar non charged;A298T;1.0;429;T100S;no;;;
+RSVB-cov500-rep1;F_JX576761;NON_SYNONYMOUS;L160F;Amino acid changed from Hydrophobic to Aromatic Hydrophobic;C478T;0.697279;588;L160F;no;;;
+RSVB-cov500-rep1;F_JX576761;NON_SYNONYMOUS;N208S;Amino acid did not change, it stayed Polar non charged;A623G;0.103175;630;N208S;yes;Nirsevimab;Resistant;14523** / >24000**
+RSVB-cov500-rep1;F_JX576761;NON_SYNONYMOUS;L230F;Amino acid changed from Hydrophobic to Aromatic Hydrophobic;G690T;0.446634;609;L230F;no;;;
+RSVB-cov500-rep1;F_JX576761;NON_SYNONYMOUS;I280L;Amino acid did not change, it stayed Hydrophobic;A838T;0.641148;627;I280L;no;;;
+RSVB-cov500-rep1;F_JX576761;NON_SYNONYMOUS;V360L;Amino acid did not change, it stayed Hydrophobic;G1078T;0.194145;649;V360L;no;;;
+RSVB-cov500-rep1;F_JX576761;NON_SYNONYMOUS;T400S;Amino acid did not change, it stayed Polar non charged;A1198T;0.589372;621;T400S;no;;;
+RSVB-cov500-rep1;F_JX576761;NON_SYNONYMOUS;P480S;Amino acid changed from Special case to Polar non charged;C1438T;0.064444;450;P480S;no;;;

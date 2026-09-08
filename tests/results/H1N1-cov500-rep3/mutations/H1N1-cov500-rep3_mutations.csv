@@ -1,0 +1,48 @@
+SampleID;Protein;Mutation_type;Aa_change;Amino_Acid_Property_Change;Nt_mutation;Mutation_frequency;Mutation_depth;Annotated_mutation;Annotated;Antiviral;Phenotype;Fold
+H1N1-cov500-rep3;HA_A_Victoria_2570_2019;NON_SYNONYMOUS;N31T;Amino acid did not change, it stayed Polar non charged;A92C;0.302158;278;N31T;no;;;
+H1N1-cov500-rep3;HA_A_Victoria_2570_2019;SYNONYMOUS;L33L;Amino acid did not change, it stayed Hydrophobic;G99A;0.542484;306;L33L;no;;;
+H1N1-cov500-rep3;PA_A_Victoria_2570_2019;NON_SYNONYMOUS;I38L;Amino acid did not change, it stayed Hydrophobic;A112C;0.768421;285;I38L;yes;Baloxavir;Resistant;6
+H1N1-cov500-rep3;HA_A_Victoria_2570_2019;NON_SYNONYMOUS;K54H;Amino acid did not change, it stayed Positively charged;A160C, A162T;0.0549828178694158;80;K54H;no;;;
+H1N1-cov500-rep3;HA_A_Victoria_2570_2019;SYNONYMOUS;L62L;Amino acid did not change, it stayed Hydrophobic;C184T;0.506494;308;L62L;no;;;
+H1N1-cov500-rep3;HA_A_Victoria_2570_2019;NON_SYNONYMOUS;P65Q;Amino acid changed from Special case to Polar non charged;C194A;0.72973;296;P65Q;no;;;
+H1N1-cov500-rep3;NA_A_Victoria_2570_2019;NON_SYNONYMOUS;Q78K;Amino acid changed from Polar non charged to Positively charged;C232A;0.490385;312;Q78K;no;;;
+H1N1-cov500-rep3;NA_A_Victoria_2570_2019;SYNONYMOUS;S95S;Amino acid did not change, it stayed Polar non charged;T285C;0.099307;433;S95S;no;;;
+H1N1-cov500-rep3;NA_A_Victoria_2570_2019;NON_SYNONYMOUS;E119V;Amino acid changed from Positively charged to Hydrophobic;A356T;1.0;602;E119V;yes;Oseltamivir;Resistant;60
+H1N1-cov500-rep3;NA_A_Victoria_2570_2019;NON_SYNONYMOUS;L127W;Amino acid changed from Hydrophobic to Aromatic Hydrophobic;T380G;0.720517;619;L127W;no;;;
+H1N1-cov500-rep3;NA_A_Victoria_2570_2019;SYNONYMOUS;T148T;Amino acid did not change, it stayed Polar non charged;C444A;0.48542;583;T148T;no;;;
+H1N1-cov500-rep3;PA_A_Victoria_2570_2019;SYNONYMOUS;E153E;Amino acid did not change, it stayed Positively charged;G459A;1.0;601;E153E;no;;;
+H1N1-cov500-rep3;HA_A_Victoria_2570_2019;SYNONYMOUS;S157S;Amino acid did not change, it stayed Polar non charged;A471G;0.093697;587;S157S;no;;;
+H1N1-cov500-rep3;NA_A_Victoria_2570_2019;NON_SYNONYMOUS;P167S;Amino acid changed from Special case to Polar non charged;C499T;0.057143;595;P167S;no;;;
+H1N1-cov500-rep3;HA_A_Victoria_2570_2019;SYNONYMOUS;P183P;Amino acid did not change, it stayed Special case;T549C;1.0;578;P183P;no;;;
+H1N1-cov500-rep3;HA_A_Victoria_2570_2019;NON_SYNONYMOUS;Q189E;Amino acid changed from Polar non charged to Positively charged;C565G;0.483051;590;Q189E;no;;;
+H1N1-cov500-rep3;HA_A_Victoria_2570_2019;NON_SYNONYMOUS;N194H;Amino acid changed from Polar non charged to Positively charged;A580C;0.093697;587;N194H;no;;;
+H1N1-cov500-rep3;NA_A_Victoria_2570_2019;NON_SYNONYMOUS;S200N;Amino acid did not change, it stayed Polar non charged;G599A;0.235294;612;S200N;no;;;
+H1N1-cov500-rep3;HA_A_Victoria_2570_2019;NON_SYNONYMOUS;T216A;Amino acid changed from Polar non charged to Hydrophobic;A646G;0.052117;614;T216A;no;;;
+H1N1-cov500-rep3;NA_A_Victoria_2570_2019;NON_SYNONYMOUS;N221H;Amino acid changed from Polar non charged to Positively charged;A661C;0.230634;568;N221H;no;;;
+H1N1-cov500-rep3;HA_A_Victoria_2570_2019;NON_SYNONYMOUS;D222G;Amino acid changed from Positively charged to Special case;A665G;1.0;603;D222G;no;;;
+H1N1-cov500-rep3;HA_A_Victoria_2570_2019;NON_SYNONYMOUS;R223Q;Amino acid changed from Positively charged to Polar non charged;G668A;0.761827;613;R223Q;no;;;
+H1N1-cov500-rep3;PA_A_Victoria_2570_2019;SYNONYMOUS;R262R;Amino acid did not change, it stayed Positively charged;G786A;0.490637;534;R262R;no;;;
+H1N1-cov500-rep3;NA_A_Victoria_2570_2019;SYNONYMOUS;K270K;Amino acid did not change, it stayed Positively charged;A810G;0.761499;587;K270K;no;;;
+H1N1-cov500-rep3;NA_A_Victoria_2570_2019;NON_SYNONYMOUS;H275Y;Amino acid changed from Positively charged to Aromatic Hydrophobic;C823T;0.10274;584;H275Y;yes;Oseltamivir;Resistant;221-2846
+H1N1-cov500-rep3;NA_A_Victoria_2570_2019;NON_SYNONYMOUS;C281F;Amino acid changed from Special case to Aromatic Hydrophobic;G842T;0.75208;601;C281F;no;;;
+H1N1-cov500-rep3;NA_A_Victoria_2570_2019;SYNONYMOUS;N295N;Amino acid did not change, it stayed Polar non charged;C885T;0.250809;618;N295N;no;;;
+H1N1-cov500-rep3;NA_A_Victoria_2570_2019;SYNONYMOUS;P302P;Amino acid did not change, it stayed Special case;G906T;1.0;599;P302P;no;;;
+H1N1-cov500-rep3;NA_A_Victoria_2570_2019;NON_SYNONYMOUS;V321G;Amino acid changed from Hydrophobic to Special case;T962G, T963G;0.0525451559934318;160;V321G;no;;;
+H1N1-cov500-rep3;NA_A_Victoria_2570_2019;SYNONYMOUS;V321V;Amino acid did not change, it stayed Hydrophobic;T963G;0.4351395730706076;1325;V321V;no;;;
+H1N1-cov500-rep3;NA_A_Victoria_2570_2019;SYNONYMOUS;K347K;Amino acid did not change, it stayed Positively charged;A1041G;0.240711;619;K347K;no;;;
+H1N1-cov500-rep3;NA_A_Victoria_2570_2019;SYNONYMOUS;R361R;Amino acid did not change, it stayed Positively charged;A1083G;0.105769;520;R361R;no;;;
+H1N1-cov500-rep3;HA_A_Victoria_2570_2019;SYNONYMOUS;T376T;Amino acid did not change, it stayed Polar non charged;T1128C;0.47411;618;T376T;no;;;
+H1N1-cov500-rep3;NA_A_Victoria_2570_2019;NON_SYNONYMOUS;N378T;Amino acid did not change, it stayed Polar non charged;A1133C;0.102094;382;N378T;no;;;
+H1N1-cov500-rep3;NA_A_Victoria_2570_2019;SYNONYMOUS;I393I;Amino acid did not change, it stayed Hydrophobic;C1179T;0.503086;324;I393I;no;;;
+H1N1-cov500-rep3;HA_A_Victoria_2570_2019;NON_SYNONYMOUS;I418V;Amino acid did not change, it stayed Hydrophobic;A1252G;0.10802;611;I418V;no;;;
+H1N1-cov500-rep3;HA_A_Victoria_2570_2019;SYNONYMOUS;L426L;Amino acid did not change, it stayed Hydrophobic;T1276C;0.774247;598;L426L;no;;;
+H1N1-cov500-rep3;PA_A_Victoria_2570_2019;SYNONYMOUS;G429G;Amino acid did not change, it stayed Special case;A1287C;0.732203;590;G429G;no;;;
+H1N1-cov500-rep3;HA_A_Victoria_2570_2019;SYNONYMOUS;N431N;Amino acid did not change, it stayed Polar non charged;C1293T;0.055556;612;N431N;no;;;
+H1N1-cov500-rep3;HA_A_Victoria_2570_2019;SYNONYMOUS;H438H;Amino acid did not change, it stayed Positively charged;C1314T;0.797445;548;H438H;no;;;
+H1N1-cov500-rep3;PA_A_Victoria_2570_2019;NON_SYNONYMOUS;F446S;Amino acid changed from Aromatic Hydrophobic to Polar non charged;T1337C;0.059504;605;F446S;no;;;
+H1N1-cov500-rep3;HA_A_Victoria_2570_2019;NON_SYNONYMOUS;N451Q;Amino acid did not change, it stayed Polar non charged;A1351C, C1353A;0.5093457943925234;1090;N451Q;no;;;
+H1N1-cov500-rep3;NA_A_Victoria_2570_2019;NON_SYNONYMOUS;G454S;Amino acid changed from Special case to Polar non charged;G1360A;0.232394;142;G454S;no;;;
+H1N1-cov500-rep3;NA_A_Victoria_2570_2019;NON_SYNONYMOUS;D459G;Amino acid changed from Positively charged to Special case;A1376G;0.741935;93;D459G;no;;;
+H1N1-cov500-rep3;PA_A_Victoria_2570_2019;NON_SYNONYMOUS;N466Q;Amino acid did not change, it stayed Polar non charged;A1396C, T1398G;0.1155866900175131;330;N466Q;no;;;
+H1N1-cov500-rep3;HA_A_Victoria_2570_2019;SYNONYMOUS;Y484Y;Amino acid did not change, it stayed Aromatic Hydrophobic;T1452C;0.08982;334;Y484Y;no;;;
+H1N1-cov500-rep3;PA_A_Victoria_2570_2019;NON_SYNONYMOUS;K576N;Amino acid changed from Positively charged to Polar non charged;A1728C;0.49747;593;K576N;no;;;

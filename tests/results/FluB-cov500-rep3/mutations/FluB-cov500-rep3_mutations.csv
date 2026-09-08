@@ -1,0 +1,9 @@
+SampleID;Protein;Mutation_type;Aa_change;Amino_Acid_Property_Change;Nt_mutation;Mutation_frequency;Mutation_depth;Annotated_mutation;Annotated;Antiviral;Phenotype;Fold
+FluB-cov500-rep3;NA_B_Austria_1359417_2021;NON_SYNONYMOUS;I45L;Amino acid did not change, it stayed Hydrophobic;A133T;0.070922;282;I45L;no;;;
+FluB-cov500-rep3;NA_B_Austria_1359417_2021;NON_SYNONYMOUS;S90L;Amino acid changed from Polar non charged to Hydrophobic;C269T;1.0;374;S90L;no;;;
+FluB-cov500-rep3;NA_B_Austria_1359417_2021;NON_SYNONYMOUS;F130L;Amino acid changed from Aromatic Hydrophobic to Hydrophobic;T390A;0.74744;586;F130L;no;;;
+FluB-cov500-rep3;NA_B_Austria_1359417_2021;NON_SYNONYMOUS;H155Y;Amino acid changed from Positively charged to Aromatic Hydrophobic;C463T;0.750413;605;H155Y;no;;;
+FluB-cov500-rep3;NA_B_Austria_1359417_2021;NON_SYNONYMOUS;D197N;Amino acid changed from Positively charged to Polar non charged;G589A;0.092084;619;D197N;yes;Oseltamivir;Resistant;4-10
+FluB-cov500-rep3;NA_B_Austria_1359417_2021;NON_SYNONYMOUS;A200S;Amino acid changed from Hydrophobic to Polar non charged;G598T;0.522951;610;A200S;no;;;
+FluB-cov500-rep3;NA_B_Austria_1359417_2021;NON_SYNONYMOUS;N220Y;Amino acid changed from Polar non charged to Aromatic Hydrophobic;A658T;0.759554;628;N220Y;no;;;
+FluB-cov500-rep3;NA_B_Austria_1359417_2021;NON_SYNONYMOUS;R300I;Amino acid changed from Positively charged to Hydrophobic;G899T;0.257053;638;R300I;no;;;

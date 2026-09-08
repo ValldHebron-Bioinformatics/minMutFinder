@@ -1,0 +1,18 @@
+SampleID;Protein;Mutation_type;Aa_change;Amino_Acid_Property_Change;Nt_mutation;Mutation_frequency;Mutation_depth;Annotated_mutation;Annotated;mAb;Phenotype;Fold_change
+RSVA-cov500-rep2;F_MH447951;SYNONYMOUS;S38S;Amino acid did not change, it stayed Polar non charged;T114C;0.734177;316;S38S;no;;;
+RSVA-cov500-rep2;F_MH447951;NON_SYNONYMOUS;Q81E;Amino acid changed from Polar non charged to Positively charged;C241G;0.503311;302;Q81E;no;;;
+RSVA-cov500-rep2;F_MH447951;SYNONYMOUS;R106R;Amino acid did not change, it stayed Positively charged;A318C;0.239777;538;R106R;no;;;
+RSVA-cov500-rep2;F_MH447951;NON_SYNONYMOUS;R109S;Amino acid changed from Positively charged to Polar non charged;A327C;0.061189;572;R109S;no;;;
+RSVA-cov500-rep2;F_MH447951;NON_SYNONYMOUS;N116I;Amino acid changed from Polar non charged to Hydrophobic;A347T;0.734959;615;N116I;no;;;
+RSVA-cov500-rep2;F_MH447951;NON_SYNONYMOUS;R133S;Amino acid changed from Positively charged to Polar non charged;G399C;0.503311;604;R133S;no;;;
+RSVA-cov500-rep2;F_MH447951;SYNONYMOUS;S146S;Amino acid did not change, it stayed Polar non charged;T438C;0.050761;591;S146S;no;;;
+RSVA-cov500-rep2;F_MH447951;NON_SYNONYMOUS;K176T;Amino acid changed from Positively charged to Polar non charged;AAG526ACT;0.23588;602;K176T;no;;;
+RSVA-cov500-rep2;F_MH447951;NON_SYNONYMOUS;A177-;Deletion;GCT529-;0.23588;602;A177-;no;;;
+RSVA-cov500-rep2;F_MH447951;NON_SYNONYMOUS;D200N;Amino acid changed from Positively charged to Polar non charged;G598A;1.0;593;D200N;yes;Nirsevimab;Efficiently_neutralized;1.1
+RSVA-cov500-rep2;F_MH447951;NON_SYNONYMOUS;L203S;Amino acid changed from Hydrophobic to Polar non charged;T608C;0.275338;592;L203S;no;;;
+RSVA-cov500-rep2;F_MH447951;NON_SYNONYMOUS;N208Y;Amino acid changed from Polar non charged to Aromatic Hydrophobic;A622T;1.0;592;N208Y is in a POI;yes;Nirsevimab;Not_efficiently_neutralized;>5*
+RSVA-cov500-rep2;F_MH447951;NON_SYNONYMOUS;R282S;Amino acid changed from Positively charged to Polar non charged;A846C;0.732297;579;R282S;no;;;
+RSVA-cov500-rep2;F_MH447951;NON_SYNONYMOUS;C313H;Amino acid changed from Special case to Positively charged;T937C, G938A;0.2307692307692307;675;C313H;no;;;
+RSVA-cov500-rep2;F_MH447951;SYNONYMOUS;V365V;Amino acid did not change, it stayed Hydrophobic;GTG1094GTC;0.08804;602;V365V;no;;;
+RSVA-cov500-rep2;F_MH447951;NON_SYNONYMOUS;-366A;Insertion;-1096GCG;0.08804;602;-366A;no;;;
+RSVA-cov500-rep2;F_MH447951;NON_SYNONYMOUS;-367T;Insertion;-1099ACG;0.08804;602;-367T;no;;;
