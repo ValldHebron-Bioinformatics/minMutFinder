@@ -1,4 +1,4 @@
-![Version](https://img.shields.io/badge/Version-1.1.1-blue) ![License](https://img.shields.io/badge/License-GPL_V3-green)
+![Version](https://img.shields.io/badge/Version-2.0.0-blue) ![License](https://img.shields.io/badge/License-GPL_V3-green)
 [![nf-test](https://img.shields.io/badge/tested_with-nf--test-337ab7.svg)](https://code.askimed.com/nf-test)
 
 
