@@ -73,7 +73,7 @@ process byProteinAnalysis {
     cp -f ${prot_variants_AF_fasta} ${out_path}/assembly/${out_path.baseName}_prot_variants_AF${AF}.fasta
     cp -f ${prot_variants_AF_vcf} ${out_path}/variant_calling/${out_path.baseName}_prot_variants_AF${AF}.vcf
 
-    python ${params.programs.by_protein_analysis} --out-dir ${out_path} --ref-seq ${ref_seq} --sample ${out_path.baseName} --prot "\${prot}" --AF ${AF} --depth ${depth} --samfile ${samfile} --depth-tsv ${depth_tsv}
+    python ${params.programs.by_protein_analysis} --out-dir ${out_path} --ref-seq ${ref_seq} --sample ${out_path.baseName} --prot "\${prot}" --AF ${AF} --depth ${depth} --samfile ${samfile} --depth-tsv ${depth_tsv} --fasta-af ${prot_variants_AF_fasta} --vcf-af ${prot_variants_AF_vcf}
 
     # Log the processed protein
     echo \${prot} >> ${out_path}/mutations/stopper

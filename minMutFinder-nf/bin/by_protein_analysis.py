@@ -45,6 +45,12 @@ for i in range(len(sys.argv)):
         depth_cutoff = sys.argv[i + 1]
     elif sys.argv[i] == '--samfile':
         samfile = sys.argv[i + 1]
+    elif sys.argv[i] == '--depth-tsv':
+        depth_tsv = sys.argv[i + 1]
+    elif sys.argv[i] == '--fasta-af':
+        fasta_af = sys.argv[i + 1]
+    elif sys.argv[i] == '--vcf-af':
+        vcf_af = sys.argv[i + 1]
 
 FASTQ = out_dir + '/fastq'
 QC_DIR = out_dir + '/qc'
@@ -57,15 +63,17 @@ FREQ_CUTOFF = str(AF_cutoff)
 DEPTH_CUTOFF = int(depth_cutoff)
 PROT_REF = seq_reader(ref_seq)
 
-if os.path.isfile(ASSEMBLY + '/' + SAMPLE + '_depth_consensus.tsv'):
+# Read the task's own staged inputs instead of the shared copies in out_dir,
+# which parallel tasks and publishDir may be rewriting at the same time
+if os.path.isfile(depth_tsv):
     df_depth_check = True
 else:
     df_depth_check = False
 
 REFERENCES = ASSEMBLY+'/references'
 
-FREQ_CUTOFF_FASTA = seq_reader(ASSEMBLY+'/'+SAMPLE+'_prot_variants_AF'+FREQ_CUTOFF+'.fasta')
-VCF_FILE_CUTOFF = VARIANT_CALLING+'/'+SAMPLE+"_prot_variants_AF"+FREQ_CUTOFF+".vcf"
+FREQ_CUTOFF_FASTA = seq_reader(fasta_af)
+VCF_FILE_CUTOFF = vcf_af
 
 samfile_df = open(samfile, 'r')
 samfile_list = list(csv.reader(samfile_df, delimiter = "\n"))
@@ -82,7 +90,7 @@ if get_text(VCF_FILE_CUTOFF, header, 'bool'):
         fasta_seq.close()
 
     if (df_depth_check):
-        for j in get_text(ASSEMBLY + '/' + SAMPLE + '_depth_consensus.tsv', header + '\t', 'text').split('\n'):
+        for j in get_text(depth_tsv, header + '\t', 'text').split('\n'):
             if len(j.split('\t')) == 3:
                 depth4prot.loc[len(depth4prot)] = j.split('\t')
         depth4prot.pos, depth4prot.depth = pd.to_numeric(depth4prot.pos), pd.to_numeric(depth4prot.depth)
@@ -139,17 +147,18 @@ if get_text(VCF_FILE_CUTOFF, header, 'bool'):
     cons_seq = cons_seq.replace('N', '')
     coverage = (len(cons_seq) / len(ref_seq)) * 100
     coverage_clean = str(round(coverage, 2)) + '%'
-    with open(qc_metrics_file, 'w') as qc_metrics:
-        qc_metrics.write('sample;test;score' + '\n')
-        qc_metrics.write(SAMPLE+';'+'length_'+header+';'+str(length_assembly)+'\n')
-        if (df_depth_check):
-            qc_metrics.write(SAMPLE+';'+'n_percentage_'+header+';'+str(n_percentage_clean)+'\n')
-        qc_metrics.write(SAMPLE+';'+'coverage_'+header+';'+str(coverage_clean)+'\n')
-        if (df_depth_check):
-            qc_metrics.write(SAMPLE+';'+'median_'+header+';'+str(depth4prot_corrected.depth.quantile([0.5]).iloc[0])+'\n')
-            qc_metrics.write(SAMPLE+';'+'Q1_'+header+';'+str(depth4prot_corrected.depth.quantile([0.25]).iloc[0])+'\n')
-            qc_metrics.write(SAMPLE+';'+'Q3_'+header+';'+str(depth4prot_corrected.depth.quantile([0.75]).iloc[0])+'\n')
-    qc_metrics.close()
+    # QC_metrics.csv is shared by all proteins (run in parallel): its header is
+    # created by dirCreator and each protein appends its rows in a single write
+    qc_lines = SAMPLE+';'+'length_'+header+';'+str(length_assembly)+'\n'
+    if (df_depth_check):
+        qc_lines += SAMPLE+';'+'n_percentage_'+header+';'+str(n_percentage_clean)+'\n'
+    qc_lines += SAMPLE+';'+'coverage_'+header+';'+str(coverage_clean)+'\n'
+    if (df_depth_check):
+        qc_lines += SAMPLE+';'+'median_'+header+';'+str(depth4prot_corrected.depth.quantile([0.5]).iloc[0])+'\n'
+        qc_lines += SAMPLE+';'+'Q1_'+header+';'+str(depth4prot_corrected.depth.quantile([0.25]).iloc[0])+'\n'
+        qc_lines += SAMPLE+';'+'Q3_'+header+';'+str(depth4prot_corrected.depth.quantile([0.75]).iloc[0])+'\n'
+    with open(qc_metrics_file, 'a') as qc_metrics:
+        qc_metrics.write(qc_lines)
 
     print('\nBeggining analyisis for protein '+header+'\n')
     vcf_header = get_text(VCF_FILE_CUTOFF, '#C', 'text').replace('\n', '').replace('#', '').split('\t')
@@ -177,6 +186,9 @@ if get_text(VCF_FILE_CUTOFF, header, 'bool'):
     VCF_FILE = ASSEMBLY+'/'+SAMPLE+'_'+header+'_prot_variants_AF'+FREQ_CUTOFF+'.vcf'
     SAM_TO_LOOP = VARIANT_CALLING+'/sam_to_loop_'+header+'.sam'
     READS_MULTIFASTA = VARIANT_CALLING+'/reads_multifasta_'+header+'.fasta'
+    # Reads are appended below; drop the file left by a previous run in the same out_dir
+    if os.path.isfile(READS_MULTIFASTA):
+        os.remove(READS_MULTIFASTA)
 
     if vcf_prot.size > 0:
         vcf_expand_list = []

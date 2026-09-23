@@ -275,12 +275,13 @@ workflow MAIN_WORKFLOW {
     FILE_CHECK()
     LOG_INFO()
 
-    dirCreator(params.out_path)
-    refs = refCheck(params.out_path, file(params.ref_seq))
+    // refCheck (and everything downstream of it) must start after dirCreator has reset out_path
+    dirs_ready = dirCreator(params.out_path)
+    refs = refCheck(dirs_ready.map { params.out_path }, file(params.ref_seq))
     ref_only = refs.map { ref -> ref[0] }
 
     if (file("${params.areads}").exists()) {
-        out_map = inAlignedReads(file(params.areads), params.out_path)
+        out_map = inAlignedReads(file(params.areads), dirs_ready.map { params.out_path })
         if (file("${params.vcf}").exists()) {
             out_vcf = inVcf_noSB(file(params.vcf), params.out_path, out_map, params.AF, params.depth, ref_only)
             // out_vcf = inVcf(file(params.vcf), params.out_path, out_map, params.AF, params.depth, params.SB, ref_only)
@@ -297,7 +298,6 @@ workflow MAIN_WORKFLOW {
             out_map = mapping1_bbmap(params.out_path, out_fq, ref_only)
         } else {
             log.error "Mapping method not recognized. Please use 'minimap2' or 'bbmap'."
-            exit "Mapping method not recognized. Please use 'minimap2' or 'bbmap'."
             exit 1
         }
         // out_vcf = variant_calling_fq(params.out_path, out_map, params.AF, params.depth, params.SB, ref_only, params.threads)
@@ -308,7 +308,6 @@ workflow MAIN_WORKFLOW {
             out_map2 = mapping2_bbmap(params.out_path, out_vcf, out_fq)
         } else {
             log.error "Mapping method not recognized. Please use 'minimap2' or 'bbmap'."
-            exit "Mapping method not recognized. Please use 'minimap2' or 'bbmap'."
             exit 1
         }
         out_depth = read_depth(params.out_path, out_map2)

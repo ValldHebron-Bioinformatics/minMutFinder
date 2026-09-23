@@ -47,6 +47,10 @@ process dirCreator {
 
     # Create stopper file in mutations directory
     touch stopper
+
+    # Reset the per-run shared files (a previous run in the same out_path would be merged into them)
+    : > "\${MUTATIONS}/stopper"
+    echo "sample;test;score" > "\${QC_DIR}/QC_metrics.csv"
     """
 }
 

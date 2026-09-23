@@ -63,12 +63,11 @@ reads_filt_qc_unpaired = read_count(R1_qc_file, R2_qc_file)
 reads_filt_qc_paired = read_count(R1_qc_paired_file, R2_qc_paired_file)
 reads_filt_qc = int(reads_filt_qc_paired) + int(reads_filt_qc_unpaired)
 
-if os.path.isfile(qc_metrics_file) is False:
-    with open(qc_metrics_file, 'a+') as qc_metrics:
-        qc_metrics.write(SAMPLE + ';reads_total;' + str(reads_total) + '\n')
-        qc_metrics.write(SAMPLE + ';reads_filt_qc;' + str(reads_filt_qc) + '\n')
-        qc_metrics.write(SAMPLE + ';reads_filt_qc_paired;' + str(reads_filt_qc_paired) + '\n')
-    qc_metrics.close()
-
-else:
-    print('No qc file provided')
+# QC_metrics.csv (header created by dirCreator) already holds the per-protein
+# metrics at this point, so the read metrics are appended to it
+with open(qc_metrics_file, 'a+') as qc_metrics:
+    qc_metrics.write(
+        SAMPLE + ';reads_total;' + str(reads_total) + '\n' +
+        SAMPLE + ';reads_filt_qc;' + str(reads_filt_qc) + '\n' +
+        SAMPLE + ';reads_filt_qc_paired;' + str(reads_filt_qc_paired) + '\n'
+    )
