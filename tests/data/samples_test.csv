@@ -1,0 +1,16 @@
+sample_id	virus	replicate	r1	r2	ref
+H1N1-cov500-rep1	H1N1	rep1	tests/data/fastqs/H1N1/H1N1-cov500-rep1_R1.fastq.gz	tests/data/fastqs/H1N1/H1N1-cov500-rep1_R2.fastq.gz	tests/data/refs/H1N1.fasta
+H1N1-cov500-rep2	H1N1	rep2	tests/data/fastqs/H1N1/H1N1-cov500-rep2_R1.fastq.gz	tests/data/fastqs/H1N1/H1N1-cov500-rep2_R2.fastq.gz	tests/data/refs/H1N1.fasta
+H1N1-cov500-rep3	H1N1	rep3	tests/data/fastqs/H1N1/H1N1-cov500-rep3_R1.fastq.gz	tests/data/fastqs/H1N1/H1N1-cov500-rep3_R2.fastq.gz	tests/data/refs/H1N1.fasta
+H3N2-cov500-rep1	H3N2	rep1	tests/data/fastqs/H3N2/H3N2-cov500-rep1_R1.fastq.gz	tests/data/fastqs/H3N2/H3N2-cov500-rep1_R2.fastq.gz	tests/data/refs/H3N2.fasta
+H3N2-cov500-rep2	H3N2	rep2	tests/data/fastqs/H3N2/H3N2-cov500-rep2_R1.fastq.gz	tests/data/fastqs/H3N2/H3N2-cov500-rep2_R2.fastq.gz	tests/data/refs/H3N2.fasta
+H3N2-cov500-rep3	H3N2	rep3	tests/data/fastqs/H3N2/H3N2-cov500-rep3_R1.fastq.gz	tests/data/fastqs/H3N2/H3N2-cov500-rep3_R2.fastq.gz	tests/data/refs/H3N2.fasta
+FluB-cov500-rep1	FluB	rep1	tests/data/fastqs/FluB/FluB-cov500-rep1_R1.fastq.gz	tests/data/fastqs/FluB/FluB-cov500-rep1_R2.fastq.gz	tests/data/refs/H0N0.fasta
+FluB-cov500-rep2	FluB	rep2	tests/data/fastqs/FluB/FluB-cov500-rep2_R1.fastq.gz	tests/data/fastqs/FluB/FluB-cov500-rep2_R2.fastq.gz	tests/data/refs/H0N0.fasta
+FluB-cov500-rep3	FluB	rep3	tests/data/fastqs/FluB/FluB-cov500-rep3_R1.fastq.gz	tests/data/fastqs/FluB/FluB-cov500-rep3_R2.fastq.gz	tests/data/refs/H0N0.fasta
+RSVA-cov500-rep1	RSVA	rep1	tests/data/fastqs/RSVA/RSVA-cov500-rep1_R1.fastq.gz	tests/data/fastqs/RSVA/RSVA-cov500-rep1_R2.fastq.gz	tests/data/refs/MH447951_ref-prot.fasta
+RSVA-cov500-rep2	RSVA	rep2	tests/data/fastqs/RSVA/RSVA-cov500-rep2_R1.fastq.gz	tests/data/fastqs/RSVA/RSVA-cov500-rep2_R2.fastq.gz	tests/data/refs/MH447951_ref-prot.fasta
+RSVA-cov500-rep3	RSVA	rep3	tests/data/fastqs/RSVA/RSVA-cov500-rep3_R1.fastq.gz	tests/data/fastqs/RSVA/RSVA-cov500-rep3_R2.fastq.gz	tests/data/refs/MH447951_ref-prot.fasta
+RSVB-cov500-rep1	RSVB	rep1	tests/data/fastqs/RSVB/RSVB-cov500-rep1_R1.fastq.gz	tests/data/fastqs/RSVB/RSVB-cov500-rep1_R2.fastq.gz	tests/data/refs/JX576761_ref-prot.fasta
+RSVB-cov500-rep2	RSVB	rep2	tests/data/fastqs/RSVB/RSVB-cov500-rep2_R1.fastq.gz	tests/data/fastqs/RSVB/RSVB-cov500-rep2_R2.fastq.gz	tests/data/refs/JX576761_ref-prot.fasta
+RSVB-cov500-rep3	RSVB	rep3	tests/data/fastqs/RSVB/RSVB-cov500-rep3_R1.fastq.gz	tests/data/fastqs/RSVB/RSVB-cov500-rep3_R2.fastq.gz	tests/data/refs/JX576761_ref-prot.fasta

@@ -1,0 +1,1007 @@
+// tests/main.nf.test
+//
+// ═══════════════════════════════════════════════════════════════════════
+// minMutFinder — Suite de validació amb dataset sintètic (NF26_2)
+// ═══════════════════════════════════════════════════════════════════════
+//
+// OBJECTIU
+//   Valida que minMutFinder detecta i anota correctament les mutacions
+//   a les freqüències esperades en un dataset sintètic controlat.
+//   Tres nivells de validació:
+//     1. Integritat dels fitxers de sortida (VCF, FASTA consens, QC, plots)
+//     2. Exactitud quantitativa per mutació (AF dins l'interval Binomial 3-sigma a 500x)
+//     3. Reproductibilitat determinista (3 execucions sobre el mateix input → 0pp de diferència)
+//
+// MODE D'ENTRADA
+//   Tots els tests corren en mode --areads + --vcf (BAM + VCF precomputats).
+//   Els fitxers BAM i VCF es generen al pipeline de ngs-analysis:
+//     bbmap      → reads mapats contra la referència proteica
+//     LoFreq     → variant calling amb --call-indels
+//     LoFreq indelqual → qualitats d'indel aplicades al BAM
+//   minMutFinder rep aquests fitxers precomputats i realitza:
+//     anotació, traducció a nivell de codó, report de freqüències i visualització.
+//
+// RÈPLIQUES
+//   Cada virus té 3 execucions sobre el MATEIX BAM/VCF.
+//   Les "rèpliques" aquí verifiquen la REPRODUCTIBILITAT DETERMINISTA de minMutFinder,
+//   no la variabilitat biològica (que requeriria runs de seqüenciació independents).
+//   Resultat esperat: 0.00pp de diferència entre les 3 execucions per a cada mutació.
+//
+// DATASET SINTÈTIC
+//   Generat amb art_illumina v2.3.7 (MiSeq MS, 101bp, 500x, paired-end)
+//   usant poblacions anidades de FASTAs. Les mutacions es van dissenyar a 7 nivells
+//   de freqüència al·lèlica per gen i verificades contra les referències del pipeline.
+//   Ground truth: tests/data/synthetic_mutations.csv
+//   Cobertura: 500x per gen (interval de detecció 3-sigma: ~±4pp a 10% d'AF)
+//
+//   Fitxers d'anotació (fitxers reals de ngs-analysis, cap fitxer personalitzat generat):
+//     Influença (H1N1, H3N2, FluB) → tests/data/resistant_mutations_2026.tsv
+//     VRS-A, VRS-B                  → tests/data/Fprot_annotated_mutations.tsv
+//
+// EXECUCIÓ
+//   Els tests de setup (prefix _*) s'executen primer — alfabèticament abans dels principals.
+//   Els tests de validació principals llegeixen els 3 outputs de rèplica.
+//
+//   Executar tots els 15 tests:
+//     nf-test test tests/main.nf.test
+//
+//   Executar un sol virus:
+//     nf-test test tests/main.nf.test --filter "IAV H1N1"
+//
+// ESTRUCTURA
+//   10 tests de setup  (_H1N1_rep2, _H1N1_rep3, _H3N2_rep2, ... _RSVB_rep3)
+//    5 tests principals (IAV H1N1pdm09, IAV H3N2, IAV B Victoria, HRSV-A, HRSV-B)
+//   Cada test principal avalua els 3 outputs de rèplica i comprova:
+//     • Fitxers de sortida presents (VCF amb contig correcte, FASTA consens, QC CSV, HTML)
+//     • Zero frameshifts (frameshift = mismatch de referència upstream)
+//     • ≥5 mutacions consens (≥50% AF), ≥3 mutacions minoritàries (5–50% AF)
+//     • Cada mutació dissenyada detectada dins el seu rang d'AF Binomial 3-sigma
+//     • Mutacions de resistència/epítop anotades com Annotated="yes"
+//     • 0pp de diferència entre les 3 execucions deterministes
+
+nextflow_pipeline {
+    name "minMutFinder — Full validation tests"
+    script "minMutFinder-nf/main.nf"
+
+    // ══════════════════════════════════════════════════════════════════════
+    // PRUEBAS DE CONFIGURACIÓN (SETUP) — réplicas 2 y 3 para cada virus
+    // ══════════════════════════════════════════════════════════════════════
+
+    test("_H1N1_rep2") {
+        when { params {
+            out_path = "${projectDir}/tests/results/H1N1-cov500-rep2"
+            ref_seq  = "${projectDir}/tests/data/refs/H1N1.fasta"
+            annotate = "${projectDir}/tests/data/resistant_mutations_2026.tsv"
+            areads   = "${projectDir}/tests/data/areads/H1N1/H1N1-cov500-rep2_H1N1_indelqual_prot.bam"
+            vcf      = "${projectDir}/tests/data/VCF/H1N1/H1N1-cov500-rep2_H1N1_variants_prot.vcf"
+            syn_muts = "yes"; AF = 0.05
+        }}
+        then { assert workflow.success : "H1N1 rep2 failed — check Nextflow log" }
+    }
+    test("_H1N1_rep3") {
+        when { params {
+            out_path = "${projectDir}/tests/results/H1N1-cov500-rep3"
+            ref_seq  = "${projectDir}/tests/data/refs/H1N1.fasta"
+            annotate = "${projectDir}/tests/data/resistant_mutations_2026.tsv"
+            areads   = "${projectDir}/tests/data/areads/H1N1/H1N1-cov500-rep3_H1N1_indelqual_prot.bam"
+            vcf      = "${projectDir}/tests/data/VCF/H1N1/H1N1-cov500-rep3_H1N1_variants_prot.vcf"
+            syn_muts = "yes"; AF = 0.05
+        }}
+        then { assert workflow.success : "H1N1 rep3 failed" }
+    }
+    test("_H3N2_rep2") {
+        when { params {
+            out_path = "${projectDir}/tests/results/H3N2-cov500-rep2"
+            ref_seq  = "${projectDir}/tests/data/refs/H3N2.fasta"
+            annotate = "${projectDir}/tests/data/resistant_mutations_2026.tsv"
+            areads   = "${projectDir}/tests/data/areads/H3N2/H3N2-cov500-rep2_H3N2_indelqual_prot.bam"
+            vcf      = "${projectDir}/tests/data/VCF/H3N2/H3N2-cov500-rep2_H3N2_variants_prot.vcf"
+            syn_muts = "yes"; AF = 0.05
+        }}
+        then { assert workflow.success : "H3N2 rep2 failed" }
+    }
+    test("_H3N2_rep3") {
+        when { params {
+            out_path = "${projectDir}/tests/results/H3N2-cov500-rep3"
+            ref_seq  = "${projectDir}/tests/data/refs/H3N2.fasta"
+            annotate = "${projectDir}/tests/data/resistant_mutations_2026.tsv"
+            areads   = "${projectDir}/tests/data/areads/H3N2/H3N2-cov500-rep3_H3N2_indelqual_prot.bam"
+            vcf      = "${projectDir}/tests/data/VCF/H3N2/H3N2-cov500-rep3_H3N2_variants_prot.vcf"
+            syn_muts = "yes"; AF = 0.05
+        }}
+        then { assert workflow.success : "H3N2 rep3 failed" }
+    }
+    test("_FluB_rep2") {
+        when { params {
+            out_path = "${projectDir}/tests/results/FluB-cov500-rep2"
+            ref_seq  = "${projectDir}/tests/data/refs/H0N0.fasta"
+            annotate = "${projectDir}/tests/data/resistant_mutations_2026.tsv"
+            areads   = "${projectDir}/tests/data/areads/FluB/FluB-cov500-rep2_B-Victoria_indelqual_prot.bam"
+            vcf      = "${projectDir}/tests/data/VCF/FluB/FluB-cov500-rep2_B-Victoria_variants_prot.vcf"
+            syn_muts = "yes"; AF = 0.05
+        }}
+        then { assert workflow.success : "FluB rep2 failed" }
+    }
+    test("_FluB_rep3") {
+        when { params {
+            out_path = "${projectDir}/tests/results/FluB-cov500-rep3"
+            ref_seq  = "${projectDir}/tests/data/refs/H0N0.fasta"
+            annotate = "${projectDir}/tests/data/resistant_mutations_2026.tsv"
+            areads   = "${projectDir}/tests/data/areads/FluB/FluB-cov500-rep3_B-Victoria_indelqual_prot.bam"
+            vcf      = "${projectDir}/tests/data/VCF/FluB/FluB-cov500-rep3_B-Victoria_variants_prot.vcf"
+            syn_muts = "yes"; AF = 0.05
+        }}
+        then { assert workflow.success : "FluB rep3 failed" }
+    }
+    test("_RSVA_rep2") {
+        when { params {
+            out_path = "${projectDir}/tests/results/RSVA-cov500-rep2"
+            ref_seq  = "${projectDir}/tests/data/refs/MH447951_ref-prot.fasta"
+            annotate = "${projectDir}/tests/data/Fprot_annotated_mutations.tsv"
+            areads   = "${projectDir}/tests/data/areads/RSVA/RSVA-cov500-rep2_VRS-A_indelqual_prot.bam"
+            vcf      = "${projectDir}/tests/data/VCF/RSVA/RSVA-cov500-rep2_VRS-A_variants_prot.vcf"
+            syn_muts = "yes"; AF = 0.05
+        }}
+        then { assert workflow.success : "RSVA rep2 failed" }
+    }
+    test("_RSVA_rep3") {
+        when { params {
+            out_path = "${projectDir}/tests/results/RSVA-cov500-rep3"
+            ref_seq  = "${projectDir}/tests/data/refs/MH447951_ref-prot.fasta"
+            annotate = "${projectDir}/tests/data/Fprot_annotated_mutations.tsv"
+            areads   = "${projectDir}/tests/data/areads/RSVA/RSVA-cov500-rep3_VRS-A_indelqual_prot.bam"
+            vcf      = "${projectDir}/tests/data/VCF/RSVA/RSVA-cov500-rep3_VRS-A_variants_prot.vcf"
+            syn_muts = "yes"; AF = 0.05
+        }}
+        then { assert workflow.success : "RSVA rep3 failed" }
+    }
+    test("_RSVB_rep2") {
+        when { params {
+            out_path = "${projectDir}/tests/results/RSVB-cov500-rep2"
+            ref_seq  = "${projectDir}/tests/data/refs/JX576761_ref-prot.fasta"
+            annotate = "${projectDir}/tests/data/Fprot_annotated_mutations.tsv"
+            areads   = "${projectDir}/tests/data/areads/RSVB/RSVB-cov500-rep2_VRS-B_indelqual_prot.bam"
+            vcf      = "${projectDir}/tests/data/VCF/RSVB/RSVB-cov500-rep2_VRS-B_variants_prot.vcf"
+            syn_muts = "yes"; AF = 0.05
+        }}
+        then { assert workflow.success : "RSVB rep2 failed" }
+    }
+    test("_RSVB_rep3") {
+        when { params {
+            out_path = "${projectDir}/tests/results/RSVB-cov500-rep3"
+            ref_seq  = "${projectDir}/tests/data/refs/JX576761_ref-prot.fasta"
+            annotate = "${projectDir}/tests/data/Fprot_annotated_mutations.tsv"
+            areads   = "${projectDir}/tests/data/areads/RSVB/RSVB-cov500-rep3_VRS-B_indelqual_prot.bam"
+            vcf      = "${projectDir}/tests/data/VCF/RSVB/RSVB-cov500-rep3_VRS-B_variants_prot.vcf"
+            syn_muts = "yes"; AF = 0.05
+        }}
+        then { assert workflow.success : "RSVB rep3 failed" }
+    }
+
+    // ══════════════════════════════════════════════════════════════════════
+    // PRUEBAS DE VALIDACIÓN PRINCIPALES — una por virus
+    // ══════════════════════════════════════════════════════════════════════
+
+    test("IAV H1N1pdm09 — synthetic dataset validation (3 replicates)") {
+        when {
+            params {
+                out_path = "${projectDir}/tests/results/H1N1-cov500-rep1"
+                ref_seq  = "${projectDir}/tests/data/refs/H1N1.fasta"
+                annotate = "${projectDir}/tests/data/resistant_mutations_2026.tsv"
+                areads   = "${projectDir}/tests/data/areads/H1N1/H1N1-cov500-rep1_H1N1_indelqual_prot.bam"
+                vcf      = "${projectDir}/tests/data/VCF/H1N1/H1N1-cov500-rep1_H1N1_variants_prot.vcf"
+                syn_muts = "yes"
+                AF       = 0.05
+            }
+        }
+        then {
+            assert workflow.success : "H1N1 rep1 failed — check Nextflow log"
+
+            // ── Funciones auxiliares compartidas (declaradas por prueba para la autonomía de nf-test) ──
+            def results_base_dir = "${projectDir}/tests/results"
+            def allele_freq_param = "0.05"
+
+            def parseOutput = { String sample_id ->
+                def output_dir = file("${results_base_dir}/${sample_id}")
+                def mutation_file = file("${output_dir}/mutations/${sample_id}_mutations.csv")
+                assert mutation_file.exists() : "Output missing for ${sample_id}: ${mutation_file.absolutePath}"
+                
+                def lines = mutation_file.readLines()
+                def headers = lines[0].split(";")
+                def parsed_rows = lines.tail().collect { line -> 
+                    [headers, line.split(";", -1)].transpose().collectEntries() 
+                }
+                
+                return [
+                    sample_id: sample_id, 
+                    output_dir: output_dir, 
+                    parsed_rows: parsed_rows,
+                    detected_frequencies: parsed_rows.collectEntries { row -> [row["Aa_change"], row["Mutation_frequency"].toFloat()] },
+                    detected_annotations: parsed_rows.collectEntries { row -> [row["Aa_change"], row["Annotated"]] }
+                ]
+            }
+
+            def loadGroundTruth = { String target_virus ->
+                new File("${projectDir}/tests/data/synthetic_mutations.csv")
+                    .readLines().drop(1).findAll { it.trim() }.collect { line ->
+                        def columns = line.split(",", -1)
+                        return [
+                            virus: columns[0], 
+                            protein: columns[1], 
+                            mutation: columns[2],
+                            nominal_freq: columns[3].toFloat(), 
+                            min_expected_freq: columns[4].toFloat() / 100,
+                            max_expected_freq: columns[5].toFloat() / 100, 
+                            is_annotated: columns[6]
+                        ]
+                    }.findAll { it.virus == target_virus }
+            }
+
+            def get_status_mark = { boolean is_success -> is_success ? "✓" : "✗" }
+
+            // ── Cargar las 3 réplicas ─────────────────────────────────────
+            def replicate_ids = ["H1N1-cov500-rep1", "H1N1-cov500-rep2", "H1N1-cov500-rep3"]
+            def replicates_data = replicate_ids.collect { parseOutput(it) }
+            def ground_truth_data = loadGroundTruth("H1N1")
+            def error_messages = []
+
+            println "\n" + "═"*72
+            println "[H1N1] SYNTHETIC DATASET VALIDATION — 500x, 3-sigma Binomial ranges"
+            println "═"*72
+
+            // ── Comprobaciones por réplica ───────────────────────────────────────
+            replicates_data.each { replicate ->
+                def sample_id = replicate.sample_id
+                def output_dir = replicate.output_dir
+                def parsed_rows = replicate.parsed_rows
+                def detected_frequencies = replicate.detected_frequencies
+                def detected_annotations = replicate.detected_annotations
+
+                println "\n[TEST INFO] ┌─── ${sample_id} ───"
+
+                // 1. Archivos de salida
+                def vcf_file = file("${output_dir}/variant_calling/${sample_id}_prot_variants_AF${allele_freq_param}.vcf")
+                def is_vcf_valid = vcf_file.exists() && vcf_file.size() > 0
+                def has_target_contig = is_vcf_valid && vcf_file.text.contains("NA_A_Victoria_2570_2019")
+                def consensus_fasta = file("${output_dir}/assembly/${sample_id}_prot_variants_AF${allele_freq_param}.fasta")
+                def qc_csv_file  = file("${output_dir}/qc/QC_metrics.csv")
+                def mutations_html = file("${output_dir}/plots/Mutations_summary.html")
+                
+                [is_vcf_valid, has_target_contig, consensus_fasta.exists(), qc_csv_file.exists(), mutations_html.exists()].eachWithIndex { is_file_present, index ->
+                    if (!is_file_present) error_messages.add("[${sample_id}] Output file #${index + 1} absent")
+                }
+                println "[TEST INFO] │  VCF: ${get_status_mark(is_vcf_valid)} | contig NA: ${get_status_mark(has_target_contig)} | " +
+                        "consensus: ${get_status_mark(consensus_fasta.exists())} | " +
+                        "QC: ${get_status_mark(qc_csv_file.exists())} | HTML: ${get_status_mark(mutations_html.exists())}"
+
+                // 2. Sin desfases de lectura (indicaría un desajuste con la referencia)
+                def frameshift_count = parsed_rows.count { row -> row["Aa_change"]?.contains("Frameshift") }
+                if (frameshift_count > 0) error_messages.add("[${sample_id}] ${frameshift_count} frameshifts detected — reference mismatch")
+                println "[TEST INFO] │  Frameshifts: ${frameshift_count} ${get_status_mark(frameshift_count == 0)}"
+
+                // 3. Métricas cuantitativas
+                def consensus_count = parsed_rows.count { row -> row["Mutation_frequency"].toFloat() >= 0.50 }
+                def minority_count = parsed_rows.count { row -> 
+                    def freq = row["Mutation_frequency"].toFloat()
+                    return freq >= 0.05 && freq < 0.50 
+                }
+                println "[TEST INFO] │  ≥50% (consensus): ${consensus_count} | 5-50% (minority): ${minority_count}"
+
+                // 4. Datos de referencia sintéticos — mutación por mutación
+                println "[TEST INFO] │  MUTATION      NOMINAL   FOUND      RANGE(3σ,500x)  ANNOTATED  STATUS"
+                ground_truth_data.each { expected_mutation ->
+                    def is_mutation_found = detected_frequencies.containsKey(expected_mutation.mutation)
+                    def found_frequency = is_mutation_found ? detected_frequencies[expected_mutation.mutation] : null
+                    def is_frequency_within_range = is_mutation_found && found_frequency >= (expected_mutation.min_expected_freq - 0.02) && found_frequency <= (expected_mutation.max_expected_freq + 0.02)
+                    def is_annotation_correct = expected_mutation.is_annotated != "yes" || (is_mutation_found && detected_annotations[expected_mutation.mutation] == "yes")
+                    
+                    def frequency_string = is_mutation_found ? String.format("%.2f%%", found_frequency * 100) : "NOT FOUND"
+                    def range_string = String.format("[%.1f%%,%.1f%%]", expected_mutation.min_expected_freq * 100, expected_mutation.max_expected_freq * 100)
+                    def annotation_string = expected_mutation.is_annotated == "yes" ? (is_annotation_correct ? "yes ✓" : "KO ✗") : "-"
+                    
+                    println String.format("[TEST INFO] │  %-13s %-9s %-10s %-15s %-10s %s",
+                        expected_mutation.mutation, "${expected_mutation.nominal_freq.toInteger()}%", frequency_string, range_string, annotation_string, get_status_mark((!is_mutation_found) || (is_frequency_within_range && is_annotation_correct)))
+                    
+                    if (is_mutation_found && !is_frequency_within_range) {
+                        error_messages.add("[${sample_id}] ${expected_mutation.mutation} AF=${String.format('%.2f', found_frequency * 100)}% outside ${range_string} (±2% buffer)")
+                    }
+                    if (is_mutation_found && !is_annotation_correct) {
+                        error_messages.add("[${sample_id}] ${expected_mutation.mutation} expected Annotated=yes but got '${detected_annotations[expected_mutation.mutation]}'")
+                    }
+                }
+                println "[TEST INFO] └" + "─"*65
+            }
+
+            // ── Reproducibilidad entre réplicas (±2pp) ────────────────────
+            println "\n[TEST INFO] ┌─── REPRODUCIBILITY across ${replicates_data.size()} replicates (tolerance ±2pp) ───"
+            println "[TEST INFO] │  " + "─"*65
+            println "[TEST INFO] │  MUTATION      " +
+                    replicates_data.collect { it.sample_id.replace("H1N1-cov500-", "") }.join("         ") +
+                    "    MAX_DIF   STATUS"
+
+            def all_detected_mutations = replicates_data.collect { it.detected_frequencies.keySet() }.flatten().toSet()
+            
+            all_detected_mutations.sort().each { mutation_name ->
+                def frequencies_across_replicates = replicates_data.collect { replicate -> 
+                    replicate.detected_frequencies.containsKey(mutation_name) ? replicate.detected_frequencies[mutation_name] : null 
+                }
+                def valid_frequencies = frequencies_across_replicates.findAll { it != null }
+                
+                if (valid_frequencies.size() < 2) return
+                
+                def max_difference_percent = (valid_frequencies.max() - valid_frequencies.min()) * 100
+                def is_reproducible = max_difference_percent <= 2.0
+                def is_ground_truth_mutation = ground_truth_data.any { it.mutation == mutation_name }
+                
+                if (is_ground_truth_mutation && !is_reproducible) {
+                    error_messages.add("${mutation_name} not reproducible across replicates: diff ${String.format('%.2f', max_difference_percent)}pp > 2pp")
+                }
+                
+                def formatted_frequencies = frequencies_across_replicates.collect { freq -> freq != null ? String.format("%.2f%%", freq * 100) : "N/A" }
+                
+                println String.format("[TEST INFO] │  %-13s %-12s %-12s %-12s %-9s %s",
+                    mutation_name, formatted_frequencies[0], formatted_frequencies.size() > 1 ? formatted_frequencies[1] : "", formatted_frequencies.size() > 2 ? formatted_frequencies[2] : "",
+                    String.format("%.2fpp", max_difference_percent), get_status_mark(is_reproducible || !is_ground_truth_mutation))
+            }
+            
+            def mutation_counts_per_replicate = replicates_data.collect { it.parsed_rows.size() }
+            def are_counts_consistent = mutation_counts_per_replicate.max() - mutation_counts_per_replicate.min() <= 2
+            
+            if (!are_counts_consistent) error_messages.add("Inconsistent mutation count across replicates: ${mutation_counts_per_replicate}")
+            println "[TEST INFO] │  Mutations per replicate: ${mutation_counts_per_replicate.join(' / ')} ${get_status_mark(are_counts_consistent)}"
+            println "[TEST INFO] └" + "─"*65
+
+            // ── Resumen final ─────────────────────────────────────────────
+            println "\n" + "═"*72
+            println "[H1N1] SUMMARY — ${replicates_data.size()} replicates"
+            println "═"*72
+            if (error_messages.isEmpty()) {
+                println "[TEST INFO] ✅ ALL CHECKS PASSED"
+                println "[TEST INFO]    Ground truth mutations checked: ${ground_truth_data.size()} per replicate"
+            } else {
+                println "[TEST INFO] ❌ FAILED (${error_messages.size()}):"
+                error_messages.eachWithIndex { error, index -> println "[TEST INFO]   ${index + 1}. ${error}" }
+            }
+            println "═"*72 + "\n"
+
+            assert error_messages.isEmpty() :
+                "\n\n[H1N1] TEST FAILED:\n" + error_messages.collect { "  • ${it}" }.join("\n") + "\n"
+        }
+    }
+
+
+    test("IAV H3N2 — synthetic dataset validation (3 replicates)") {
+        when {
+            params {
+                out_path = "${projectDir}/tests/results/H3N2-cov500-rep1"
+                ref_seq  = "${projectDir}/tests/data/refs/H3N2.fasta"
+                annotate = "${projectDir}/tests/data/resistant_mutations_2026.tsv"
+                areads   = "${projectDir}/tests/data/areads/H3N2/H3N2-cov500-rep1_H3N2_indelqual_prot.bam"
+                vcf      = "${projectDir}/tests/data/VCF/H3N2/H3N2-cov500-rep1_H3N2_variants_prot.vcf"
+                syn_muts = "yes"; AF = 0.05
+            }
+        }
+        then {
+            assert workflow.success : "H3N2 rep1 failed"
+            
+            def results_base_dir = "${projectDir}/tests/results"
+            def allele_freq_param = "0.05"
+
+            def parseOutput = { String sample_id ->
+                def output_dir = file("${results_base_dir}/${sample_id}")
+                def mutation_file = file("${output_dir}/mutations/${sample_id}_mutations.csv")
+                assert mutation_file.exists() : "Output missing for ${sample_id}: ${mutation_file}"
+                
+                def lines = mutation_file.readLines()
+                def headers = lines[0].split(";")
+                def parsed_rows = lines.tail().collect { line -> 
+                    [headers, line.split(";", -1)].transpose().collectEntries() 
+                }
+                return [
+                    sample_id: sample_id, 
+                    output_dir: output_dir, 
+                    parsed_rows: parsed_rows,
+                    detected_frequencies: parsed_rows.collectEntries { row -> [row["Aa_change"], row["Mutation_frequency"].toFloat()] },
+                    detected_annotations: parsed_rows.collectEntries { row -> [row["Aa_change"], row["Annotated"]] }
+                ]
+            }
+
+            def loadGroundTruth = { String target_virus ->
+                new File("${projectDir}/tests/data/synthetic_mutations.csv")
+                    .readLines().drop(1).findAll { it.trim() }.collect { line ->
+                        def columns = line.split(",", -1)
+                        return [
+                            virus: columns[0], 
+                            protein: columns[1], 
+                            mutation: columns[2],
+                            nominal_freq: columns[3].toFloat(), 
+                            min_expected_freq: columns[4].toFloat() / 100,
+                            max_expected_freq: columns[5].toFloat() / 100, 
+                            is_annotated: columns[6]
+                        ]
+                    }.findAll { it.virus == target_virus }
+            }
+
+            def get_status_mark = { boolean is_success -> is_success ? "✓" : "✗" }
+
+            def replicate_ids = ["H3N2-cov500-rep1", "H3N2-cov500-rep2", "H3N2-cov500-rep3"]
+            def replicates_data = replicate_ids.collect { parseOutput(it) }
+            def ground_truth_data = loadGroundTruth("H3N2")
+            def error_messages = []
+
+            println "\n" + "═"*72; println "[H3N2] SYNTHETIC DATASET VALIDATION"; println "═"*72
+            
+            replicates_data.each { replicate ->
+                def sample_id = replicate.sample_id
+                def output_dir = replicate.output_dir
+                def parsed_rows = replicate.parsed_rows
+                def detected_frequencies = replicate.detected_frequencies
+                def detected_annotations = replicate.detected_annotations
+
+                println "\n[TEST INFO] ┌─── ${sample_id} ───"
+                def vcf_file = file("${output_dir}/variant_calling/${sample_id}_prot_variants_AF${allele_freq_param}.vcf")
+                def is_vcf_valid = vcf_file.exists() && vcf_file.size() > 0
+                def has_target_contig = is_vcf_valid && vcf_file.text.contains("NA_A_Darwin_9_2021")
+                
+                if (!is_vcf_valid) error_messages.add("[${sample_id}] VCF missing")
+                if (!has_target_contig) error_messages.add("[${sample_id}] NA contig missing in VCF")
+                
+                println "[TEST INFO] │  VCF: ${get_status_mark(is_vcf_valid)} | contig NA_A_Darwin_9_2021: ${get_status_mark(has_target_contig)}"
+                
+                def frameshift_count = parsed_rows.count { row -> row["Aa_change"]?.contains("Frameshift") }
+                if (frameshift_count > 0) error_messages.add("[${sample_id}] ${frameshift_count} frameshifts")
+                
+                def consensus_count = parsed_rows.count { row -> row["Mutation_frequency"].toFloat() >= 0.50 }
+                def minority_count = parsed_rows.count { row -> 
+                    def freq = row["Mutation_frequency"].toFloat()
+                    return freq >= 0.05 && freq < 0.50 
+                }
+                
+                println "[TEST INFO] │  Frameshifts: ${frameshift_count} ${get_status_mark(frameshift_count == 0)} | ≥50%: ${consensus_count} | 5-50%: ${minority_count}"
+                println "[TEST INFO] │  MUTATION      NOMINAL   FOUND      RANGE(3σ)       ANNOTATED  STATUS"
+                
+                ground_truth_data.each { expected_mutation ->
+                    def is_mutation_found = detected_frequencies.containsKey(expected_mutation.mutation)
+                    def found_frequency = is_mutation_found ? detected_frequencies[expected_mutation.mutation] : null
+                    def is_frequency_within_range = is_mutation_found && found_frequency >= (expected_mutation.min_expected_freq - 0.02) && found_frequency <= (expected_mutation.max_expected_freq + 0.02)
+                    def is_annotation_correct = expected_mutation.is_annotated != "yes" || (is_mutation_found && detected_annotations[expected_mutation.mutation] == "yes")
+                    
+                    def frequency_string = is_mutation_found ? String.format("%.2f%%", found_frequency * 100) : "NOT FOUND"
+                    def range_string = String.format("[%.1f%%,%.1f%%]", expected_mutation.min_expected_freq * 100, expected_mutation.max_expected_freq * 100)
+                    def annotation_string = expected_mutation.is_annotated == "yes" ? (is_annotation_correct ? "yes ✓" : "KO ✗") : "-"
+                    
+                    println String.format("[TEST INFO] │  %-13s %-9s %-10s %-15s %-10s %s",
+                        expected_mutation.mutation, "${expected_mutation.nominal_freq.toInteger()}%", frequency_string, range_string, annotation_string, get_status_mark((!is_mutation_found) || (is_frequency_within_range && is_annotation_correct)))
+                    
+                    if (is_mutation_found && !is_frequency_within_range) {
+                        error_messages.add("[${sample_id}] ${expected_mutation.mutation} AF=${String.format('%.2f', found_frequency * 100)}% outside range")
+                    }
+                    if (is_mutation_found && !is_annotation_correct) {
+                        error_messages.add("[${sample_id}] ${expected_mutation.mutation} expected Annotated=yes")
+                    }
+                }
+                println "[TEST INFO] └" + "─"*65
+            }
+
+            println "\n[TEST INFO] ┌─── REPRODUCIBILITY H3N2 (±2pp) ───"
+            def all_detected_mutations = replicates_data.collect { it.detected_frequencies.keySet() }.flatten().toSet()
+            
+            all_detected_mutations.sort().each { mutation_name ->
+                def frequencies_across_replicates = replicates_data.collect { replicate -> 
+                    replicate.detected_frequencies.containsKey(mutation_name) ? replicate.detected_frequencies[mutation_name] : null 
+                }
+                def valid_frequencies = frequencies_across_replicates.findAll { it != null }
+                
+                if (valid_frequencies.size() < 2) return
+                
+                def max_difference_percent = (valid_frequencies.max() - valid_frequencies.min()) * 100
+                def is_reproducible = max_difference_percent <= 2.0
+                def is_ground_truth_mutation = ground_truth_data.any { it.mutation == mutation_name }
+                
+                if (is_ground_truth_mutation && !is_reproducible) {
+                    error_messages.add("${mutation_name} not reproducible: ${String.format('%.2f', max_difference_percent)}pp > 2pp")
+                }
+                
+                def formatted_frequencies = frequencies_across_replicates.collect { freq -> freq != null ? String.format("%.2f%%", freq * 100) : "N/A" }
+                println String.format("[TEST INFO] │  %-13s %-12s %-12s %-12s %-9s %s",
+                    mutation_name, formatted_frequencies[0], formatted_frequencies.size() > 1 ? formatted_frequencies[1] : "", formatted_frequencies.size() > 2 ? formatted_frequencies[2] : "",
+                    String.format("%.2fpp", max_difference_percent), get_status_mark(is_reproducible || !is_ground_truth_mutation))
+            }
+            
+            def mutation_counts_per_replicate = replicates_data.collect { it.parsed_rows.size() }
+            def are_counts_consistent = mutation_counts_per_replicate.max() - mutation_counts_per_replicate.min() <= 2
+            
+            if (!are_counts_consistent) error_messages.add("Inconsistent count: ${mutation_counts_per_replicate}")
+            println "[TEST INFO] │  Mutations per replicate: ${mutation_counts_per_replicate.join(' / ')} ${get_status_mark(are_counts_consistent)}"
+            println "[TEST INFO] └" + "─"*65
+            
+            println "\n"+"═"*72; println "[H3N2] SUMMARY — ${replicates_data.size()} replicates"; println "═"*72
+            if (error_messages.isEmpty()) {
+                println "[TEST INFO] ✅ ALL CHECKS PASSED"
+            } else {
+                println "[TEST INFO] ❌ FAILED (${error_messages.size()}):"
+                error_messages.eachWithIndex { error, index -> println "[TEST INFO]   ${index + 1}. ${error}" }
+            }
+            println "═"*72 + "\n"
+            
+            assert error_messages.isEmpty() : "\n\n[H3N2] TEST FAILED:\n" + error_messages.collect { "  • ${it}" }.join("\n") + "\n"
+        }
+    }
+
+
+    test("IAV B Victoria — synthetic dataset validation (3 replicates)") {
+        when {
+            params {
+                out_path = "${projectDir}/tests/results/FluB-cov500-rep1"
+                ref_seq  = "${projectDir}/tests/data/refs/H0N0.fasta"
+                annotate = "${projectDir}/tests/data/resistant_mutations_2026.tsv"
+                areads   = "${projectDir}/tests/data/areads/FluB/FluB-cov500-rep1_B-Victoria_indelqual_prot.bam"
+                vcf      = "${projectDir}/tests/data/VCF/FluB/FluB-cov500-rep1_B-Victoria_variants_prot.vcf"
+                syn_muts = "yes"; AF = 0.05
+            }
+        }
+        then {
+            assert workflow.success : "FluB rep1 failed"
+            
+            def results_base_dir = "${projectDir}/tests/results"
+            def allele_freq_param = "0.05"
+
+            def parseOutput = { String sample_id ->
+                def output_dir = file("${results_base_dir}/${sample_id}")
+                def mutation_file = file("${output_dir}/mutations/${sample_id}_mutations.csv")
+                assert mutation_file.exists() : "Output missing for ${sample_id}: ${mutation_file}"
+                
+                def lines = mutation_file.readLines()
+                def headers = lines[0].split(";")
+                def parsed_rows = lines.tail().collect { line -> 
+                    [headers, line.split(";", -1)].transpose().collectEntries() 
+                }
+                return [
+                    sample_id: sample_id, 
+                    output_dir: output_dir, 
+                    parsed_rows: parsed_rows,
+                    detected_frequencies: parsed_rows.collectEntries { row -> [row["Aa_change"], row["Mutation_frequency"].toFloat()] },
+                    detected_annotations: parsed_rows.collectEntries { row -> [row["Aa_change"], row["Annotated"]] }
+                ]
+            }
+
+            def loadGroundTruth = { String target_virus ->
+                new File("${projectDir}/tests/data/synthetic_mutations.csv")
+                    .readLines().drop(1).findAll { it.trim() }.collect { line ->
+                        def columns = line.split(",", -1)
+                        return [
+                            virus: columns[0], 
+                            protein: columns[1], 
+                            mutation: columns[2],
+                            nominal_freq: columns[3].toFloat(), 
+                            min_expected_freq: columns[4].toFloat() / 100,
+                            max_expected_freq: columns[5].toFloat() / 100, 
+                            is_annotated: columns[6]
+                        ]
+                    }.findAll { it.virus == target_virus }
+            }
+
+            def get_status_mark = { boolean is_success -> is_success ? "✓" : "✗" }
+
+            def replicate_ids = ["FluB-cov500-rep1", "FluB-cov500-rep2", "FluB-cov500-rep3"]
+            def replicates_data = replicate_ids.collect { parseOutput(it) }
+            def ground_truth_data = loadGroundTruth("FluB")
+            def error_messages = []
+
+            println "\n"+"═"*72; println "[FluB] SYNTHETIC DATASET VALIDATION"; println "═"*72
+            
+            replicates_data.each { replicate ->
+                def sample_id = replicate.sample_id
+                def output_dir = replicate.output_dir
+                def parsed_rows = replicate.parsed_rows
+                def detected_frequencies = replicate.detected_frequencies
+                def detected_annotations = replicate.detected_annotations
+
+                println "\n[TEST INFO] ┌─── ${sample_id} ───"
+                def vcf_file = file("${output_dir}/variant_calling/${sample_id}_prot_variants_AF${allele_freq_param}.vcf")
+                def is_vcf_valid = vcf_file.exists() && vcf_file.size() > 0
+                def has_target_contig = is_vcf_valid && vcf_file.text.contains("NA_B_Austria_1359417_2021")
+                
+                if (!is_vcf_valid) error_messages.add("[${sample_id}] VCF missing")
+                if (!has_target_contig) error_messages.add("[${sample_id}] NA_B contig missing")
+                
+                println "[TEST INFO] │  VCF: ${get_status_mark(is_vcf_valid)} | contig NA_B: ${get_status_mark(has_target_contig)}"
+                
+                def frameshift_count = parsed_rows.count { row -> row["Aa_change"]?.contains("Frameshift") }
+                if (frameshift_count > 0) error_messages.add("[${sample_id}] ${frameshift_count} frameshifts")
+                
+                def consensus_count = parsed_rows.count { row -> row["Mutation_frequency"].toFloat() >= 0.50 }
+                def minority_count = parsed_rows.count { row -> 
+                    def freq = row["Mutation_frequency"].toFloat()
+                    return freq >= 0.05 && freq < 0.50 
+                }
+                
+                println "[TEST INFO] │  Frameshifts: ${frameshift_count} ${get_status_mark(frameshift_count == 0)} | ≥50%: ${consensus_count} | 5-50%: ${minority_count}"
+                println "[TEST INFO] │  MUTATION      NOMINAL   FOUND      RANGE(3σ)       ANNOTATED  STATUS"
+                
+                ground_truth_data.each { expected_mutation ->
+                    def is_mutation_found = detected_frequencies.containsKey(expected_mutation.mutation)
+                    def found_frequency = is_mutation_found ? detected_frequencies[expected_mutation.mutation] : null
+                    def is_frequency_within_range = is_mutation_found && found_frequency >= (expected_mutation.min_expected_freq - 0.02) && found_frequency <= (expected_mutation.max_expected_freq + 0.02)
+                    def is_annotation_correct = expected_mutation.is_annotated != "yes" || (is_mutation_found && detected_annotations[expected_mutation.mutation] == "yes")
+                    
+                    def frequency_string = is_mutation_found ? String.format("%.2f%%", found_frequency * 100) : "NOT FOUND"
+                    def range_string = String.format("[%.1f%%,%.1f%%]", expected_mutation.min_expected_freq * 100, expected_mutation.max_expected_freq * 100)
+                    def annotation_string = expected_mutation.is_annotated == "yes" ? (is_annotation_correct ? "yes ✓" : "KO ✗") : "-"
+                    
+                    println String.format("[TEST INFO] │  %-13s %-9s %-10s %-15s %-10s %s",
+                        expected_mutation.mutation, "${expected_mutation.nominal_freq.toInteger()}%", frequency_string, range_string, annotation_string, get_status_mark((!is_mutation_found) || (is_frequency_within_range && is_annotation_correct)))
+                    
+                    if (is_mutation_found && !is_frequency_within_range) {
+                        error_messages.add("[${sample_id}] ${expected_mutation.mutation} AF outside range")
+                    }
+                    if (is_mutation_found && !is_annotation_correct) {
+                        error_messages.add("[${sample_id}] ${expected_mutation.mutation} expected Annotated=yes")
+                    }
+                }
+                println "[TEST INFO] └" + "─"*65
+            }
+
+            println "\n[TEST INFO] ┌─── REPRODUCIBILITY FluB (±2pp) ───"
+            def all_detected_mutations = replicates_data.collect { it.detected_frequencies.keySet() }.flatten().toSet()
+            
+            all_detected_mutations.sort().each { mutation_name ->
+                def frequencies_across_replicates = replicates_data.collect { replicate -> 
+                    replicate.detected_frequencies.containsKey(mutation_name) ? replicate.detected_frequencies[mutation_name] : null 
+                }
+                def valid_frequencies = frequencies_across_replicates.findAll { it != null }
+                
+                if (valid_frequencies.size() < 2) return
+                
+                def max_difference_percent = (valid_frequencies.max() - valid_frequencies.min()) * 100
+                def is_reproducible = max_difference_percent <= 2.0
+                def is_ground_truth_mutation = ground_truth_data.any { it.mutation == mutation_name }
+                
+                if (is_ground_truth_mutation && !is_reproducible) {
+                    error_messages.add("${mutation_name} not reproducible: ${String.format('%.2f', max_difference_percent)}pp > 2pp")
+                }
+                
+                def formatted_frequencies = frequencies_across_replicates.collect { freq -> freq != null ? String.format("%.2f%%", freq * 100) : "N/A" }
+                println String.format("[TEST INFO] │  %-13s %-12s %-12s %-12s %-9s %s",
+                    mutation_name, formatted_frequencies[0], formatted_frequencies.size() > 1 ? formatted_frequencies[1] : "", formatted_frequencies.size() > 2 ? formatted_frequencies[2] : "",
+                    String.format("%.2fpp", max_difference_percent), get_status_mark(is_reproducible || !is_ground_truth_mutation))
+            }
+            
+            def mutation_counts_per_replicate = replicates_data.collect { it.parsed_rows.size() }
+            def are_counts_consistent = mutation_counts_per_replicate.max() - mutation_counts_per_replicate.min() <= 2
+            
+            if (!are_counts_consistent) error_messages.add("Inconsistent count: ${mutation_counts_per_replicate}")
+            println "[TEST INFO] │  Mutations per replicate: ${mutation_counts_per_replicate.join(' / ')} ${get_status_mark(are_counts_consistent)}"
+            println "[TEST INFO] └" + "─"*65
+            
+            println "\n"+"═"*72; println "[FluB] SUMMARY — ${replicates_data.size()} replicates"; println "═"*72
+            if (error_messages.isEmpty()) {
+                println "[TEST INFO] ✅ ALL CHECKS PASSED"
+            } else {
+                println "[TEST INFO] ❌ FAILED (${error_messages.size()}):"
+                error_messages.eachWithIndex { error, index -> println "[TEST INFO]   ${index + 1}. ${error}" }
+            }
+            println "═"*72 + "\n"
+            
+            assert error_messages.isEmpty() : "\n\n[FluB] TEST FAILED:\n" + error_messages.collect { "  • ${it}" }.join("\n") + "\n"
+        }
+    }
+
+
+    test("HRSV-A — synthetic dataset validation (3 replicates)") {
+        when {
+            params {
+                out_path = "${projectDir}/tests/results/RSVA-cov500-rep1"
+                ref_seq  = "${projectDir}/tests/data/refs/MH447951_ref-prot.fasta"
+                annotate = "${projectDir}/tests/data/Fprot_annotated_mutations.tsv"
+                areads   = "${projectDir}/tests/data/areads/RSVA/RSVA-cov500-rep1_VRS-A_indelqual_prot.bam"
+                vcf      = "${projectDir}/tests/data/VCF/RSVA/RSVA-cov500-rep1_VRS-A_variants_prot.vcf"
+                syn_muts = "yes"; AF = 0.05
+            }
+        }
+        then {
+            assert workflow.success : "RSVA rep1 failed"
+            
+            def results_base_dir = "${projectDir}/tests/results"
+            def allele_freq_param = "0.05"
+
+            def parseOutput = { String sample_id ->
+                def output_dir = file("${results_base_dir}/${sample_id}")
+                def mutation_file = file("${output_dir}/mutations/${sample_id}_mutations.csv")
+                assert mutation_file.exists() : "Output missing for ${sample_id}: ${mutation_file}"
+                
+                def lines = mutation_file.readLines()
+                def headers = lines[0].split(";")
+                def parsed_rows = lines.tail().collect { line -> 
+                    [headers, line.split(";", -1)].transpose().collectEntries() 
+                }
+                return [
+                    sample_id: sample_id, 
+                    output_dir: output_dir, 
+                    parsed_rows: parsed_rows,
+                    detected_frequencies: parsed_rows.collectEntries { row -> [row["Aa_change"], row["Mutation_frequency"].toFloat()] },
+                    detected_annotations: parsed_rows.collectEntries { row -> [row["Aa_change"], row["Annotated"]] }
+                ]
+            }
+
+            def loadGroundTruth = { String target_virus ->
+                new File("${projectDir}/tests/data/synthetic_mutations.csv")
+                    .readLines().drop(1).findAll { it.trim() }.collect { line ->
+                        def columns = line.split(",", -1)
+                        return [
+                            virus: columns[0], 
+                            protein: columns[1], 
+                            mutation: columns[2],
+                            nominal_freq: columns[3].toFloat(), 
+                            min_expected_freq: columns[4].toFloat() / 100,
+                            max_expected_freq: columns[5].toFloat() / 100, 
+                            is_annotated: columns[6]
+                        ]
+                    }.findAll { it.virus == target_virus }
+            }
+
+            def get_status_mark = { boolean is_success -> is_success ? "✓" : "✗" }
+
+            def replicate_ids = ["RSVA-cov500-rep1", "RSVA-cov500-rep2", "RSVA-cov500-rep3"]
+            def replicates_data = replicate_ids.collect { parseOutput(it) }
+            def ground_truth_data = loadGroundTruth("RSVA")
+            def error_messages = []
+
+            println "\n"+"═"*72; println "[RSVA] SYNTHETIC DATASET VALIDATION"; println "═"*72
+            
+            replicates_data.each { replicate ->
+                def sample_id = replicate.sample_id
+                def output_dir = replicate.output_dir
+                def parsed_rows = replicate.parsed_rows
+                def detected_frequencies = replicate.detected_frequencies
+                def detected_annotations = replicate.detected_annotations
+
+                println "\n[TEST INFO] ┌─── ${sample_id} ───"
+                def vcf_file = file("${output_dir}/variant_calling/${sample_id}_prot_variants_AF${allele_freq_param}.vcf")
+                def is_vcf_valid = vcf_file.exists() && vcf_file.size() > 0
+                def has_target_contig = is_vcf_valid && vcf_file.text.contains("F_MH447951")
+                
+                if (!is_vcf_valid) error_messages.add("[${sample_id}] VCF missing")
+                if (!has_target_contig) error_messages.add("[${sample_id}] F_MH447951 contig missing")
+                
+                println "[TEST INFO] │  VCF: ${get_status_mark(is_vcf_valid)} | contig F_MH447951: ${get_status_mark(has_target_contig)}"
+                
+                def frameshift_count = parsed_rows.count { row -> row["Aa_change"]?.contains("Frameshift") }
+                if (frameshift_count > 0) error_messages.add("[${sample_id}] ${frameshift_count} frameshifts")
+                
+                def consensus_count = parsed_rows.count { row -> row["Mutation_frequency"].toFloat() >= 0.50 }
+                def minority_count = parsed_rows.count { row -> 
+                    def freq = row["Mutation_frequency"].toFloat()
+                    return freq >= 0.05 && freq < 0.50 
+                }
+                
+                println "[TEST INFO] │  Frameshifts: ${frameshift_count} ${get_status_mark(frameshift_count == 0)} | ≥50%: ${consensus_count} | 5-50%: ${minority_count}"
+                println "[TEST INFO] │  MUTATION      NOMINAL   FOUND      RANGE(3σ)       ANNOTATED  STATUS"
+                
+                ground_truth_data.each { expected_mutation ->
+                    def is_mutation_found = detected_frequencies.containsKey(expected_mutation.mutation)
+                    def found_frequency = is_mutation_found ? detected_frequencies[expected_mutation.mutation] : null
+                    def is_frequency_within_range = is_mutation_found && found_frequency >= (expected_mutation.min_expected_freq - 0.02) && found_frequency <= (expected_mutation.max_expected_freq + 0.02)
+                    def is_annotation_correct = expected_mutation.is_annotated != "yes" || (is_mutation_found && detected_annotations[expected_mutation.mutation] == "yes")
+                    
+                    def frequency_string = is_mutation_found ? String.format("%.2f%%", found_frequency * 100) : "NOT FOUND"
+                    def range_string = String.format("[%.1f%%,%.1f%%]", expected_mutation.min_expected_freq * 100, expected_mutation.max_expected_freq * 100)
+                    def annotation_string = expected_mutation.is_annotated == "yes" ? (is_annotation_correct ? "yes ✓" : "KO ✗") : "-"
+                    
+                    println String.format("[TEST INFO] │  %-13s %-9s %-10s %-15s %-10s %s",
+                        expected_mutation.mutation, "${expected_mutation.nominal_freq.toInteger()}%", frequency_string, range_string, annotation_string, get_status_mark((!is_mutation_found) || (is_frequency_within_range && is_annotation_correct)))
+                    
+                    if (is_mutation_found && !is_frequency_within_range) {
+                        error_messages.add("[${sample_id}] ${expected_mutation.mutation} AF outside range")
+                    }
+                    if (is_mutation_found && !is_annotation_correct) {
+                        error_messages.add("[${sample_id}] ${expected_mutation.mutation} expected Annotated=yes")
+                    }
+                }
+                println "[TEST INFO] └" + "─"*65
+            }
+
+            println "\n[TEST INFO] ┌─── REPRODUCIBILITY RSVA (±2pp) ───"
+            def all_detected_mutations = replicates_data.collect { it.detected_frequencies.keySet() }.flatten().toSet()
+            
+            all_detected_mutations.sort().each { mutation_name ->
+                def frequencies_across_replicates = replicates_data.collect { replicate -> 
+                    replicate.detected_frequencies.containsKey(mutation_name) ? replicate.detected_frequencies[mutation_name] : null 
+                }
+                def valid_frequencies = frequencies_across_replicates.findAll { it != null }
+                
+                if (valid_frequencies.size() < 2) return
+                
+                def max_difference_percent = (valid_frequencies.max() - valid_frequencies.min()) * 100
+                def is_reproducible = max_difference_percent <= 2.0
+                def is_ground_truth_mutation = ground_truth_data.any { it.mutation == mutation_name }
+                
+                if (is_ground_truth_mutation && !is_reproducible) {
+                    error_messages.add("${mutation_name} not reproducible: ${String.format('%.2f', max_difference_percent)}pp > 2pp")
+                }
+                
+                def formatted_frequencies = frequencies_across_replicates.collect { freq -> freq != null ? String.format("%.2f%%", freq * 100) : "N/A" }
+                println String.format("[TEST INFO] │  %-13s %-12s %-12s %-12s %-9s %s",
+                    mutation_name, formatted_frequencies[0], formatted_frequencies.size() > 1 ? formatted_frequencies[1] : "", formatted_frequencies.size() > 2 ? formatted_frequencies[2] : "",
+                    String.format("%.2fpp", max_difference_percent), get_status_mark(is_reproducible || !is_ground_truth_mutation))
+            }
+            
+            def mutation_counts_per_replicate = replicates_data.collect { it.parsed_rows.size() }
+            def are_counts_consistent = mutation_counts_per_replicate.max() - mutation_counts_per_replicate.min() <= 2
+            
+            if (!are_counts_consistent) error_messages.add("Inconsistent count: ${mutation_counts_per_replicate}")
+            println "[TEST INFO] │  Mutations per replicate: ${mutation_counts_per_replicate.join(' / ')} ${get_status_mark(are_counts_consistent)}"
+            println "[TEST INFO] └" + "─"*65
+            
+            println "\n"+"═"*72; println "[RSVA] SUMMARY — ${replicates_data.size()} replicates"; println "═"*72
+            if (error_messages.isEmpty()) {
+                println "[TEST INFO] ✅ ALL CHECKS PASSED"
+            } else {
+                println "[TEST INFO] ❌ FAILED (${error_messages.size()}):"
+                error_messages.eachWithIndex { error, index -> println "[TEST INFO]   ${index + 1}. ${error}" }
+            }
+            println "═"*72 + "\n"
+            
+            assert error_messages.isEmpty() : "\n\n[RSVA] TEST FAILED:\n" + error_messages.collect { "  • ${it}" }.join("\n") + "\n"
+        }
+    }
+
+
+    test("HRSV-B — synthetic dataset validation (3 replicates)") {
+        when {
+            params {
+                out_path = "${projectDir}/tests/results/RSVB-cov500-rep1"
+                ref_seq  = "${projectDir}/tests/data/refs/JX576761_ref-prot.fasta"
+                annotate = "${projectDir}/tests/data/Fprot_annotated_mutations.tsv"
+                areads   = "${projectDir}/tests/data/areads/RSVB/RSVB-cov500-rep1_VRS-B_indelqual_prot.bam"
+                vcf      = "${projectDir}/tests/data/VCF/RSVB/RSVB-cov500-rep1_VRS-B_variants_prot.vcf"
+                syn_muts = "yes"; AF = 0.05
+            }
+        }
+        then {
+            assert workflow.success : "RSVB rep1 failed"
+            
+            def results_base_dir = "${projectDir}/tests/results"
+            def allele_freq_param = "0.05"
+
+            def parseOutput = { String sample_id ->
+                def output_dir = file("${results_base_dir}/${sample_id}")
+                def mutation_file = file("${output_dir}/mutations/${sample_id}_mutations.csv")
+                assert mutation_file.exists() : "Output missing for ${sample_id}: ${mutation_file}"
+                
+                def lines = mutation_file.readLines()
+                def headers = lines[0].split(";")
+                def parsed_rows = lines.tail().collect { line -> 
+                    [headers, line.split(";", -1)].transpose().collectEntries() 
+                }
+                return [
+                    sample_id: sample_id, 
+                    output_dir: output_dir, 
+                    parsed_rows: parsed_rows,
+                    detected_frequencies: parsed_rows.collectEntries { row -> [row["Aa_change"], row["Mutation_frequency"].toFloat()] },
+                    detected_annotations: parsed_rows.collectEntries { row -> [row["Aa_change"], row["Annotated"]] }
+                ]
+            }
+
+            def loadGroundTruth = { String target_virus ->
+                new File("${projectDir}/tests/data/synthetic_mutations.csv")
+                    .readLines().drop(1).findAll { it.trim() }.collect { line ->
+                        def columns = line.split(",", -1)
+                        return [
+                            virus: columns[0], 
+                            protein: columns[1], 
+                            mutation: columns[2],
+                            nominal_freq: columns[3].toFloat(), 
+                            min_expected_freq: columns[4].toFloat() / 100,
+                            max_expected_freq: columns[5].toFloat() / 100, 
+                            is_annotated: columns[6]
+                        ]
+                    }.findAll { it.virus == target_virus }
+            }
+
+            def get_status_mark = { boolean is_success -> is_success ? "✓" : "✗" }
+
+            def replicate_ids = ["RSVB-cov500-rep1", "RSVB-cov500-rep2", "RSVB-cov500-rep3"]
+            def replicates_data = replicate_ids.collect { parseOutput(it) }
+            def ground_truth_data = loadGroundTruth("RSVB")
+            def error_messages = []
+
+            println "\n"+"═"*72; println "[RSVB] SYNTHETIC DATASET VALIDATION"; println "═"*72
+            
+            replicates_data.each { replicate ->
+                def sample_id = replicate.sample_id
+                def output_dir = replicate.output_dir
+                def parsed_rows = replicate.parsed_rows
+                def detected_frequencies = replicate.detected_frequencies
+                def detected_annotations = replicate.detected_annotations
+
+                println "\n[TEST INFO] ┌─── ${sample_id} ───"
+                def vcf_file = file("${output_dir}/variant_calling/${sample_id}_prot_variants_AF${allele_freq_param}.vcf")
+                def is_vcf_valid = vcf_file.exists() && vcf_file.size() > 0
+                def has_target_contig = is_vcf_valid && vcf_file.text.contains("F_JX576761")
+                
+                if (!is_vcf_valid) error_messages.add("[${sample_id}] VCF missing")
+                if (!has_target_contig) error_messages.add("[${sample_id}] F_JX576761 contig missing")
+                
+                println "[TEST INFO] │  VCF: ${get_status_mark(is_vcf_valid)} | contig F_JX576761: ${get_status_mark(has_target_contig)}"
+                
+                def frameshift_count = parsed_rows.count { row -> row["Aa_change"]?.contains("Frameshift") }
+                if (frameshift_count > 0) error_messages.add("[${sample_id}] ${frameshift_count} frameshifts")
+                
+                def consensus_count = parsed_rows.count { row -> row["Mutation_frequency"].toFloat() >= 0.50 }
+                def minority_count = parsed_rows.count { row -> 
+                    def freq = row["Mutation_frequency"].toFloat()
+                    return freq >= 0.05 && freq < 0.50 
+                }
+                
+                println "[TEST INFO] │  Frameshifts: ${frameshift_count} ${get_status_mark(frameshift_count == 0)} | ≥50%: ${consensus_count} | 5-50%: ${minority_count}"
+                println "[TEST INFO] │  MUTATION      NOMINAL   FOUND      RANGE(3σ)       ANNOTATED  STATUS"
+                
+                ground_truth_data.each { expected_mutation ->
+                    def is_mutation_found = detected_frequencies.containsKey(expected_mutation.mutation)
+                    def found_frequency = is_mutation_found ? detected_frequencies[expected_mutation.mutation] : null
+                    def is_frequency_within_range = is_mutation_found && found_frequency >= (expected_mutation.min_expected_freq - 0.02) && found_frequency <= (expected_mutation.max_expected_freq + 0.02)
+                    def is_annotation_correct = expected_mutation.is_annotated != "yes" || (is_mutation_found && detected_annotations[expected_mutation.mutation] == "yes")
+                    
+                    def frequency_string = is_mutation_found ? String.format("%.2f%%", found_frequency * 100) : "NOT FOUND"
+                    def range_string = String.format("[%.1f%%,%.1f%%]", expected_mutation.min_expected_freq * 100, expected_mutation.max_expected_freq * 100)
+                    def annotation_string = expected_mutation.is_annotated == "yes" ? (is_annotation_correct ? "yes ✓" : "KO ✗") : "-"
+                    
+                    println String.format("[TEST INFO] │  %-13s %-9s %-10s %-15s %-10s %s",
+                        expected_mutation.mutation, "${expected_mutation.nominal_freq.toInteger()}%", frequency_string, range_string, annotation_string, get_status_mark((!is_mutation_found) || (is_frequency_within_range && is_annotation_correct)))
+                    
+                    if (is_mutation_found && !is_frequency_within_range) {
+                        error_messages.add("[${sample_id}] ${expected_mutation.mutation} AF outside range")
+                    }
+                    if (is_mutation_found && !is_annotation_correct) {
+                        error_messages.add("[${sample_id}] ${expected_mutation.mutation} expected Annotated=yes")
+                    }
+                }
+                println "[TEST INFO] └" + "─"*65
+            }
+
+            println "\n[TEST INFO] ┌─── REPRODUCIBILITY RSVB (±2pp) ───"
+            def all_detected_mutations = replicates_data.collect { it.detected_frequencies.keySet() }.flatten().toSet()
+            
+            all_detected_mutations.sort().each { mutation_name ->
+                def frequencies_across_replicates = replicates_data.collect { replicate -> 
+                    replicate.detected_frequencies.containsKey(mutation_name) ? replicate.detected_frequencies[mutation_name] : null 
+                }
+                def valid_frequencies = frequencies_across_replicates.findAll { it != null }
+                
+                if (valid_frequencies.size() < 2) return
+                
+                def max_difference_percent = (valid_frequencies.max() - valid_frequencies.min()) * 100
+                def is_reproducible = max_difference_percent <= 2.0
+                def is_ground_truth_mutation = ground_truth_data.any { it.mutation == mutation_name }
+                
+                if (is_ground_truth_mutation && !is_reproducible) {
+                    error_messages.add("${mutation_name} not reproducible: ${String.format('%.2f', max_difference_percent)}pp > 2pp")
+                }
+                
+                def formatted_frequencies = frequencies_across_replicates.collect { freq -> freq != null ? String.format("%.2f%%", freq * 100) : "N/A" }
+                println String.format("[TEST INFO] │  %-13s %-12s %-12s %-12s %-9s %s",
+                    mutation_name, formatted_frequencies[0], formatted_frequencies.size() > 1 ? formatted_frequencies[1] : "", formatted_frequencies.size() > 2 ? formatted_frequencies[2] : "",
+                    String.format("%.2fpp", max_difference_percent), get_status_mark(is_reproducible || !is_ground_truth_mutation))
+            }
+            
+            def mutation_counts_per_replicate = replicates_data.collect { it.parsed_rows.size() }
+            def are_counts_consistent = mutation_counts_per_replicate.max() - mutation_counts_per_replicate.min() <= 2
+            
+            if (!are_counts_consistent) error_messages.add("Inconsistent count: ${mutation_counts_per_replicate}")
+            println "[TEST INFO] │  Mutations per replicate: ${mutation_counts_per_replicate.join(' / ')} ${get_status_mark(are_counts_consistent)}"
+            println "[TEST INFO] └" + "─"*65
+            
+            println "\n"+"═"*72; println "[RSVB] SUMMARY — ${replicates_data.size()} replicates"; println "═"*72
+            if (error_messages.isEmpty()) {
+                println "[TEST INFO] ✅ ALL CHECKS PASSED"
+            } else {
+                println "[TEST INFO] ❌ FAILED (${error_messages.size()}):"
+                error_messages.eachWithIndex { error, index -> println "[TEST INFO]   ${index + 1}. ${error}" }
+            }
+            println "═"*72 + "\n"
+            
+            assert error_messages.isEmpty() : "\n\n[RSVB] TEST FAILED:\n" + error_messages.collect { "  • ${it}" }.join("\n") + "\n"
+        }
+    }
+}
