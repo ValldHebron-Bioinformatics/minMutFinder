@@ -140,18 +140,19 @@ nextflow run main.nf --ref_seq <reference.fasta> --out_path <output_name> --r1 <
 
 ### Synthetic Validation Dataset
 
-Pipeline correctness is validated against a controlled synthetic dataset comprising five respiratory virus protocols — IAV H1N1pdm09, IAV H3N2, IAV B Victoria, HRSV-A and HRSV-B — generated with `art_illumina` (MiSeq, 101 bp paired-end, 500× coverage). Each protocol includes three independent replicates. Mutations were inserted at known allele frequencies (1–100%) using a nested population approach, and ground truth is documented in `tests/data/synthetic_mutations.csv`.
+Pipeline correctness is validated against a controlled synthetic dataset comprising five respiratory virus protocols — IAV H1N1pdm09, IAV H3N2, IAV B Victoria, HRSV-A and HRSV-B — generated with `art_illumina` (MiSeq, 101 bp paired-end, 500× coverage). Mutations were inserted at selected allele frequencies (1–100%) using a nested population approach, and ground truth is documented in `tests/data/synthetic_mutations.csv`. The tests run minMutFinder in VCF mode on precomputed BAM and VCF files (BBMap alignment and LoFreq variant calling) stored in `tests/data/`.
 
 ### Test Structure
 
-The test suite (`tests/main.nf.test`) comprises 15 tests: 10 setup tests that generate outputs for replicates 2 and 3, and 5 main validation tests (one per virus protocol). Each main test evaluates all three replicates and verifies:
+The test suite (`tests/main.nf.test`) comprises 15 tests: 10 setup tests that run the pipeline two additional times per virus, and 5 main validation tests (one per virus protocol). The three runs per virus use identical inputs, so they check that results are reproducible across executions rather than representing independent replicates. Each main test evaluates the three runs and verifies:
 
 - Correct output file generation (VCF, consensus FASTA, QC metrics, HTML plots)
 - Absence of frameshifts, which would indicate a reference mismatch
-- Detection of ≥ 5 consensus mutations (AF ≥ 50%) and ≥ 3 minority mutations (5–50%)
-- Allele frequencies within the statistically expected range (3σ Binomial interval at 500×)
+- Allele frequencies of detected ground truth mutations within the expected range (3σ Binomial interval at 500×, ±2 pp tolerance)
 - Correct annotation of resistance and epitope markers (`Annotated = "yes"`)
-- Deterministic reproducibility across the three replicates (0 pp difference)
+- Reproducibility across the three runs (frequency differences ≤ 2 pp)
+
+The suite checks that the pipeline performs its task end to end; it is not a benchmark of variant detection sensitivity.
 
 ### Running the Tests Locally
 
