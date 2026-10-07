@@ -3,8 +3,14 @@ message: "If you use this software, please cite it as below."
 authors:
 - family-names: "Prats-Méndez"
   given-names: "Ignasi"
-  orcid: "https://orcid.org/0009-0004-0170-9043 "
+  orcid: "https://orcid.org/0009-0004-0170-9043"
+- family-names: "Pérez-Bautista"
+  given-names: "Marc"
+  orcid: "https://orcid.org/0009-0007-5912-1797"
+- family-names: "González-Sánchez"
+  given-names: "Alejandra"
+  orcid: "https://orcid.org/0000-0002-1809-3415"
 title: "minMutFinder"
-version: 1.0.0
-date-released: 2024-09-17
+version: 2.0.0
+date-released: 2026-09-10
 url: "https://github.com/ValldHebron-Bioinformatics/minMutFinder"

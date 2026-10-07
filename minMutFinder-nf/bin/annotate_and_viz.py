@@ -27,7 +27,7 @@ for i in range(len(sys.argv)):
     if sys.argv[i] == '--out-dir':
         out_dir = sys.argv[i + 1]
     elif sys.argv[i] == '--annotate':
-        r_file = sys.argv[i + 1]
+        a_file = sys.argv[i + 1]
     elif sys.argv[i] == '--ref-seq':
         ref_seq = sys.argv[i + 1]
     elif sys.argv[i] == '--prot-names':
@@ -39,7 +39,7 @@ SAMPLE = out_dir.split('/')[len(out_dir.split('/'))-1]
 MUTATIONS = out_dir + '/mutations'
 ASSEMBLY = out_dir + '/assembly'
 QC_DIR = out_dir + '/qc'
-qc_metrics_file = QC_DIR + '/qc_metrics.csv'
+qc_metrics_file = QC_DIR + '/QC_metrics.csv'
 PLOTS = out_dir + '/plots'
 PROT_REF = seq_reader(ref_seq)
 NAMES = pd.read_csv(names,header=None)
@@ -65,16 +65,32 @@ else:
     df_depth_check = False
 #     df_depth = False
 
+print(os.path.isfile(MUTATIONS + '/' + SAMPLE + '_mutations.csv'))
 df_muts_ALL = pd.read_csv(MUTATIONS + '/' + SAMPLE + '_mutations.csv', sep=';')
+print(df_muts_ALL)
 
 if syn_muts == 'no':
     df_muts_ALL = df_muts_ALL[df_muts_ALL.Mutation_type != "NO_MUTATION"]
 
 
-annotate = pd.read_csv(r_file, sep='\t')
-resistant_df = pd.DataFrame()
-resistant_df['Resistant'] = ''
-resistant_df['Resistant_mutation'] = ''
+annotate = pd.read_csv(a_file, sep='\t')
+
+# Columnas opcionales a propagar al CSV final de mutaciones anotadas, solo si existen en el fichero de anotación
+EXTRA_ANNOTATION_COLUMNS = [
+    col for col in annotate.columns
+    if col in ("Antiviral", "mAb", "Phenotype") or col.startswith("Fold")
+]
+
+
+def add_extra_annotation_columns(row, source_row):
+    for col in EXTRA_ANNOTATION_COLUMNS:
+        row[col] = [source_row[col]] * row.shape[0]
+    return row
+
+
+annotated_df = pd.DataFrame()
+annotated_df['Annotated'] = ''
+annotated_df['Annotated_mutation'] = ''
 more_than_one = []
 one = []
 for index in annotate.index:
@@ -91,59 +107,105 @@ for index in annotate.index:
 if (one):
     one = pd.DataFrame(one)
     one.columns = annotate.columns
-    print(one)
+
+    # Primera pasada: coincidencias EXACTAS (name + mutation). Siempre tienen prioridad
+    # sobre las coincidencias por POI, independientemente del orden en el fichero de anotación.
     for index in one.index:
-        print(df_muts_ALL.Gene)
-        if (
-            df_muts_ALL.Gene[df_muts_ALL.Gene == str(one.name[index])].shape[0] > 0
-        ) and (
-            df_muts_ALL[df_muts_ALL.Aa_change == str(one.mutation[index])].shape[0] > 0
-        ):
-            row = df_muts_ALL[df_muts_ALL.Aa_change == str(one.mutation[index])].reset_index(drop=True)
-            row.columns = df_muts_ALL.columns
-            row['Resistant'] = ['yes']
-            row['Resistant_mutation'] = [str(one.mutation[index])]
-            if resistant_df.size > 0:
-                resistant_df = pd.concat([resistant_df, row])
-            else:
-                resistant_df = row
+        if (df_muts_ALL.Protein[df_muts_ALL.Protein == str(one.name[index])].shape[0] > 0):
+            prot_df = df_muts_ALL[df_muts_ALL.Protein == str(one.name[index])]
+            if (prot_df[prot_df.Aa_change == str(one.mutation[index])].shape[0] > 0):
+                row = prot_df[prot_df.Aa_change == str(one.mutation[index])].reset_index(drop=True)
+                row.columns = prot_df.columns
+                row['Annotated'] = ['yes']*row.shape[0]
+                row['Annotated_mutation'] = [str(one.mutation[index])]*row.shape[0]
+                row = add_extra_annotation_columns(row, one.iloc[index])
+
+                if annotated_df.size > 0:
+                    if (annotated_df[annotated_df.Aa_change.str.contains(row['Aa_change'].loc[0])].shape[0] > 0):
+                        print('Already in annotated df')
+                        continue
+                    else:
+                        annotated_df = pd.concat([annotated_df, row])
+                else:
+                    annotated_df = row
+
+    # Segunda pasada: coincidencias por POI (posición). Se saltan las mutaciones que ya
+    # hayan quedado cubiertas por una coincidencia exacta en la pasada anterior.
+    for index in one.index:
+        if (df_muts_ALL.Protein[df_muts_ALL.Protein == str(one.name[index])].shape[0] > 0):
+            prot_df = df_muts_ALL[df_muts_ALL.Protein == str(one.name[index])]
+            if (prot_df[prot_df.Aa_change == str(one.mutation[index])].shape[0] > 0):
+                continue
+
+            elif ('POI' in str(one.mutation[index])):
+                aux_df = prot_df
+                aux_df['Order'] = aux_df.Aa_change.str.extract(r'(\d+)', expand=False)
+                aux_df['Order'] = pd.to_numeric(aux_df['Order'])
+
+                aux_df2 = one
+                aux_df2['Order'] = aux_df2.mutation.str.extract(r'(\d+)', expand=False)
+                aux_df2['Order'] = pd.to_numeric(aux_df2['Order'])
+                # print(aux_df[aux_df.Order == str(aux_df2.Order[index])])
+                if (aux_df[aux_df.Order == aux_df2.Order[index]].shape[0] > 0):
+                    row = aux_df[aux_df.Order == aux_df2.Order[index]].reset_index(drop=True)
+                    row.columns = [
+                        "SampleID", "Protein", "Mutation_type", "Aa_change", "Amino_Acid_Property_Change",
+                        "Nt_mutation", "Mutation_frequency", "Mutation_depth", "Order"
+                    ]
+                    row = row.drop(['Order'], axis=1)
+                    row['Annotated'] = ['yes']*row.shape[0]
+                    row = add_extra_annotation_columns(row, one.iloc[index])
+                    aux_row = aux_df[aux_df.Order == aux_df2.Order[index]]
+                    value = aux_row.Aa_change.values[0]
+
+                    if annotated_df.size > 0:
+                        for i in range(row.shape[0]):
+                            row_aux=row[row.Aa_change == row['Aa_change'].loc[i]]
+                            value_aux=row_aux['Aa_change'].loc[i]
+                            if (annotated_df[annotated_df.Aa_change.str.contains(value_aux)].shape[0] > 0):
+                                print('Already in annotated df')
+                                continue
+                            else:
+                                row_aux['Annotated_mutation'] = [value_aux+" is in a POI"]*row_aux.shape[0]
+                                annotated_df = pd.concat([annotated_df, row_aux])
+                    else:
+                        annotated_df = row
+                        for i in range(row.shape[0]):
+                            row_aux=row[row.Aa_change == row['Aa_change'].loc[i]]
+                            value_aux=row_aux['Aa_change'].loc[i]
+                            annotated_df.loc[annotated_df.Aa_change == value_aux, 'Annotated_mutation'] = [value_aux+" is in a POI"]*row_aux.shape[0]
+
+                # df_muts_ALL = df_muts_ALL.drop(['Order'], axis = 1)
+                one = one.drop(['Order'], axis = 1)
+            else: continue
 
 if (more_than_one):
     more_than_one = pd.DataFrame(more_than_one)
     more_than_one.columns = annotate.columns
     for index in more_than_one.index:
-        all_muts = False
+        continue_next = False
+        BY_GENE_MUTS=df_muts_ALL[df_muts_ALL.Protein == more_than_one.name[index]]
         for muts in more_than_one.mutation[index].split('+'):
-            if (
-                df_muts_ALL.Gene[df_muts_ALL.Gene == more_than_one.name[index]].shape[0] > 0
-            ) and (
-                df_muts_ALL[df_muts_ALL.Aa_change == muts].shape[0] > 0
-            ):
-                all_muts = True
-            else:
-                all_muts = False
-                continue
+            if (BY_GENE_MUTS[BY_GENE_MUTS.Aa_change == muts].shape[0] == 0):
+                continue_next=True
 
-        if (all_muts):
-            for muts in more_than_one.mutation[index].split('+'):
-                if (
-                    df_muts_ALL.Gene[df_muts_ALL.Gene == more_than_one.name[index]].shape[0] > 0
-                ) and (
-                    df_muts_ALL[df_muts_ALL.Aa_change == muts].shape[0] > 0
-                ):
-                    row = df_muts_ALL[df_muts_ALL.Aa_change == muts].reset_index(drop=True)
-                    row.columns = df_muts_ALL.columns
-                    row['Resistant'] = ['yes']
-                    row['Resistant_mutation'] = more_than_one.mutation[index]
-                    if resistant_df.size > 0:
-                        resistant_df = pd.concat([resistant_df, row])
-                    else:
-                        resistant_df = row
+        if (continue_next): continue
 
-resistant_df = resistant_df.reset_index(drop=True)
-print('Resistant mutations found:')
-print(resistant_df)
+        for muts in more_than_one.mutation[index].split('+'):
+            if (BY_GENE_MUTS[BY_GENE_MUTS.Aa_change == muts].shape[0] > 0):
+                row = BY_GENE_MUTS[BY_GENE_MUTS.Aa_change == muts].reset_index(drop=True)
+                row.columns = BY_GENE_MUTS.columns
+                row['Annotated'] = ['yes']*row.shape[0]
+                row['Annotated_mutation'] = more_than_one.mutation[index]*row.shape[0]
+                row = add_extra_annotation_columns(row, more_than_one.iloc[index])
+                if annotated_df.size > 0:
+                    annotated_df = pd.concat([annotated_df, row])
+                else:
+                    annotated_df = row
+
+annotated_df = annotated_df.reset_index(drop=True)
+print('Annotated mutations found:')
+print(annotated_df)
 # PLOTS
-# visualizer(df_depth_check, df_depth, qc_metrics_file, df_muts_ALL, PLOTS, PROT_REF.keys(), resistant_df)
-visualizer(df_depth_check, qc_metrics_file, df_muts_ALL, PLOTS, MUTATIONS, names_list, resistant_df, SAMPLE,syn_muts, lengths_df)
-
+# visualizer(df_depth_check, df_depth, qc_metrics_file, df_muts_ALL, PLOTS, PROT_REF.keys(), annotated_df)
+visualizer(df_depth_check, qc_metrics_file, df_muts_ALL, PLOTS, MUTATIONS, names_list, annotated_df, SAMPLE,syn_muts, lengths_df)

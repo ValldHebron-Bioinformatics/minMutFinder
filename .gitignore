@@ -32,3 +32,8 @@ minMutFinder-nf/output/
 # Ignore any secret or configuration files with credentials
 minMutFinder-nf/secrets.env
 minMutFinder-nf/config/private.config
+
+# Ignore tests results
+tests/results/
+.nf-test.log
+.nf-test/
