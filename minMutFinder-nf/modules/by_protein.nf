@@ -70,8 +70,8 @@ process byProteinAnalysis {
     echo -e "\${prot} is the protein fasta name"
 
     mkdir -p ${out_path}/assembly ${out_path}/variant_calling
-    cp -f ${prot_variants_AF_fasta} ${out_path}/assembly/${out_path.baseName}_prot_variants_AF${AF}.fasta
-    cp -f ${prot_variants_AF_vcf} ${out_path}/variant_calling/${out_path.baseName}_prot_variants_AF${AF}.vcf
+    tmp=\$(mktemp -p ${out_path}/assembly) && cp ${prot_variants_AF_fasta} \$tmp && chmod 664 \$tmp && mv -f \$tmp ${out_path}/assembly/${out_path.baseName}_prot_variants_AF${AF}.fasta
+    tmp=\$(mktemp -p ${out_path}/variant_calling) && cp ${prot_variants_AF_vcf} \$tmp && chmod 664 \$tmp && mv -f \$tmp ${out_path}/variant_calling/${out_path.baseName}_prot_variants_AF${AF}.vcf
 
     python ${params.programs.by_protein_analysis} --out-dir ${out_path} --ref-seq ${ref_seq} --sample ${out_path.baseName} --prot "\${prot}" --AF ${AF} --depth ${depth} --samfile ${samfile} --depth-tsv ${depth_tsv} --fasta-af ${prot_variants_AF_fasta} --vcf-af ${prot_variants_AF_vcf}
 
